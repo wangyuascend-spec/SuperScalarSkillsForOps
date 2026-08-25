@@ -1,11 +1,20 @@
 ---
 name: supernpu-gfrun-accuracy
-description: Validate numerical accuracy with gfrun for the selected SuperNPUBench one-level operators, including implementations on current branches and open GitHub PRs. Use when checking or reporting precision for Matmul, QuantMatmul, RmsNorm, GatherV2, ViewCopy, GroupNormGrad, DynamicMxQuant, QSMLA, QLI, MegaMoe, DispatchCombine, or Conv2dV2.
+description: Update a SuperNPUBench validation environment from a requested tag or branch, smoke-test one case per one-level category, and optionally validate numerical accuracy with gfrun for selected kernels and open PRs. Use for version refreshes or precision checks involving Matmul, QuantMatmul, RmsNorm, GatherV2, ViewCopy, GroupNormGrad, DynamicMxQuant, QSMLA, QLI, MegaMoe, DispatchCombine, or Conv2dV2.
 ---
 
 # SuperNPUBench gfrun accuracy
 
-Validate the selected operators against the current requested SuperNPUBench version without modifying the user's working tree. Read [references/operators.md](references/operators.md) for the maintained operator/PR inventory.
+Prepare and smoke-test the requested SuperNPUBench version, then optionally validate the selected operators without modifying the user's working tree.
+
+This workflow has a required approval boundary:
+
+1. Update the baseline from a user-specified SuperNPUBench tag or branch and rebuild the README-pinned dependencies and binaries. Read [references/baseline-update.md](references/baseline-update.md).
+2. Select and run one representative gfrun case from every discovered one-level category.
+3. Report the updated commits, build results, and category smoke results. Then ask whether to continue with the selected PR and kernel accuracy validation.
+4. Stop until the user confirms. After confirmation, read [references/operators.md](references/operators.md) and run the detailed accuracy workflow below.
+
+If the user explicitly requests only one phase, perform that phase and preserve the same version and accuracy rules. Updating the baseline does not itself authorize testing open PR code.
 
 ## Establish the tested source
 
