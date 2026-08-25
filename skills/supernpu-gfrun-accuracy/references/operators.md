@@ -6,10 +6,10 @@ Check GitHub PR state and changed files at execution time; the states below were
 |---|---|---|
 | Matmul | PR #82, `https://github.com/PTO-ISA/SuperNPUBench/pull/82` | `benchmark/one-level-arch/test/kernel/matmul` |
 | QuantMatmul | PR #73, `https://github.com/PTO-ISA/SuperNPUBench/pull/73` | `benchmark/one-level-arch/test/kernel/matmul` |
-| RmsNorm | selected base/current implementation | `benchmark/one-level-arch/test/kernel/normalization/rms_norm` and related RMSNorm directories |
+| RmsNorm | PR #84, https://github.com/PTO-ISA/SuperNPUBench/pull/84 | `benchmark/one-level-arch/test/kernel/normalization/rms_norm` and related RMSNorm directories |
 | GatherV2 | PR #79, `https://github.com/PTO-ISA/SuperNPUBench/pull/79` | `benchmark/one-level-arch/test/kernel/gather_v2` |
 | ViewCopy | PR #79, `https://github.com/PTO-ISA/SuperNPUBench/pull/79` | `benchmark/one-level-arch/test/kernel/view_copy` |
-| GroupNormGrad | selected base/current implementation | `benchmark/one-level-arch/test/kernel/normalization/group_norm_grad` and `group_norm_grad_1d` |
+| GroupNormGrad | PR #84, https://github.com/PTO-ISA/SuperNPUBench/pull/84 | `benchmark/one-level-arch/test/kernel/normalization/group_norm_grad` and `group_norm_grad_1d` |
 | DynamicMxQuant | PR #83, `https://github.com/PTO-ISA/SuperNPUBench/pull/83` | `benchmark/one-level-arch/test/kernel/quant/dynamic_mx_quant` |
 | QSMLA | PR #39, `https://github.com/PTO-ISA/SuperNPUBench/pull/39` | `benchmark/one-level-arch/test/kernel/fa` |
 | QLI | PR #78, `https://github.com/PTO-ISA/SuperNPUBench/pull/78` | `benchmark/one-level-arch/test/kernel/qli` |
