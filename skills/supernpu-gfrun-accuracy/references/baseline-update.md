@@ -18,9 +18,21 @@ Use this reference when preparing a SuperNPUBench tag or branch before detailed 
 - Initialize/update documented submodules and download documented dependencies. Do not infer additional repositories merely because they exist nearby.
 - If a pinned revision is missing, ambiguous, or incompatible, stop that component and report the precise documentation/reference failure instead of guessing.
 
+## Decide what actually needs rebuilding
+
+- Make the decision per repository and per output artifact after fetching. A fetch alone is not a rebuild trigger.
+- Reuse a dependency binary when its source commit, submodule commits, dirty state, build configuration/cache, toolchain identity, and relevant upstream dependency identities match the build that produced it. Verify the binary's version/build identity before marking it `REUSED`.
+- Rebuild a dependency when any relevant source revision changed, the documented build flags or target changed, a consumed dependency ABI changed, the prior build is incomplete, or the artifact identity cannot be proven. Downstream components rebuild only when the changed component is one of their actual build/runtime inputs.
+- Prefer build-system dependency information, depfiles, CMake/Ninja metadata, or an existing manifest. Do not use modification time alone as proof that an artifact is current.
+- Before compiling an operator ELF, derive an input fingerprint from the test source, kernel source, transitively included project headers when available from depfiles, Makefile/compile command and flags, generated input/golden data, compiler binary/version, installed TileOP headers, linker inputs, and selected SuperNPUBench commit.
+- Reuse an existing ELF only when that fingerprint matches a recorded prior build and the ELF exists and is readable. If no trustworthy manifest or depfile exists, rebuild once and record the fingerprint for later runs rather than guessing from timestamps.
+- A change in one operator does not invalidate unrelated operator ELFs. Recompile only affected cases; an unchanged ELF may still be rerun when the selected gfrun/SuperScalarModel changed because model changes affect execution, not ELF generation.
+- Keep a machine-readable build manifest outside tracked source directories. For each dependency binary and ELF, record artifact path/hash, input fingerprint, source commits, build command, compiler/TileOP identity, completion status, and build time.
+- Report every artifact as `REUSED`, `REBUILT`, `NEW`, or `BLOCKED`, with the concrete reason. Never claim reuse merely because the file already exists.
+
 ## Build safely
 
-- Follow the selected README's build commands and install locations. Rebuild binaries affected by changed source revisions; do not accept an existing binary until its embedded/version output matches the selected source.
+- Follow the selected README's build commands and install locations. Build only artifacts selected by the rebuild decision above; do not accept an existing binary until its identity matches the selected inputs.
 - On this WSL host, keep compile concurrency at 2 and link concurrency at 1. Use one compile job for LLVM/Clang Sema or any observed high-memory target. Check available memory and active compiler processes before each large build.
 - Preserve complete commands and logs, and record binary version output or another reproducible source-to-binary identity check.
 - A failed dependency or binary build blocks downstream smoke cases that require it; classify them as `BLOCKED_BY_BUILD`, not operator failures.
