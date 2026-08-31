@@ -36,6 +36,8 @@ Classify every declared case as one of:
 
 Include all authoritative accuracy cases unless the user explicitly requests a smoke subset. If no precision case exists, report `NO_ACCURACY_ORACLE`; never call it PASS merely because gfrun exits successfully.
 
+For normalization validation, do not treat the directory as one sampled category. Inventory and report every present canonical case separately: `rms_norm`, `rms_norm_binary`, `group_norm_grad`, and `group_norm_grad_1d`. Both dynamic and static cases are required when declared by `compile.all`. In particular, `rms_norm_binary` is an R-split RMSNorm case with its own generator, external precision checker, and multi-PE status; a passing `rms_norm` result does not cover it.
+
 ## Build without exhausting WSL memory
 
 - Before a build, check `free -h` and ensure no other `ninja`, `make`, `cc1plus`, or compiler build is active.
