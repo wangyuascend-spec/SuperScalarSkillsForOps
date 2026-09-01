@@ -1,28 +1,32 @@
 ---
 name: supernpu-gfrun-accuracy
-description: Update a SuperNPUBench validation environment from a requested tag or branch, smoke-test one case per one-level category, and optionally validate numerical accuracy with gfrun for selected kernels and open PRs. Use for version refreshes or precision checks involving Matmul, QuantMatmul, RmsNorm, GatherV2, ViewCopy, GroupNormGrad, DynamicMxQuant, QSMLA, QLI, MegaMoe, DispatchCombine, or Conv2dV2.
+description: Update SuperNPUBench from the latest or requested tag/branch, smoke-test one case per one-level category, and validate gfrun numerical accuracy for selected kernels and PRs combined with that baseline. Use for version refreshes or precision checks involving Matmul, QuantMatmul, RmsNorm, GatherV2, ViewCopy, GroupNormGrad, DynamicMxQuant, QSMLA, QLI, MegaMoe, DispatchCombine, or Conv2dV2.
 ---
 
 # SuperNPUBench gfrun accuracy
 
 Prepare and smoke-test the requested SuperNPUBench version, then optionally validate the selected operators without modifying the user's working tree.
 
-This workflow has a required approval boundary:
+This workflow has a required version boundary and a conditional approval boundary:
 
-1. Update the baseline from a user-specified SuperNPUBench tag or branch and rebuild the README-pinned dependencies and binaries. Read [references/baseline-update.md](references/baseline-update.md).
+1. Resolve the latest remote release tag or the user's requested SuperNPUBench tag/branch, then update the README-pinned dependencies and binaries. Read [references/baseline-update.md](references/baseline-update.md).
 2. Select and run one representative gfrun case from every discovered one-level category.
 3. Report the updated commits, build results, and category smoke results. Then ask whether to continue with the selected PR and kernel accuracy validation.
 4. Stop until the user confirms. After confirmation, read [references/operators.md](references/operators.md) and run the detailed accuracy workflow below.
 
-If the user explicitly requests only one phase, perform that phase and preserve the same version and accuracy rules. Updating the baseline does not itself authorize testing open PR code.
+If the user explicitly requests only one phase, perform that phase and preserve the same version and accuracy rules. A targeted single-operator request may skip category smoke, but must never skip remote version preflight. Updating the baseline does not itself authorize testing open PR code. A request explicitly naming both baseline update and PR/kernel validation authorizes both phases; do not ask again between them.
 
 ## Establish the tested source
 
-- Record SuperNPUBench, compiler/TileOP, and SuperScalarModel branch plus full commit before building.
+- Run version preflight at the start of every invocation, including a single-operator run or failure rerun. Fetch remote tags and branches; never infer "latest" from a local checkout or cached tags.
+- Record the SuperNPUBench baseline ref/full commit, compiler/TileOP, and SuperScalarModel branch plus full commit before building.
 - Fetch the current base branch and `refs/pull/<N>/head` for open PR implementations. Never check out a PR over a dirty working tree; use a separate git worktree under a temporary directory.
-- Test an open PR at its exact head commit by default. Report its base commit and whether it is behind the current base. Do not silently merge or rebase it. If compatibility with the latest base is requested, create a second disposable worktree and report that result separately.
+- By default, "validate the current PR" means the selected/latest release baseline plus the current PR head, not the PR head in isolation. Run `git merge-base --is-ancestor <baseline-sha> <pr-head-sha>` before building. If true, test the PR head and record that it contains the baseline. If false, create a disposable integration worktree from the PR head, merge the selected baseline locally, and test the resulting integration commit. Never push or rewrite the PR branch unless explicitly asked.
+- If that merge conflicts, preserve the conflict list and stop as `SOURCE_INTEGRATION_BLOCKED` unless conflict resolution was explicitly requested. Never fall back to silently testing the stale PR head.
+- Test the exact PR head without the selected baseline only when explicitly requested as a diagnostic. Label it `PR_HEAD_ONLY`; it does not establish compatibility with the current release.
 - For implementations already present in the selected base, test the selected base commit. If the user asks to include local uncommitted changes, copy or patch only the relevant files into a disposable worktree and identify them in the report.
 - Group operators from the same PR in one worktree, but report each operator separately.
+- Define one immutable source tuple per run: `baseline ref/SHA + PR number/head SHA (if any) + integration SHA + dependency/model commits`. Every build, ELF, log, result row, and issue must use that tuple. Never combine evidence from older runs or different tuples.
 
 ## Discover the authoritative cases
 
@@ -45,6 +49,7 @@ For normalization validation, do not treat the directory as one sampled category
 - Keep the LLVM Ninja compile pool capped at 2 and link pool at 1. Do not start overlapping builds.
 - Build test binaries with the repository's precision switch, normally `res_check=on`. Preserve any operator-specific generator or comparison target.
 - Capture the full build command and log. A compile failure is `BUILD_FAIL`, not a gfrun failure.
+- Reuse an ELF only when a machine-readable manifest proves its complete input fingerprint matches the current source tuple and build inputs. A missing, incomplete, or mismatched manifest requires rebuilding; existence and timestamps are not proof.
 
 ## Prove that precision is checked
 
@@ -80,7 +85,7 @@ Rerun only the failing case with its exact command and retain the first causal e
 
 Give one row per operator and case with:
 
-- operator and source (`base@commit` or `PR #N@commit`);
+- operator and source (`base@commit`, `PR #N@commit`, or `integration@commit`);
 - case/shape/dtype and PE configuration;
 - build result;
 - oracle and tolerance;
@@ -90,3 +95,5 @@ Give one row per operator and case with:
 - concise failure cause and log path.
 
 End with totals by status and explicitly list operators that have no real accuracy oracle. Keep raw logs outside tracked source directories unless the user requests otherwise.
+
+At the start of the report, print the immutable source tuple, ancestry result, and artifact-manifest path. A report or issue based on stale or mixed logs is invalid and must be regenerated from the current run.

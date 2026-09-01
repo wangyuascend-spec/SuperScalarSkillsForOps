@@ -4,8 +4,9 @@ Use this reference when preparing a SuperNPUBench tag or branch before detailed 
 
 ## Resolve the requested version
 
-- Require a concrete tag or branch. If none was supplied, ask for it before changing repositories.
-- Fetch tags and remote branches, resolve the requested name to a full immutable commit, and show the resolution before building.
+- Always run this step, including targeted operator reruns. Such a request may skip category smoke, but never version preflight.
+- Fetch tags and remote branches first. Resolve a supplied tag/branch to a full immutable commit. If the user asks for "current" or supplies no version, select the latest published remote release tag using the repository's documented release/tag convention; report candidate tags and the selected tag instead of treating the local checkout as current.
+- Show the resolved baseline ref and full SHA before building. Record the command and remote state used to select "latest" so the decision is reproducible.
 - Preserve dirty repositories. Use a clean disposable worktree for SuperNPUBench and do not reset, clean, stash, or overwrite user changes.
 - Read the selected version's README and directly linked setup/build documentation from that worktree, not from the previous checkout or the website's default branch.
 
@@ -25,9 +26,10 @@ Use this reference when preparing a SuperNPUBench tag or branch before detailed 
 - Rebuild a dependency when any relevant source revision changed, the documented build flags or target changed, a consumed dependency ABI changed, the prior build is incomplete, or the artifact identity cannot be proven. Downstream components rebuild only when the changed component is one of their actual build/runtime inputs.
 - Prefer build-system dependency information, depfiles, CMake/Ninja metadata, or an existing manifest. Do not use modification time alone as proof that an artifact is current.
 - Before compiling an operator ELF, derive an input fingerprint from the test source, kernel source, transitively included project headers when available from depfiles, Makefile/compile command and flags, generated input/golden data, compiler binary/version, installed TileOP headers, linker inputs, and selected SuperNPUBench commit.
-- Reuse an existing ELF only when that fingerprint matches a recorded prior build and the ELF exists and is readable. If no trustworthy manifest or depfile exists, rebuild once and record the fingerprint for later runs rather than guessing from timestamps.
+- Reuse an existing ELF only when that fingerprint and the complete validation source tuple match a recorded prior build and the ELF exists and is readable. If no trustworthy manifest or depfile exists, rebuild once and record the fingerprint for later runs rather than guessing from timestamps.
 - A change in one operator does not invalidate unrelated operator ELFs. Recompile only affected cases; an unchanged ELF may still be rerun when the selected gfrun/SuperScalarModel changed because model changes affect execution, not ELF generation.
 - Keep a machine-readable build manifest outside tracked source directories. For each dependency binary and ELF, record artifact path/hash, input fingerprint, source commits, build command, compiler/TileOP identity, completion status, and build time.
+- Treat the manifest as a gate, not optional documentation. It must include baseline ref/SHA, PR head SHA when applicable, integration SHA, all consumed dependency/model commits, build command/configuration, input fingerprint, artifact SHA-256, and completion time. Any missing identity field invalidates reuse.
 - Report every artifact as `REUSED`, `REBUILT`, `NEW`, or `BLOCKED`, with the concrete reason. Never claim reuse merely because the file already exists.
 
 ## Build safely
@@ -57,3 +59,16 @@ After the category smoke pass, report:
 - PR state/head summary for the selected operator inventory, without checking out or running those PRs yet.
 
 Then explicitly ask whether to proceed with detailed validation of the listed PR implementations and current-tree kernels. Do not fetch PR worktrees, build their cases, or run their gfrun accuracy suite before confirmation unless the user's original request explicitly authorized both phases.
+
+## Compose a PR with the selected baseline
+
+Whenever detailed validation includes an open PR:
+
+1. Query its live state and head SHA; do not rely on an inventory observation date.
+2. Fetch both the selected baseline commit and `refs/pull/<N>/head`.
+3. Run `git merge-base --is-ancestor <baseline-sha> <pr-head-sha>` and record the exit status.
+4. If the PR contains the baseline, use its head. Otherwise create a disposable worktree from the PR head and merge the baseline locally. Record the integration SHA and any explicitly authorized conflict resolution.
+5. Derive every operator ELF fingerprint from this tested source. Never reuse an ELF built from the baseline alone, stale PR head, or a prior integration commit.
+6. Keep exact-head-only results separate and labeled; they are not validation against the selected/current release.
+
+Do not mutate or push the PR branch during validation. Treat merge conflicts as a source-integration result, not a kernel accuracy failure.

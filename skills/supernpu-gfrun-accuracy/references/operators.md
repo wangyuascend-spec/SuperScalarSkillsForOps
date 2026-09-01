@@ -17,13 +17,16 @@ Check GitHub PR state and changed files at execution time; the states below were
 | DispatchCombine | PR #74, `https://github.com/PTO-ISA/SuperNPUBench/pull/74` | `benchmark/one-level-arch/test/kernel/moe_dispatch` and `moe_combine` |
 | Conv2dV2 | PR #75, `https://github.com/PTO-ISA/SuperNPUBench/pull/75` | `benchmark/one-level-arch/test/kernel/conv2d` and `conv2d_rm` |
 
-PR fetch pattern:
+PR fetch and integration pattern:
 
 ```bash
 git fetch origin refs/pull/<N>/head:refs/codex/pr-<N>
-git worktree add <temporary-path> refs/codex/pr-<N>
+git merge-base --is-ancestor <baseline-sha> refs/codex/pr-<N>
+# When the ancestry check fails:
+git worktree add --detach <temporary-path> refs/codex/pr-<N>
+git -C <temporary-path> merge --no-ff <baseline-sha>
 ```
 
-Before using this inventory, query the PR state and head SHA with `gh pr view`. If a PR has merged, prefer the selected base implementation and retain the PR number only as provenance. If it is closed without merge, report that fact and ask whether its last head should still be tested when the user's intent is ambiguous.
+Before using this inventory, query the PR state and head SHA with `gh pr view`. For an open PR, follow the baseline-composition rules in the main skill; direct exact-head testing is diagnostic-only unless the PR already contains the selected baseline. If a PR has merged, prefer the selected base implementation and retain the PR number only as provenance. If it is closed without merge, report that fact and ask whether its last head should still be tested when the user's intent is ambiguous.
 
 `DispatchCombine` is a reporting group, not necessarily one binary: validate dispatch and combine cases separately, then provide a grouped summary.
