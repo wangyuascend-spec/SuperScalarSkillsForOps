@@ -40,7 +40,7 @@ Classify every declared case as one of:
 
 Include all authoritative accuracy cases unless the user explicitly requests a smoke subset. If no precision case exists, report `NO_ACCURACY_ORACLE`; never call it PASS merely because gfrun exits successfully.
 
-For normalization validation, do not treat the directory as one sampled category. Inventory and report every present canonical case separately: `rms_norm`, `rms_norm_binary`, `group_norm_grad`, and `group_norm_grad_1d`. Both dynamic and static cases are required when declared by `compile.all`. In particular, `rms_norm_binary` is an R-split RMSNorm case with its own generator, external precision checker, and multi-PE status; a passing `rms_norm` result does not cover it.
+For normalization validation, do not treat the directory as one sampled category. Inventory and report every present canonical case separately: `rms_norm`, `rms_norm_binary`, `group_norm_grad`, and `group_norm_grad_1d`. For each canonical case, validate only variants that are both dynamic-shape and 4PE; exclude static-shape and single-PE variants from this skill's normalization result. Derive the qualifying variants from `compile.all`, the generator, Makefile, and test source rather than from names alone. If a canonical case has no dynamic 4PE variant, report `MISSING_DYNAMIC_4PE_CASE`; never substitute a static or single-PE result. In particular, `rms_norm_binary` has its own generator and external precision checker, so a passing `rms_norm` result does not cover it.
 
 ## Build without exhausting WSL memory
 
@@ -66,7 +66,7 @@ Run gfrun with a bounded timeout. The ordinary invocation is:
 timeout 90 <SuperScalarModel>/bin/gfrun -t 1 -f <case.elf>
 ```
 
-Add `-s softcore.multiThreadNum=4` only when the test or kernel is genuinely multi-PE/multi-thread; do not call a kernel once per PE merely to represent four PEs.
+For every qualifying normalization case, run with `-s softcore.multiThreadNum=4` and verify the test invokes the kernel once while the kernel partitions work internally with `get_thread_idx()` or its current equivalent. For non-normalization operators, add the setting only when the authoritative case is genuinely multi-PE; never call a kernel once per PE merely to represent four PEs.
 
 A gfrun-integrated accuracy case is `PASS` only when all are true:
 
