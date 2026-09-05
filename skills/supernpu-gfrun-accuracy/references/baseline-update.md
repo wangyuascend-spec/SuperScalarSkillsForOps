@@ -21,16 +21,40 @@ Use this reference when preparing a SuperNPUBench tag or branch before detailed 
 
 ## Decide what actually needs rebuilding
 
-- Make the decision per repository and per output artifact after fetching. A fetch alone is not a rebuild trigger.
-- Reuse a dependency binary when its source commit, submodule commits, dirty state, build configuration/cache, toolchain identity, and relevant upstream dependency identities match the build that produced it. Verify the binary's version/build identity before marking it `REUSED`.
-- Rebuild a dependency when any relevant source revision changed, the documented build flags or target changed, a consumed dependency ABI changed, the prior build is incomplete, or the artifact identity cannot be proven. Downstream components rebuild only when the changed component is one of their actual build/runtime inputs.
-- Prefer build-system dependency information, depfiles, CMake/Ninja metadata, or an existing manifest. Do not use modification time alone as proof that an artifact is current.
-- Before compiling an operator ELF, derive an input fingerprint from the test source, kernel source, transitively included project headers when available from depfiles, Makefile/compile command and flags, generated input/golden data, compiler binary/version, installed TileOP headers, linker inputs, and selected SuperNPUBench commit.
-- Reuse an existing ELF only when that fingerprint and the complete validation source tuple match a recorded prior build and the ELF exists and is readable. If no trustworthy manifest or depfile exists, rebuild once and record the fingerprint for later runs rather than guessing from timestamps.
-- A change in one operator does not invalidate unrelated operator ELFs. Recompile only affected cases; an unchanged ELF may still be rerun when the selected gfrun/SuperScalarModel changed because model changes affect execution, not ELF generation.
-- Keep a machine-readable build manifest outside tracked source directories. For each dependency binary and ELF, record artifact path/hash, input fingerprint, source commits, build command, compiler/TileOP identity, completion status, and build time.
-- Treat the manifest as a gate, not optional documentation. It must include baseline ref/SHA, PR head SHA when applicable, integration SHA, all consumed dependency/model commits, build command/configuration, input fingerprint, artifact SHA-256, and completion time. Any missing identity field invalidates reuse.
-- Report every artifact as `REUSED`, `REBUILT`, `NEW`, or `BLOCKED`, with the concrete reason. Never claim reuse merely because the file already exists.
+Make this decision before running CMake, Ninja, Make, or a generator. Load the latest complete manifest for the candidate artifact set and compare it with the new immutable source tuple.
+
+### Fast-path order
+
+1. Resolve all requested commits and dirty states without building.
+2. Compare compiler version/hash, installed TileOP header hash, target triple, build flags, target sysroot hash, model commit/hash, SuperNPUBench integration SHA, and per-case input fingerprint.
+3. Compute the transitive invalidation closure below.
+4. Print the planned `REUSED`/`REBUILT`/`NEW`/`BLOCKED` decisions and reasons.
+5. Build only the planned closure, then atomically replace the manifest only after successful completion.
+
+A fetch alone is not a rebuild trigger. Modification time alone is never identity evidence.
+
+### Invalidation matrix
+
+| Changed input | Rebuild | May reuse |
+|---|---|---|
+| SuperNPUBench kernel/test only | Affected input/golden data when their producer changed; affected operator ELF | Toolchain, coherent sysroot, model, unrelated ELFs |
+| TileOP headers only | Install headers; ELFs whose include closure consumes changed headers | LLVM/compiler, sysroot runtimes, model, unaffected ELFs |
+| SuperScalarModel only | Required runner, normally `gfrun`; rerun selected ELFs | Matching compiler/sysroot and ELFs |
+| LLVM/compiler binary or target ABI | Compiler plus every target runtime/object/archive built by the prior compiler; then affected ELFs | Model when its own source/build inputs match |
+| Target triple, linker behavior, ABI flags, or sysroot inputs | Entire consuming target sysroot closure and affected ELFs | Unrelated host tools and model when compatible |
+| Generator/shape/seed/dtype/oracle | That case's data, ELF when embedded paths/data/defines change, and accuracy result | Other cases and unchanged dependencies |
+| gfrun arguments only | Rerun affected cases | ELF and data when their fingerprints match |
+
+An LLVM source change invalidates old target libraries even when musl, libc++, or jemalloc source commits did not change. A new compiler linked against an old sysroot can fail with format/ABI errors such as `incompatible with elf64llinxv5`; never assemble that mixed toolchain.
+
+### Artifact evidence
+
+- Reuse a dependency binary only when its source and submodule commits, dirty state, build configuration, compiler/upstream identities, artifact SHA-256, and completion status all match.
+- Prefer build-system dependency information, depfiles, CMake/Ninja metadata, or a prior complete manifest to calculate consumers.
+- Derive an ELF fingerprint from the test and kernel sources, transitive project headers when available, Makefile and compile flags, generated inputs/golden data, compiler binary/version, installed TileOP headers, linker inputs, and selected SuperNPUBench integration commit.
+- A change in one operator does not invalidate unrelated ELFs. A model-only change requires rerunning, not recompiling, a matching ELF.
+- A missing, partial, failed, or mismatched manifest invalidates reuse. Rebuild once and record reliable evidence instead of guessing.
+- Keep the manifest outside tracked source. Record artifact path/hash, fingerprint, source identities, full build command, start/completion time, and status. Update it only after the artifact is complete and readable.
 
 ## Build safely
 
@@ -67,7 +91,7 @@ Whenever detailed validation includes an open PR:
 1. Query its live state and head SHA; do not rely on an inventory observation date.
 2. Fetch both the selected baseline commit and `refs/pull/<N>/head`.
 3. Run `git merge-base --is-ancestor <baseline-sha> <pr-head-sha>` and record the exit status.
-4. If the PR contains the baseline, use its head. Otherwise create a disposable worktree from the PR head and merge the baseline locally. Record the integration SHA and any explicitly authorized conflict resolution.
+4. If the PR contains the baseline, use its head. Otherwise create a disposable worktree from the PR head and merge the baseline locally. Record the integration SHA and any explicitly authorized conflict resolution. Resolve only actual conflicts: preserve the PR's existing file layout and intent unless compilation proves a move is required. Do not relocate code merely to match a new directory convention, and retain non-conflicting baseline additions unchanged.
 5. Derive every operator ELF fingerprint from this tested source. Never reuse an ELF built from the baseline alone, stale PR head, or a prior integration commit.
 6. Keep exact-head-only results separate and labeled; they are not validation against the selected/current release.
 

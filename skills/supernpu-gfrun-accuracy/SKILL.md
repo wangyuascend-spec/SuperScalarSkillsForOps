@@ -42,6 +42,19 @@ Include all authoritative accuracy cases unless the user explicitly requests a s
 
 For normalization validation, do not treat the directory as one sampled category. Inventory and report every present canonical case separately: `rms_norm`, `rms_norm_binary`, `group_norm_grad`, and `group_norm_grad_1d`. For each canonical case, validate only variants that are both dynamic-shape and 4PE; exclude static-shape and single-PE variants from this skill's normalization result. Derive the qualifying variants from `compile.all`, the generator, Makefile, and test source rather than from names alone. If a canonical case has no dynamic 4PE variant, report `MISSING_DYNAMIC_4PE_CASE`; never substitute a static or single-PE result. In particular, `rms_norm_binary` has its own generator and external precision checker, so a passing `rms_norm` result does not cover it.
 
+## Build only the invalidated dependency closure
+
+Before starting any compiler process, compare the selected source tuple with the last complete manifest and write a build plan. Classify each artifact as `REUSED`, `REBUILT`, `NEW`, or `BLOCKED` and state the invalidating input. Apply these dependency rules:
+
+- SuperNPUBench or PR-only change: reuse the pinned toolchain and model; regenerate data only when the generator, shape, seed, dtype, or oracle changed; rebuild only affected ELFs.
+- TileOP header-only change: reinstall the pinned headers and rebuild ELFs whose depfiles or include closure consume them. Do not rebuild LLVM, the target sysroot, or SuperScalarModel unless the repository documents an ABI/runtime dependency.
+- SuperScalarModel-only change: rebuild the required runner, normally `gfrun`, and rerun cases. Reuse matching ELFs because model code is an execution input, not an ELF build input.
+- LLVM/compiler change: treat every target object or archive produced by the old compiler as ABI-invalid, including musl, compiler-rt, libc++, libc++abi, libunwind, and jemalloc. Rebuild the compiler and its target sysroot closure before any operator ELF. Never combine a new compiler with an old sysroot merely because the runtime source commits are unchanged.
+- Build-flag, target-triple, linker, or installed-header change invalidates every artifact that consumes that input.
+- If identity evidence is missing, do a one-time rebuild and record it; do not repeatedly rebuild known-matching artifacts on later runs.
+
+Prefer supported component or target builds when the repository exposes them, but do not fabricate stamps, copy binaries between toolchains, or bypass documented install steps to save time. If the supported build cannot produce a coherent compiler plus sysroot incrementally, use the documented full toolchain build.
+
 ## Build without exhausting WSL memory
 
 - Before a build, check `free -h` and ensure no other `ninja`, `make`, `cc1plus`, or compiler build is active.
