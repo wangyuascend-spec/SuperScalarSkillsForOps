@@ -6,10 +6,10 @@ Check GitHub PR state and changed files at execution time; the states below were
 |---|---|---|
 | Matmul | PR #82, `https://github.com/PTO-ISA/SuperNPUBench/pull/82` | `benchmark/one-level-arch/test/kernel/matmul` |
 | QuantMatmul | PR #73, `https://github.com/PTO-ISA/SuperNPUBench/pull/73` | `benchmark/one-level-arch/test/kernel/matmul` |
-| RmsNorm | PR #113, https://github.com/PTO-ISA/SuperNPUBench/pull/113 | Both `benchmark/one-level-arch/test/solution/normalization/rms_norm` and `rms_norm_binary`; preserve their existing paths and validate only dynamic-shape 4PE variants from each `compile.all` |
+| RmsNorm | PR #114, https://github.com/PTO-ISA/SuperNPUBench/pull/114 | Both `benchmark/one-level-arch/test/solution/normalization/rms_norm` and `rms_norm_binary`; preserve their existing paths and validate only dynamic-shape 4PE variants from each `compile.all` |
 | GatherV2 | PR #79, `https://github.com/PTO-ISA/SuperNPUBench/pull/79` | `benchmark/one-level-arch/test/kernel/gather_v2` |
 | ViewCopy | PR #79, `https://github.com/PTO-ISA/SuperNPUBench/pull/79` | `benchmark/one-level-arch/test/kernel/view_copy` |
-| GroupNormGrad | PR #113, https://github.com/PTO-ISA/SuperNPUBench/pull/113 | `benchmark/one-level-arch/test/solution/normalization/group_norm_grad` and `group_norm_grad_1d`; validate only dynamic-shape 4PE variants |
+| GroupNormGrad | PR #114, https://github.com/PTO-ISA/SuperNPUBench/pull/114 | `benchmark/one-level-arch/test/solution/normalization/group_norm_grad` and `group_norm_grad_1d`; validate only dynamic-shape 4PE variants |
 | DynamicMxQuant | PR #83, `https://github.com/PTO-ISA/SuperNPUBench/pull/83` | `benchmark/one-level-arch/test/kernel/quant/dynamic_mx_quant` |
 | QSMLA | PR #39, `https://github.com/PTO-ISA/SuperNPUBench/pull/39` | `benchmark/one-level-arch/test/kernel/fa` |
 | QLI | PR #78, `https://github.com/PTO-ISA/SuperNPUBench/pull/78` | `benchmark/one-level-arch/test/kernel/qli` |
@@ -21,7 +21,7 @@ Check GitHub PR state and changed files at execution time; the states below were
 
 Resolve all live PR heads first, then group requested operators by identical source tuple. Use one integration worktree, dependency decision, compiler/model identity check, and manifest namespace per tuple.
 
-- Operators from the same PR share one integration worktree. In particular, validate RmsNorm and GroupNormGrad together for PR #113; GatherV2 and ViewCopy together for PR #79; MegaMoe and DispatchCombine together for PR #74.
+- Operators from the same PR share one integration worktree. In particular, validate RmsNorm and GroupNormGrad together for PR #114; GatherV2 and ViewCopy together for PR #79; MegaMoe and DispatchCombine together for PR #74.
 - Run dependency invalidation once per tuple. Do not repeat toolchain or model checks for every operator in the group.
 - Cache data and ELFs per case fingerprint, not per invocation. Rebuild only cases affected by source, generator, shape, dtype, compiler, TileOP, linker, or embedded-path changes.
 - A model-only change reruns matching ELFs without recompiling them. A PR-only change does not rebuild the toolchain.
