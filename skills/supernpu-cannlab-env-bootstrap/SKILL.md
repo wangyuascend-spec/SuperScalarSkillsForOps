@@ -1,6 +1,6 @@
 ---
 name: supernpu-cannlab-env-bootstrap
-description: Bootstrap a fresh CannLab CPU-only Linux host into a complete SuperScalar / SuperNPUBench validation environment — build or identity-verify the Linx tile toolchain (linx_blockisa_llvm_musl, clang-15, linx64v5-unknown-linux-musl), build gfrun from SuperScalarModel, prepare SuperNPUBench operator compilation (one-level-arch, res_check=on), and prove the whole chain with an end-to-end matmul precision PASS. Use when onboarding a brand-new CannLab/CPU machine, when COMPILER_DIR or gfrun is missing or broken, when toolchain/model commits need re-pinning to a SuperNPUBench tag, or as the mandatory setup gate before running supernpu-gfrun-accuracy on any fresh host.
+description: Bootstrap a fresh CannLab CPU-only Linux host into a complete SuperScalar / SuperNPUBench validation environment — build or identity-verify the Linx tile toolchain (linx_blockisa_llvm_musl, clang-15, linx64v5-unknown-linux-musl), build gfrun from SuperScalarModel, prepare SuperNPUBench operator compilation (one-level-arch, res_check=on), and prove the whole chain with an end-to-end matmul precision PASS. Use when onboarding a brand-new CannLab/CPU machine, when COMPILER_DIR or gfrun is missing or broken, or when toolchain/model commits need re-pinning to a SuperNPUBench tag.
 ---
 
 # CannLab CPU 环境引导:SuperScalar 算子编译 + gfrun 执行 + 精度验证
@@ -78,8 +78,13 @@ Reuse is valid only when **all** hold: component SHAs match the SuperNPUBench
 tag README pins, worktrees clean (untracked autotools temp files like
 `configure~` are harmless), stamps complete, and `clang --version` embeds the
 pinned llvm SHA. Record the verdict as `REUSED` with the evidence in the
-manifest. A mismatch on ANY component → classify the affected artifacts and
-rebuild per the invalidation rules in `skills/supernpu-gfrun-accuracy`.
+manifest. A mismatch on ANY component → rebuild only the invalidated closure:
+an LLVM/compiler change invalidates the compiler, the whole target sysroot
+(musl, compiler-rt, libc++, jemalloc) and every ELF built by the old compiler;
+a TileOP header-only change invalidates the installed headers plus ELFs whose
+include closure consumes them (never LLVM or the sysroot); a SuperScalarModel
+change requires only a gfrun rebuild and rerunning matching ELFs (model code
+is an execution input, not an ELF build input).
 
 ### Cold build path (only when no reusable tree exists)
 
@@ -175,10 +180,10 @@ PASS requires **all four**: gfrun exit code 0, output contains
 `Reach the End of Benchmark`, `R2 = 0`, **and** the oracle (golden compare)
 actually executed. This single PASS proves the entire chain: toolchain →
 TileOP headers → kernel compile → ELF → gfrun execution → hosted file I/O →
-golden comparison. If it passes, the environment is ready for
-`supernpu-gfrun-accuracy`. If it fails, bisect at the first broken layer:
-compile failure → Phase 1; gfrun assertion/crash → Phase 2; wrong numbers →
-pairing (see hazards) or oracle misuse.
+golden comparison. If it passes, the environment is validated end-to-end and
+ready for operator validation workloads of any scope. If it fails, bisect at
+the first broken layer: compile failure → Phase 1; gfrun assertion/crash →
+Phase 2; wrong numbers → pairing (see hazards) or oracle misuse.
 
 Fallback when torch is unavailable: any embedded-oracle case works without
 external scripts, e.g. `sort` topk (`make TESTCASE=topk` → `gfrun -f
