@@ -59,7 +59,7 @@ An LLVM source change invalidates old target libraries even when musl, libc++, o
 ## Build safely
 
 - Follow the selected README's build commands and install locations. Build only artifacts selected by the rebuild decision above; do not accept an existing binary until its identity matches the selected inputs.
-- On this WSL host, keep compile concurrency at 2 and link concurrency at 1. Use one compile job for LLVM/Clang Sema or any observed high-memory target. Check available memory and active compiler processes before each large build.
+- On the reference WSL host (8 logical CPUs, about 10 GiB RAM and 2 GiB swap), keep top-level stages sequential, use three jobs inside compile-heavy components, and cap LLVM links at one when the build exposes a separate link pool. Fall back to 2/1 below 6 GiB available memory or after memory pressure; use 1/1 for LLVM/Clang Sema or after an OOM. `THREADS` alone does not limit a Ninja LLVM build, so pass an explicit `LLVM_MAKE="ninja -j3 -l3"` or the equivalent supported job-pool settings.
 - Preserve complete commands and logs, and record binary version output or another reproducible source-to-binary identity check.
 - A failed dependency or binary build blocks downstream smoke cases that require it; classify them as `BLOCKED_BY_BUILD`, not operator failures.
 

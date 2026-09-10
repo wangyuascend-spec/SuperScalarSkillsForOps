@@ -57,9 +57,12 @@ Prefer supported component or target builds when the repository exposes them, bu
 
 ## Build without exhausting WSL memory
 
-- Before a build, check `free -h` and ensure no other `ninja`, `make`, `cc1plus`, or compiler build is active.
-- This environment has about 10 GiB RAM and 2 GiB swap. Use at most two compile jobs; use one job for LLVM/Clang Sema or when one compiler process approaches 3 GiB.
-- Keep the LLVM Ninja compile pool capped at 2 and link pool at 1. Do not start overlapping builds.
+- Before a build, check `nproc`, `free -h`, swap, and active `ninja`, `make`, `cc1plus`, or compiler processes. Do not overlap large builds.
+- Choose concurrency from total and currently available memory. On the reference WSL host (8 logical CPUs, about 10 GiB RAM, 2 GiB swap), use three compile jobs and one link job. Fall back to 2/1 when available memory is below 6 GiB or another memory-heavy process is active; use 1/1 for LLVM/Clang Sema or after any OOM. Never use `-j8` on a host with at most 10 GiB RAM.
+- Keep top-level dependency stages sequential with `make -j1`, while allowing three jobs inside the active component. The top-level `THREADS` variable controls Make-based runtime components but does not cap LLVM when Ninja is selected. Pass the Ninja limit explicitly, for example `THREADS=3 LLVM_MAKE="ninja -j3 -l3"`.
+- When supported by the LLVM configuration, set `LLVM_PARALLEL_COMPILE_JOBS=3` and `LLVM_PARALLEL_LINK_JOBS=1`. If the wrapper cannot pass those CMake settings, retain the global `ninja -j3 -l3` cap and record that link concurrency was not independently constrained.
+- Enable `ccache` for LLVM rebuilds when it is already installed, using the repository's supported switch (currently `ENABLE_CCACHE=on`). Do not install packages without authorization. Record the ccache configuration and statistics; the first build populates the cache and later compatible builds benefit.
+- Record per-stage start/end time, peak RSS or OOM evidence, and the effective top-level, compile, and link job limits so future runs can tune from measurements.
 - Build test binaries with the repository's precision switch, normally `res_check=on`. Preserve any operator-specific generator or comparison target.
 - Capture the full build command and log. A compile failure is `BUILD_FAIL`, not a gfrun failure.
 - Reuse an ELF only when a machine-readable manifest proves its complete input fingerprint matches the current source tuple and build inputs. A missing, incomplete, or mismatched manifest requires rebuilding; existence and timestamps are not proof.
