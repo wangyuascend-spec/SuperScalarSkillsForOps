@@ -1,0 +1,4 @@
+interface:
+  display_name: "SuperNPU gfsim validation"
+  short_description: "Validate latest SuperNPUBench solution ELFs with 4PE real-L2 gfsim."
+  default_prompt: "Use $supernpu-gfsim-validation to freeze the latest main baselines, incrementally build affected solution ELFs, and run true 4PE real-L2 gfsim validation."
