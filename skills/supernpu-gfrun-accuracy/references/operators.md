@@ -6,7 +6,7 @@ Check GitHub PR state and changed files at execution time; the states below were
 |---|---|---|
 | Matmul | PR #82, `https://github.com/PTO-ISA/SuperNPUBench/pull/82` | `benchmark/one-level-arch/test/kernel/matmul` |
 | QuantMatmul | PR #73, `https://github.com/PTO-ISA/SuperNPUBench/pull/73` | `benchmark/one-level-arch/test/kernel/matmul` |
-| RmsNorm | PR #114, https://github.com/PTO-ISA/SuperNPUBench/pull/114 | Both `benchmark/one-level-arch/test/solution/normalization/rms_norm` and `rms_norm_binary`; preserve their existing paths and validate only dynamic-shape 4PE variants from each `compile.all` |
+| RmsNorm | PR #114, https://github.com/PTO-ISA/SuperNPUBench/pull/114 | Both `benchmark/one-level-arch/test/solution/normalization/rms_norm` and `rms_norm_split_r`; preserve their existing paths and validate only dynamic-shape 4PE variants from each `compile.all` |
 | GatherV2 | PR #79, `https://github.com/PTO-ISA/SuperNPUBench/pull/79` | `benchmark/one-level-arch/test/kernel/gather_v2` |
 | ViewCopy | PR #79, `https://github.com/PTO-ISA/SuperNPUBench/pull/79` | `benchmark/one-level-arch/test/kernel/view_copy` |
 | GroupNormGrad | PR #114, https://github.com/PTO-ISA/SuperNPUBench/pull/114 | `benchmark/one-level-arch/test/solution/normalization/group_norm_grad` and `group_norm_grad_1d`; validate only dynamic-shape 4PE variants |

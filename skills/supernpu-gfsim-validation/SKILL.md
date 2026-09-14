@@ -57,8 +57,8 @@ On an approximately 8 GiB WSL host, use at most two gfsim workers after checking
 Print start, completion, and aggregate progress, for example:
 
 ```text
-[RUN 03/24][worker=2] rms_norm_binary real-L2
-[DONE 03/24][TIMEOUT][900.0s] rms_norm_binary
+[RUN 03/24][worker=2] rms_norm_split_r real-L2
+[DONE 03/24][TIMEOUT][900.0s] rms_norm_split_r
 [SUMMARY] completed=3 running=1 queued=20 pass=2 timeout=1 fail=0
 
 On an approximately 8–10 GiB WSL host:
