@@ -1,0 +1,30 @@
+{
+  "timezone": "Asia/Shanghai",
+  "accounts": [
+    {"name": "杨继伟", "login": "joey-jwyang"},
+    {"name": "常磊", "login": "gagahamburger"},
+    {"name": "程龙宇", "login": "luguo23187"},
+    {"name": "程子杨", "login": "ziyang-cheng"},
+    {"name": "蒋礼锐", "login": "JiangLirui"},
+    {"name": "林鹏翔", "login": "ordinarylpx"},
+    {"name": "刘志涵", "login": "robot-inteligence"},
+    {"name": "芦葳", "login": "luwei512"},
+    {"name": "唐浩", "login": "HaoTang99"},
+    {"name": "王宇", "login": "wangyuascend-spec"},
+    {"name": "王哲", "login": "ZWANG987"},
+    {"name": "杨彬榕", "login": "yangbinrong"},
+    {"name": "张耀辉", "login": "zzzyh222"},
+    {"name": "赵颖超", "login": "zhaoyingchao88"},
+    {"name": "张新宇", "login": "Cell-Cell"},
+    {"name": "张旭波", "login": "KeepTryingTo"},
+    {"name": "陈毅然", "login": "CYR-Firework"},
+    {"name": "贾婷婷", "login": "Simona787"}
+  ],
+  "repositories": [
+    {"category": "spec", "name": "PTO-ISA/pto-spec"},
+    {"category": "benchmark", "name": "PTO-ISA/SuperNPUBench"},
+    {"category": "compiler", "name": "LinxISA/llvm-project"},
+    {"category": "compiler", "name": "LinxISA/Linx-TileOP-API"},
+    {"category": "model", "name": "LinxISA/SuperScalarModel"}
+  ]
+}

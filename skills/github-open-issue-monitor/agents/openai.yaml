@@ -1,0 +1,4 @@
+interface:
+  display_name: "GitHub Open Issue Monitor"
+  short_description: "Scan monitored authors open issues across five PTO repositories"
+  default_prompt: "Scan the configured repositories for open issues authored by monitored accounts and write a timestamped report."
