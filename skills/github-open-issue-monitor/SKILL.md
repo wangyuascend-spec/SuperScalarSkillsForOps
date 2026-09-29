@@ -9,13 +9,21 @@ description: Scan five PTO/SuperNPU GitHub repositories for open issues authored
 
 ## 执行
 
-在 Skill 根目录运行：
+在 Skill 根目录执行一次只读扫描：
 
 ```bash
 python3 scripts/scan_open_issues.py
 ```
 
-脚本使用当前已登录的 GitHub CLI，只读查询 Issue。不得创建、编辑、评论、关闭 Issue，也不得把 Pull Request 当成 Issue。
+定时任务需要把报告发布到当前 Git 分支时运行：
+
+```bash
+scripts/scan_and_publish.sh
+```
+
+发布脚本只暂存和提交本 Skill 的 `output/`。检测到其他已暂存文件时必须拒绝提交，避免夹带用户改动；随后将当前分支推送到 `origin`。
+
+GitHub 查询本身始终只读：不得创建、编辑、评论、关闭 Issue，也不得把 Pull Request 当成 Issue。
 
 每次运行生成：
 
