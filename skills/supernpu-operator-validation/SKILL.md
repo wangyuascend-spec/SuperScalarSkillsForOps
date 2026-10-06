@@ -80,8 +80,8 @@ manifest 至少记录：
 - **分别**记录 clang/linker、已安装 TileOP、sysroot、gfrun、gfsim 的构建来源及 SHA256；
 - 每个 ELF 的 SHA256、源码/include/flags 指纹、命令、shape、tiling、dtype、PE；
 - generator/seed/input/golden/checker hash、容差、输出文件、两个 runner 的独立结果；
-- config、有效 L2 模式、日志/trace/perf 路径、失败首条指令。
+- config、有效 L2 模式、SoC 模式（gfsim 一律 random SoC seed=2，默认 SoC 不跑）、日志/trace/perf 路径、失败首条指令。
 
 只在成功构建后发布新的产物 manifest；源码更新但 runner 未重建时不得把源码 HEAD 标成 runner 版本。
-结果依次说明版本、各 case 精度与 gfsim 状态、错误位置、未覆盖项、绝对日志路径。
+结果依次说明版本、各 case 精度与 gfsim 状态（random SoC seed=2 的 Total Cycles 与 scb_waw_violation 条数）、错误位置、未覆盖项、绝对日志路径。
 用户要求 issue 时提供完整用例、源码 patch、ELF、输入/golden/tiling、重现脚本和编译环境；上传或发布先取得相应授权。

@@ -1,6 +1,6 @@
 ---
 name: supernpu-gfsim-validation
-description: Freeze current main baselines, incrementally build affected artifacts, and validate SuperNPUBench solution ELFs with true multi-PE gfsim. Use for real-L2 timing, performance, deadlock, regression, or reproducibility checks; use a numerical-oracle workflow such as supernpu-gfrun-accuracy when the request is about precision.
+description: Freeze current main baselines, incrementally build affected artifacts, and validate SuperNPUBench solution ELFs with true multi-PE gfsim under the random SoC model (seed 2). Use for real-L2 timing, performance, deadlock, regression, or reproducibility checks; use a numerical-oracle workflow such as supernpu-gfrun-accuracy when the request is about precision.
 ---
 
 # SuperNPUBench gfsim validation
@@ -15,7 +15,7 @@ At the start of every run:
 2. Resolve the newest published SuperNPUBench tag, read that tag's README, and lock LLVM/compiler and TileOP to the exact revisions it specifies. Do not select those dependencies from their own main branches. Stop as `BASELINE_BLOCKED` if the pins are missing or ambiguous.
 3. Fetch SuperScalarModel `origin/main` immediately before building and test a clean worktree at that fetched commit.
 4. Record the full SuperNPUBench main commit, dependency-source tag, LLVM/compiler and TileOP commits, full model main commit, host/compiler versions, build flags, gfsim MD5, and every ELF SHA256.
-5. Treat `SuperNPUBench commit + LLVM commit + TileOP commit + model commit + build flags + gfsim MD5 + ELF SHA256 + PE config + L2 mode` as the immutable tuple.
+5. Treat `SuperNPUBench commit + LLVM commit + TileOP commit + model commit + build flags + gfsim MD5 + ELF SHA256 + PE config + L2 mode + SoC mode/seed` as the immutable tuple.
 6. Check both remote main refs after a long build. If either moved, report both tips; do not call the older tuple current latest.
 
 Do not overlay unmerged SuperNPUBench PRs unless the user explicitly requests one. Record its base, PR head, and integration commit separately.
@@ -103,23 +103,35 @@ fourpe.pe_cluster_frontend_thread_count=4
 
 For performance claims, also confirm PE0–PE3 have activity in the relevant engine PMU. Directory names such as `single_thread`, `multi_thread`, or `solution` do not determine PE count.
 
-## Make L2 mode explicit
+## Always use the random SoC model (seed 2)
 
-Use the same gfsim binary and ELF for both runs, changing only `tlsu.fake_l2_enable`:
+Every gfsim run uses the random-latency SoC model with the seed fixed to 2. Do not run the default fixed-latency SoC unless the user explicitly asks for it. Append to every gfsim command:
 
 ```bash
-# real L2
-./bin/gfsim -f <ELF> --conf fourpe --pto-v02 true \
-  -s tlsu.fake_l2_enable=false
+-s core.soc_random=true -s core.soc_lat_random_seed=2
+```
 
-# fake L2
+Keep the other random SoC knobs (`min_read_latency`, `min_write_latency`, `*_latency_diver`, `*_bandwidth_limit`, `max_*_crdt`, `soc_lat_mean`, `soc_bw_limit`) at `configs/core.toml` defaults unless the user specifies values. Confirm `core.soc_random=true` and `core.soc_lat_random_seed=2` near the beginning of each log; otherwise the run is `CONFIG_FAIL`.
+
+## Make L2 mode explicit
+
+The standard run is real L2 with random SoC seed 2:
+
+```bash
 ./bin/gfsim -f <ELF> --conf fourpe --pto-v02 true \
-  -s tlsu.fake_l2_enable=true
+  -s tlsu.fake_l2_enable=false -s core.soc_random=true -s core.soc_lat_random_seed=2
+```
+
+Run fake L2 only when the user asks or a real-L2 failure needs diagnosis. Use the same gfsim binary, ELF, and random SoC settings, changing only `tlsu.fake_l2_enable`:
+
+```bash
+./bin/gfsim -f <ELF> --conf fourpe --pto-v02 true \
+  -s tlsu.fake_l2_enable=true -s core.soc_random=true -s core.soc_lat_random_seed=2
 ```
 
 Never infer real L2 merely from an omitted flag. Explicit values make logs self-describing and protect against future default changes. Confirm the effective override near the beginning of each log.
 
-Use [scripts/run_gfsim_matrix.sh](scripts/run_gfsim_matrix.sh) for repeatable single-case real/fake runs. It preserves commands, logs, exit codes, total cycles, and a TSV summary while continuing to the second L2 mode if the first fails.
+Use [scripts/run_gfsim_matrix.sh](scripts/run_gfsim_matrix.sh) for repeatable single-case runs. It defaults to real L2 with random SoC seed 2 (`--mode real --soc random --soc-seed 2`) and preserves commands, logs, exit codes, total cycles, `scb_waw_violation` counts, and a TSV summary. Pass `--mode both` only for a real/fake diagnosis; it continues to the second L2 mode if the first fails.
 
 ## Run a bounded, single-variable matrix
 
@@ -129,10 +141,7 @@ Use [scripts/run_gfsim_matrix.sh](scripts/run_gfsim_matrix.sh) for repeatable si
 - For a deadlock or suspected nondeterminism, rerun the exact failing tuple three times. Record whether the cycle, thread, block, and first causal instruction are identical.
 - Preserve the first causal assertion or stalled instruction. Repeated scoreboard warnings that also occur in passing runs are secondary evidence, not automatically the cause.
 
-The basic matrix for each ELF is:
-
-1. explicit 4PE + real L2;
-2. explicit 4PE + fake L2.
+The basic run for each ELF is explicit 4PE + real L2 + random SoC seed 2. Add explicit 4PE + fake L2 + random SoC seed 2 only on request or to diagnose a real-L2 failure.
 
 Add single-PE or another PE count only when requested or when needed to isolate a multi-PE defect. Label such runs separately; they do not replace the 4PE matrix.
 
@@ -142,6 +151,7 @@ A gfsim run is `PASS` only when all are true:
 
 - process exit code is zero;
 - the explicit intended PE configuration is present;
+- `core.soc_random=true` and `core.soc_lat_random_seed=2` are effective;
 - `SuperScalar Report Stop` is present;
 - no deadlock, fatal signal, assertion, or timeout occurred;
 - `Total Cycles` is present.
@@ -151,15 +161,17 @@ Use these other statuses:
 - `DEADLOCK`: model's deadlock detector fires;
 - `TIMEOUT`: external timeout expires without a model deadlock report;
 - `MODEL_FAIL`: assertion, signal, illegal instruction, unsupported operation, or other nonzero model exit;
-- `CONFIG_FAIL`: requested PE/L2 configuration was not effective;
+- `CONFIG_FAIL`: requested PE/L2/SoC configuration was not effective;
 - `BUILD_FAIL`: model or ELF did not build;
 - `TEST_INFRA_FAIL`: missing inputs, permissions, disk space, or runner infrastructure prevented the run.
+
+Count `scb_waw_violation` lines (also summarized as `scb_waw_tile` in the `invariants:` line). A nonzero count does not change a `PASS`, but it must be reported to the user, never silently folded into PASS.
 
 Do not call a gfsim `PASS` an accuracy pass. If accuracy is requested, run the matching gfrun oracle workflow and report the two results independently.
 
 ## Diagnose real/fake differences
 
-Interpret the pair before assigning ownership:
+When a diagnostic fake-L2 run was added, interpret the pair before assigning ownership:
 
 - real fails and fake passes: real-L2 latency/backpressure is a trigger; inspect TLSU/L2 interaction and downstream engine completion, but do not assume L2 is the root cause. A waiting TSTORE may be a symptom of an upstream Vector/CUBE Tile never becoming ready.
 - real passes and fake fails: inspect fake-L2 bypass semantics and mode-specific configuration.
@@ -173,8 +185,8 @@ For deeper timing analysis, read [references/performance-analysis.md](references
 Start with the immutable tuple and whether the remote ref was still current at completion. For each case and L2 mode report:
 
 - operator, shape, dtype, ELF SHA256, and PE configuration;
-- effective real/fake L2 value;
-- exit code, status, `Total Cycles`, wall time, and peak RSS;
+- effective real/fake L2 value and random SoC seed;
+- exit code, status, `Total Cycles`, `scb_waw_violation` count, wall time, and peak RSS;
 - first causal error for failures;
 - exact log path.
 

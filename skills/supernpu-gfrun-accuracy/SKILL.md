@@ -93,6 +93,17 @@ A gfrun-integrated accuracy case is `PASS` only when all are true:
 
 For an external comparison script, require successful gfrun plus successful checker output and preserve its reported error metrics. Record timeout, signal, assertion, illegal instruction, missing end marker, and nonzero R2 distinctly.
 
+## Validate timing with gfsim
+
+When the user also asks for gfsim, use the random SoC model with the seed fixed to 2; do not run the default fixed-latency SoC unless explicitly requested. Build timing ELFs without `res_check` (res_check ELFs perform host I/O and are not valid timing inputs). From the model root:
+
+```bash
+timeout 1800 ./bin/gfsim -f <ELF> --conf fourpe --pto-v02 true \
+  -s tlsu.fake_l2_enable=false -s core.soc_random=true -s core.soc_lat_random_seed=2
+```
+
+Run at most 2 gfsim processes in parallel on WSL. PASS requires exit 0, `SuperScalar Report Stop`, effective `core.soc_random=true` and `core.soc_lat_random_seed=2` in the log, and no assertion/deadlock/fatal. Report `Total Cycles` and the `scb_waw_violation` count; a nonzero count must be reported even when the run passes. gfsim never proves accuracy.
+
 ## Diagnose failures
 
 Rerun only the failing case with its exact command and retain the first causal error. Separate failures into `BUILD_FAIL`, `MODEL_FAIL`, `ACCURACY_FAIL`, `TIMEOUT`, and `TEST_INFRA_FAIL`. For accuracy failures, report actual tolerance and available maximum absolute/relative error; for model failures, identify the first unsupported instruction or assertion. Do not change tolerances or golden data to make a case pass.
@@ -107,6 +118,7 @@ Give one row per operator and case with:
 - oracle and tolerance;
 - gfrun result;
 - accuracy status and error metric;
+- when gfsim is run: random SoC (seed 2) result with `Total Cycles` and `scb_waw_violation` count;
 - elapsed time;
 - concise failure cause and log path.
 

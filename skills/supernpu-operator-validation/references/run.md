@@ -31,6 +31,8 @@ runner PASS 但未比较仅为 EXECUTION_PASS，不是 ACCURACY_PASS。
 ## gfsim 性能流程
 
 默认只测 real L2；fake L2 仅在用户要求或经确认用于诊断时追加。
+所有 gfsim 一律使用 random SoC，seed 固定为 2（`-s core.soc_random=true -s core.soc_lat_random_seed=2`），
+其余 random SoC 参数保持 `configs/core.toml` 默认值；默认（固定延迟）SoC 不跑，除非用户明确要求。
 一例最大900秒（15分钟）；超时终止自己启动的进程组并继续剩余队列，不无限重试。
 默认单 worker。若确需并行，最多2个、先测 RSS，确保输入输出隔离且不与 LLVM/模型重建重叠。
 
@@ -38,17 +40,20 @@ runner PASS 但未比较仅为 EXECUTION_PASS，不是 ACCURACY_PASS。
 ```bash
 cd "$model"
 timeout -k 10s 900s ./bin/gfsim -f "$elf" --conf fourpe --pto-v02 true \
-  -s tlsu.fake_l2_enable=false > "$run_dir/gfsim-real.log" 2>&1
+  -s tlsu.fake_l2_enable=false -s core.soc_random=true -s core.soc_lat_random_seed=2 \
+  > "$run_dir/gfsim-real-randsoc-seed2.log" 2>&1
 ```
 必须从模型根目录执行（配置可能相对解析），核对当前版本支持参数。
 gfrun 的 softcore.multiThreadNum=4 不能代替 gfsim fourpe 配置。
 检查生效日志：core.threadCount=4、fourpe.pe_cluster_enable=true、
-pe_cluster_count=4、pe_cluster_frontend_thread_count=4；必要时核对 PE0–PE3 PMU 活动。
+pe_cluster_count=4、pe_cluster_frontend_thread_count=4、core.soc_random=true、
+core.soc_lat_random_seed=2；必要时核对 PE0–PE3 PMU 活动。
 日志未显示 L2 生效时查配置解析，不凭默认值猜 real L2。
 fake L2 对照只能改变该开关，保持 binary/ELF/数据/其他配置不变。
 
 gfsim PASS 要求 exit=0、正确PE/L2配置、正常报告结束（如 SuperScalar Report Stop）、
 有效 Total Cycles，且无 assertion/deadlock/fatal/timeout。
+同时统计并报告 `scb_waw_violation` 条数（`invariants:` 行的 `scb_waw_tile`）；非零不改变 PASS，但必须如实报告。
 gfsim 只证明性能模型执行完成；不能替代 gfrun 精度验证。
 已知精度错误的 kernel 可按用户要求跑性能诊断，但明确标 INVALID_ACCURACY，不作为正确算子性能结论。
 

@@ -26,7 +26,7 @@ Include:
 - gfsim build command, MD5, and model full commit;
 - ELF build command, SHA256, shape, dtype, PE count, and whether it is RES_CHECK;
 - exact command from the SuperScalarModel root;
-- effective `fourpe` and explicit real/fake-L2 log lines;
+- effective `fourpe`, explicit real/fake-L2, and random SoC (`core.soc_random=true`, `core.soc_lat_random_seed=2`) log lines;
 - exit code, timeout, cycle, thread, block, first stalled instruction, and first assertion;
 - a passing single-variable comparison when available;
 - expected behavior and checkable acceptance criteria.
