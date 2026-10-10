@@ -40,6 +40,31 @@ Confirm the log reached a normal report stop and the trace file exists and is no
 
 Open the generated `<prefix>.out` in Konata. Do not upload it to a third-party service unless the user explicitly authorizes that action.
 
+## Memory-bounded JSON generation
+
+For 4PE SwimLane traces, prefer the [bounded generator](scripts/generate_swimlane_safe.py):
+
+```bash
+python3 scripts/generate_swimlane_safe.py \
+  --model <SuperScalarModel-root> --elf <absolute-ELF> \
+  --output-dir <new-trace-dir> --memory-gib 3 \
+  --counter-interval 128 --fake-l2 false --soc-random true --seed 2
+```
+
+Choose the L2 and SoC settings to match the selected validation run; the example uses Real-L2 and random SoC seed 2. The helper copies the fourpe profile into the output directory, replacing its counter interval instead of adding a duplicate override. It caps only the child process's address space at the smaller of the requested budget and 60% of current available RAM, disables child core dumps, and records the command, binary/ELF hashes, model diff hash, exit status and peak RSS. It does not modify WSL memory/swap or global model configs. The destination must be new.
+
+Counter sampling affects auxiliary cycle-sampled counters; block duration and dependency events stay complete. Record the interval. After a memory-limit failure, preserve the log and label the trace incomplete; do not automatically raise the limit or disable the cap.
+
+On memory-constrained WSL, the model's JSON exporter should write one event at a time. The legacy exporter builds multiple full JSON arrays and a full output string and can exceed 4 GiB on a million-event trace. A memory cap prevents a legacy-export run from consuming all available RAM, but does not itself make that exporter complete.
+
+When comparing a regenerated trace with an earlier one, use [streaming comparison](scripts/compare_trace_streaming.py) rather than loading both full documents with json.load:
+
+```bash
+python3 scripts/compare_trace_streaming.py <old-trace.json> <new-trace.json>
+```
+
+The comparator checks full event content/order and writes a compact semantic comparison report beside the new trace.
+
 ## SwimLane trace
 
 Generate SwimLane separately, without `-p`, so its artifact and provenance are unambiguous:
