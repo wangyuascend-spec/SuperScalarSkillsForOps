@@ -90,6 +90,50 @@ def parse_log(text):
     }
 
 
+# gfsim always emits these processes. A zero Tileop cycle count in the log
+# means the engine never ran, so the tracks are only counter samples.
+ENGINE_PROCESS_PREFIX = {
+    "Cube": "CUBE_",
+    "Vector": "VECTOR_",
+    "TLSU": "TLSU_",
+}
+
+
+def idle_engine_prefixes(log_text):
+    prefixes = []
+    for engine, prefix in ENGINE_PROCESS_PREFIX.items():
+        match = re.search(
+            rf"(?m)^.*{engine} Tileop Total Cycles\.+:\s+(\d+)\s*$", log_text
+        )
+        if match and int(match.group(1)) == 0:
+            prefixes.append(prefix)
+    return prefixes
+
+
+def drop_idle_processes(swim_path, prefixes):
+    """Remove processes for engines the log reports as unused."""
+    if not prefixes:
+        return 0, []
+    document = json.loads(swim_path.read_text())
+    events = document.get("traceEvents", [])
+    dropped_names = []
+    idle_pids = set()
+    for event in events:
+        if event.get("ph") != "M" or event.get("name") != "process_name":
+            continue
+        name = (event.get("args") or {}).get("name", "")
+        if isinstance(name, str) and name.startswith(tuple(prefixes)):
+            idle_pids.add(event.get("pid"))
+            dropped_names.append(name)
+    if not idle_pids:
+        return 0, []
+    kept = [event for event in events if event.get("pid") not in idle_pids]
+    removed = len(events) - len(kept)
+    document["traceEvents"] = kept
+    swim_path.write_text(json.dumps(document, indent=1) + "\n")
+    return removed, dropped_names
+
+
 def peak_rss_kb(time_log):
     if not time_log.is_file():
         return None
@@ -244,6 +288,15 @@ def main():
     metadata["swimlane"] = str(swim) if swim.is_file() else None
     metadata["swimlane_bytes"] = swim.stat().st_size if swim.is_file() else 0
     metadata["pipeview"] = str(pipe_out) if pipe_out.is_file() else None
+    if status == "PASS":
+        prefixes = idle_engine_prefixes(log_text)
+        removed, dropped_names = drop_idle_processes(swim, prefixes)
+        metadata["idle_engines"] = prefixes
+        metadata["dropped_processes"] = dropped_names
+        metadata["events_dropped"] = removed
+        metadata["swimlane_bytes"] = swim.stat().st_size
+        if dropped_names:
+            print(f"dropped idle processes: {', '.join(dropped_names)} ({removed} events)")
     manifest.write_text(json.dumps(metadata, indent=2) + "\n")
 
     print(f"status: {status}")

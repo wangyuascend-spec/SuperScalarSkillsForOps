@@ -36,6 +36,8 @@ Optional flags:
 
 - `--pipeview block` adds Konata block PipeView (`-p 2`). `--pipeview full` is per-instruction (`-p 1`) and can be very large.
 - `--pipe-filter-group` keeps group-level PipeView rows.
+
+After a passing dump, the script reads `Cube` / `Vector` / `TLSU Tileop Total Cycles` from the gfsim log. An engine whose count is 0 has its `CUBE_*`, `VECTOR_*`, or `TLSU_*` processes removed from `pipeline.json`. A missing line keeps that engine. gfsim still builds the full JSON in memory before this pass.
 - `--set key=value` forwards one extra `-s`. Repeat it only for a value the user named.
 - `--timeout` defaults to 900 seconds. `timeout` exit 124 is `TIMEOUT`.
 
