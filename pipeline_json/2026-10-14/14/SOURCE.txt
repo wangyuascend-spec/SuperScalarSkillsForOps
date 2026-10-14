@@ -1,0 +1,2 @@
+model=a072ea3 (PR #973)
+bench timing elf from norm_refresh_20261014
