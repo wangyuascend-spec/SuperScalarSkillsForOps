@@ -1,0 +1,10 @@
+artifact=demangled ELF disassembly with source line mappings
+shape=[1024,8192], dtype=fp16, PE=4, res_check=off
+bench=1f23cc8cdfa5cc4e2b132a7bfd9af7af0e7940b5
+compiler=f81c7f5270a4bbaae5452e6b66a4ceea2225aacc
+model=91d73841fbc416777b44fa169638ab4ab8e8c34c
+source_elf=rms_norm_1024x8192.elf
+command=llvm-objdump -d -l --demangle rms_norm_1024x8192.elf
+gfrun_accuracy=PASS, max_abs=0.001953125, mse=3.883126893628299e-11
+gfsim_real_l2=completed, cycles=324062, scb_waw_tile=770 (not a clean pass)
+e623d9fb115e069eb9abafa2650107b996f48789b62944a16affa105dd7df25f  rms_norm_1024x8192.elf
