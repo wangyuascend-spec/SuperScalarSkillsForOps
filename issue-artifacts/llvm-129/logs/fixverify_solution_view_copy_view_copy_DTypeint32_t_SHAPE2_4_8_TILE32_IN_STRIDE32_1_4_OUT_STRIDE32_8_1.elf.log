@@ -1,0 +1,14 @@
+/mnt/workspace/CANNBOT/wt/ssm-main-latest/bin/gfrun -f ./view_copy/elf/solution_view_copy_view_copy_DTypeint32_t_SHAPE2_4_8_TILE32_IN_STRIDE32_1_4_OUT_STRIDE32_8_1.elf 
+Memory: 0x10200 - 0x10e17 (Size=3KB) [.rodata]
+Memory: 0x10e18 - 0x10e33 (Size=0KB) [.eh_frame_hdr]
+Memory: 0x10e38 - 0x10e93 (Size=0KB) [.eh_frame]
+Memory: 0x11e94 - 0x15f33 (Size=16KB) [.text]
+Memory: 0x16f38 - 0x16f47 (Size=0KB) [.init_array]
+Memory: 0x16f48 - 0x16f6f (Size=0KB) [.data.rel.ro]
+Memory: 0x17f70 - 0x18057 (Size=0KB) [.data]
+Memory: 0x18058 - 0x1805f (Size=0KB) [.sdata]
+Memory: 0x18060 - 0x188b7 (Size=2KB) [.bss]
+Memory: 0x188b8 - 0x188ff (Size=0KB) [.sbss]
+Memory: 0x18900 - 0x8028900 (Size=131136KB) [stack mem]
+Memory: 0x4000802000 - 0x4008803000 (Size=131076KB) [map mem]
+Starting PE0 from 0x11e94

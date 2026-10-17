@@ -1,0 +1,26 @@
+/mnt/workspace/CANNBOT/wt/ssm-main-latest/bin/gfrun -s softcore.multiThreadNum=4 -f ./conv2d/elf/solution_conv2d_conv2d_img2col_PE4.elf 
+Memory: 0x10200 - 0x10248 (Size=0KB) [.rodata]
+Memory: 0x1024c - 0x10267 (Size=0KB) [.eh_frame_hdr]
+Memory: 0x10268 - 0x102cb (Size=0KB) [.eh_frame]
+Memory: 0x112cc - 0x115b3 (Size=0KB) [.text]
+Memory: 0x125b8 - 0x125e7 (Size=0KB) [.init_array]
+Memory: 0x125e8 - 0x125ff (Size=0KB) [.data.rel.ro]
+Memory: 0x14000 - 0x3508b (Size=132KB) [.bss]
+Memory: 0x35090 - 0x350bf (Size=0KB) [.sbss]
+Memory: 0x350c0 - 0x80450c0 (Size=131136KB) [stack mem]
+Memory: 0x4000802000 - 0x4008803000 (Size=131076KB) [map mem]
+Starting PE0 from 0x112cc
+gfrun: illegal instruction: ASSERTION FAILED: (singleton || sharedMask == 0xfu) && currentPeSelected && "Shared TIMG2COL requires a selected one-hot or all-PE mask"
+, func ExecuteTIMG2COLFeatureMap, file /mnt/workspace/CANNBOT/wt/ssm-main-latest/emulator/engine/TMAEngine.cpp:674
+stack:
+/mnt/workspace/CANNBOT/wt/ssm-main-latest/bin/gfrun(+0x12f988) [0xaaaadb72f988]
+/mnt/workspace/CANNBOT/wt/ssm-main-latest/bin/gfrun(+0x790e8) [0xaaaadb6790e8]
+/mnt/workspace/CANNBOT/wt/ssm-main-latest/bin/gfrun(+0x7fe90) [0xaaaadb67fe90]
+/mnt/workspace/CANNBOT/wt/ssm-main-latest/bin/gfrun(+0x80224) [0xaaaadb680224]
+/mnt/workspace/CANNBOT/wt/ssm-main-latest/bin/gfrun(+0x80dc8) [0xaaaadb680dc8]
+/mnt/workspace/CANNBOT/wt/ssm-main-latest/bin/gfrun(+0x8128c) [0xaaaadb68128c]
+/mnt/workspace/CANNBOT/wt/ssm-main-latest/bin/gfrun(+0x12734) [0xaaaadb612734]
+/lib/aarch64-linux-gnu/libc.so.6(+0x284c4) [0xffff848c84c4]
+/lib/aarch64-linux-gnu/libc.so.6(__libc_start_main+0x98) [0xffff848c8598]
+/mnt/workspace/CANNBOT/wt/ssm-main-latest/bin/gfrun(+0x55c30) [0xaaaadb655c30]
+

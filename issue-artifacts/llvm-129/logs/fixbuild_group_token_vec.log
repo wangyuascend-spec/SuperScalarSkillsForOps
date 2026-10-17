@@ -1,0 +1,192 @@
+Makefile:25: warning: overriding recipe for target 'clean'
+../../common/Makefile.common:173: warning: ignoring old recipe for target 'clean'
+/tmp/opencode/linx-toolchain-build/output/linx_blockisa_llvm_musl/bin/clang++ -c -mlxbc -fenable-matrix -O2 -mllvm -enable-all-vector-as-tilereg=true  -mllvm -linxv5-enable-HL-Inst-Opt=true -mllvm -linxv5-enable-dim-opt=true -mllvm -linxv5-enable-ldst-bridge=false -mllvm -linxv5-enable-continuous-mem-opt=true -mllvm -linxv5-enable-tile-clock-hand=false -mllvm -linxv5-enable-simt-clock-hand=true -mllvm -enable-misched=false -std=c++20  -I/mnt/workspace/CANNBOT/wt/snb-main-latest/benchmark/one-level-arch/include -I/mnt/workspace/CANNBOT/wt/snb-main-latest/benchmark/one-level-arch/test/common -I/mnt/workspace/CANNBOT/wt/snb-main-latest/benchmark/one-level-arch/test/common/src -I/mnt/workspace/CANNBOT/wt/snb-main-latest/benchmark/one-level-arch/kernels -I/mnt/workspace/CANNBOT/wt/snb-main-latest/benchmark/one-level-arch/models -D__linx -DENABLE_TENSOR_INSTR /mnt/workspace/CANNBOT/wt/snb-main-latest/benchmark/one-level-arch/test/solution/group_token_vec/src/group_token_vec.cpp -o /mnt/workspace/CANNBOT/wt/snb-main-latest/benchmark/one-level-arch/output/solution/group_token_vec/src/group_token_vec.o
+fatal error: error in backend: Local tile descriptor geometry does not fit its SizeCode
+PLEASE submit a bug report to https://github.com/llvm/llvm-project/issues/ and include the crash backtrace, preprocessed source, and associated run script.
+Stack dump:
+0.	Program arguments: /tmp/opencode/linx-toolchain-build/output/linx_blockisa_llvm_musl/bin/clang++ -c -mlxbc -fenable-matrix -O2 -mllvm -enable-all-vector-as-tilereg=true -mllvm -linxv5-enable-HL-Inst-Opt=true -mllvm -linxv5-enable-dim-opt=true -mllvm -linxv5-enable-ldst-bridge=false -mllvm -linxv5-enable-continuous-mem-opt=true -mllvm -linxv5-enable-tile-clock-hand=false -mllvm -linxv5-enable-simt-clock-hand=true -mllvm -enable-misched=false -std=c++20 -I/mnt/workspace/CANNBOT/wt/snb-main-latest/benchmark/one-level-arch/include -I/mnt/workspace/CANNBOT/wt/snb-main-latest/benchmark/one-level-arch/test/common -I/mnt/workspace/CANNBOT/wt/snb-main-latest/benchmark/one-level-arch/test/common/src -I/mnt/workspace/CANNBOT/wt/snb-main-latest/benchmark/one-level-arch/kernels -I/mnt/workspace/CANNBOT/wt/snb-main-latest/benchmark/one-level-arch/models -D__linx -DENABLE_TENSOR_INSTR /mnt/workspace/CANNBOT/wt/snb-main-latest/benchmark/one-level-arch/test/solution/group_token_vec/src/group_token_vec.cpp -o /mnt/workspace/CANNBOT/wt/snb-main-latest/benchmark/one-level-arch/output/solution/group_token_vec/src/group_token_vec.o
+1.	<eof> parser at end of file
+2.	Code generation
+3.	Running pass 'Function Pass Manager' on module '/mnt/workspace/CANNBOT/wt/snb-main-latest/benchmark/one-level-arch/test/solution/group_token_vec/src/group_token_vec.cpp'.
+4.	Running pass 'ClockHands Coloring' on function '@main'
+ #0 0x0000aaaac61dec14 PrintStackTraceSignalHandler(void*) Signals.cpp:0:0
+ #1 0x0000aaaac61dce20 llvm::sys::CleanupOnSignal(unsigned long) (/tmp/opencode/linx-toolchain-build/output/linx_blockisa_llvm_musl/bin/clang+++0x1e4ce20)
+ #2 0x0000aaaac613b4c0 llvm::CrashRecoveryContext::HandleExit(int) (/tmp/opencode/linx-toolchain-build/output/linx_blockisa_llvm_musl/bin/clang+++0x1dab4c0)
+ #3 0x0000aaaac61d62d4 llvm::sys::Process::Exit(int, bool) (/tmp/opencode/linx-toolchain-build/output/linx_blockisa_llvm_musl/bin/clang+++0x1e462d4)
+ #4 0x0000aaaac4fc6774 LLVMErrorHandler(void*, char const*, bool) cc1_main.cpp:0:0
+ #5 0x0000aaaac6143920 llvm::report_fatal_error(llvm::Twine const&, bool) (/tmp/opencode/linx-toolchain-build/output/linx_blockisa_llvm_musl/bin/clang+++0x1db3920)
+ #6 0x0000aaaac6143a98 (/tmp/opencode/linx-toolchain-build/output/linx_blockisa_llvm_musl/bin/clang+++0x1db3a98)
+ #7 0x0000aaaac50e2110 llvm::LinxV5InstrInfo::getBranchDestBlock(llvm::MachineInstr const&) const (/tmp/opencode/linx-toolchain-build/output/linx_blockisa_llvm_musl/bin/clang+++0xd52110)
+ #8 0x0000aaaac50e84a0 getInlineAsmTileDescriptor(llvm::MachineInstr&, llvm::Register) LinxV5InstrInfo.cpp:0:0
+ #9 0x0000aaaac50e9b74 resolveTileDescriptor(llvm::MachineBasicBlock&, llvm::MachineInstrBundleIterator<llvm::MachineInstr, false>, llvm::Register, llvm::SmallVectorImpl<std::pair<llvm::MachineBasicBlock*, llvm::Register>>&) LinxV5InstrInfo.cpp:0:0
+#10 0x0000aaaac50e9dc0 llvm::LinxV5::tryGetTileRegDescriptor(llvm::MachineBasicBlock&, llvm::MachineInstrBundleIterator<llvm::MachineInstr, false>, llvm::MCRegister) (/tmp/opencode/linx-toolchain-build/output/linx_blockisa_llvm_musl/bin/clang+++0xd59dc0)
+#11 0x0000aaaac505c2d4 (anonymous namespace)::LinxV5ClockhandsColoring::assignTileReg(llvm::MachineFunction&) LinxV5ClockhandsColoring.cpp:0:0
+#12 0x0000aaaac505e514 (anonymous namespace)::LinxV5ClockhandsColoring::runOnMachineFunction(llvm::MachineFunction&) LinxV5ClockhandsColoring.cpp:0:0
+#13 0x0000aaaac5561404 llvm::MachineFunctionPass::runOnFunction(llvm::Function&) (.part.0) MachineFunctionPass.cpp:0:0
+#14 0x0000aaaac5a9c000 llvm::FPPassManager::runOnFunction(llvm::Function&) (/tmp/opencode/linx-toolchain-build/output/linx_blockisa_llvm_musl/bin/clang+++0x170c000)
+#15 0x0000aaaac5a9c3cc llvm::FPPassManager::runOnModule(llvm::Module&) (/tmp/opencode/linx-toolchain-build/output/linx_blockisa_llvm_musl/bin/clang+++0x170c3cc)
+#16 0x0000aaaac5a9cf30 llvm::legacy::PassManagerImpl::run(llvm::Module&) (/tmp/opencode/linx-toolchain-build/output/linx_blockisa_llvm_musl/bin/clang+++0x170cf30)
+#17 0x0000aaaac6539e20 (anonymous namespace)::EmitAssemblyHelper::EmitAssembly(clang::BackendAction, std::unique_ptr<llvm::raw_pwrite_stream, std::default_delete<llvm::raw_pwrite_stream>>) BackendUtil.cpp:0:0
+#18 0x0000aaaac653a558 clang::EmitBackendOutput(clang::DiagnosticsEngine&, clang::HeaderSearchOptions const&, clang::CodeGenOptions const&, clang::TargetOptions const&, clang::LangOptions const&, llvm::StringRef, llvm::Module*, clang::BackendAction, std::unique_ptr<llvm::raw_pwrite_stream, std::default_delete<llvm::raw_pwrite_stream>>) (/tmp/opencode/linx-toolchain-build/output/linx_blockisa_llvm_musl/bin/clang+++0x21aa558)
+#19 0x0000aaaac71eaa8c clang::BackendConsumer::HandleTranslationUnit(clang::ASTContext&) (/tmp/opencode/linx-toolchain-build/output/linx_blockisa_llvm_musl/bin/clang+++0x2e5aa8c)
+#20 0x0000aaaac7efc0f8 clang::ParseAST(clang::Sema&, bool, bool) (/tmp/opencode/linx-toolchain-build/output/linx_blockisa_llvm_musl/bin/clang+++0x3b6c0f8)
+#21 0x0000aaaac6c1cd78 clang::FrontendAction::Execute() (/tmp/opencode/linx-toolchain-build/output/linx_blockisa_llvm_musl/bin/clang+++0x288cd78)
+#22 0x0000aaaac6bbdcd8 clang::CompilerInstance::ExecuteAction(clang::FrontendAction&) (/tmp/opencode/linx-toolchain-build/output/linx_blockisa_llvm_musl/bin/clang+++0x282dcd8)
+#23 0x0000aaaac6cee5c0 clang::ExecuteCompilerInvocation(clang::CompilerInstance*) (/tmp/opencode/linx-toolchain-build/output/linx_blockisa_llvm_musl/bin/clang+++0x295e5c0)
+#24 0x0000aaaac4fc73c0 cc1_main(llvm::ArrayRef<char const*>, char const*, void*) (/tmp/opencode/linx-toolchain-build/output/linx_blockisa_llvm_musl/bin/clang+++0xc373c0)
+#25 0x0000aaaac4fc1634 ExecuteCC1Tool(llvm::SmallVectorImpl<char const*>&) driver.cpp:0:0
+#26 0x0000aaaac6a559bc void llvm::function_ref<void ()>::callback_fn<clang::driver::CC1Command::Execute(llvm::ArrayRef<llvm::Optional<llvm::StringRef>>, std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char>>*, bool*) const::'lambda'()>(long) Job.cpp:0:0
+#27 0x0000aaaac613b380 llvm::CrashRecoveryContext::RunSafely(llvm::function_ref<void ()>) (/tmp/opencode/linx-toolchain-build/output/linx_blockisa_llvm_musl/bin/clang+++0x1dab380)
+#28 0x0000aaaac6a573b8 clang::driver::CC1Command::Execute(llvm::ArrayRef<llvm::Optional<llvm::StringRef>>, std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char>>*, bool*) const (.part.0) Job.cpp:0:0
+#29 0x0000aaaac6a25980 clang::driver::Compilation::ExecuteCommand(clang::driver::Command const&, clang::driver::Command const*&, bool) const (/tmp/opencode/linx-toolchain-build/output/linx_blockisa_llvm_musl/bin/clang+++0x2695980)
+#30 0x0000aaaac6a262d4 clang::driver::Compilation::ExecuteJobs(clang::driver::JobList const&, llvm::SmallVectorImpl<std::pair<int, clang::driver::Command const*>>&, bool) const (/tmp/opencode/linx-toolchain-build/output/linx_blockisa_llvm_musl/bin/clang+++0x26962d4)
+#31 0x0000aaaac6a36084 clang::driver::Driver::ExecuteCompilation(clang::driver::Compilation&, llvm::SmallVectorImpl<std::pair<int, clang::driver::Command const*>>&) (/tmp/opencode/linx-toolchain-build/output/linx_blockisa_llvm_musl/bin/clang+++0x26a6084)
+#32 0x0000aaaac4fc5c30 clang_main(int, char**) (/tmp/opencode/linx-toolchain-build/output/linx_blockisa_llvm_musl/bin/clang+++0xc35c30)
+#33 0x0000ffffa10d84c4 __libc_start_call_main ./csu/../sysdeps/nptl/libc_start_call_main.h:74:3
+#34 0x0000ffffa10d8598 call_init ./csu/../csu/libc-start.c:128:20
+#35 0x0000ffffa10d8598 __libc_start_main ./csu/../csu/libc-start.c:347:5
+#36 0x0000aaaac4fc0930 _start (/tmp/opencode/linx-toolchain-build/output/linx_blockisa_llvm_musl/bin/clang+++0xc30930)
+clang-15: error: clang frontend command failed with exit code 70 (use -v to see invocation)
+clang version 15.0.4 (linx64v5-musl-local 910e5c8a07a6fa503c98755407e15bb68995bd3c)
+Target: linx64v5-unknown-linux-musl
+Thread model: posix
+InstalledDir: /tmp/opencode/linx-toolchain-build/output/linx_blockisa_llvm_musl/bin
+clang-15: note: diagnostic msg: 
+********************
+
+PLEASE ATTACH THE FOLLOWING FILES TO THE BUG REPORT:
+Preprocessed source(s) and associated run script(s) are located at:
+clang-15: note: diagnostic msg: /tmp/group_token_vec-d736df.cpp
+clang-15: note: diagnostic msg: /tmp/group_token_vec-d736df.sh
+clang-15: note: diagnostic msg: 
+
+********************
+make: *** [../../common/Makefile.common:142: /mnt/workspace/CANNBOT/wt/snb-main-latest/benchmark/one-level-arch/output/solution/group_token_vec/src/group_token_vec.o] Error 1
+Makefile:25: warning: overriding recipe for target 'clean'
+../../common/Makefile.common:173: warning: ignoring old recipe for target 'clean'
+/tmp/opencode/linx-toolchain-build/output/linx_blockisa_llvm_musl/bin/clang++ -c -mlxbc -fenable-matrix -O2 -mllvm -enable-all-vector-as-tilereg=true  -mllvm -linxv5-enable-HL-Inst-Opt=true -mllvm -linxv5-enable-dim-opt=true -mllvm -linxv5-enable-ldst-bridge=false -mllvm -linxv5-enable-continuous-mem-opt=true -mllvm -linxv5-enable-tile-clock-hand=false -mllvm -linxv5-enable-simt-clock-hand=true -mllvm -enable-misched=false -std=c++20  -I/mnt/workspace/CANNBOT/wt/snb-main-latest/benchmark/one-level-arch/include -I/mnt/workspace/CANNBOT/wt/snb-main-latest/benchmark/one-level-arch/test/common -I/mnt/workspace/CANNBOT/wt/snb-main-latest/benchmark/one-level-arch/test/common/src -I/mnt/workspace/CANNBOT/wt/snb-main-latest/benchmark/one-level-arch/kernels -I/mnt/workspace/CANNBOT/wt/snb-main-latest/benchmark/one-level-arch/models -D__linx -DENABLE_TENSOR_INSTR /mnt/workspace/CANNBOT/wt/snb-main-latest/benchmark/one-level-arch/test/solution/group_token_vec/src/group_token_vec_mt.cpp -o /mnt/workspace/CANNBOT/wt/snb-main-latest/benchmark/one-level-arch/output/solution/group_token_vec/src/group_token_vec_mt.o
+fatal error: error in backend: Local tile descriptor geometry does not fit its SizeCode
+PLEASE submit a bug report to https://github.com/llvm/llvm-project/issues/ and include the crash backtrace, preprocessed source, and associated run script.
+Stack dump:
+0.	Program arguments: /tmp/opencode/linx-toolchain-build/output/linx_blockisa_llvm_musl/bin/clang++ -c -mlxbc -fenable-matrix -O2 -mllvm -enable-all-vector-as-tilereg=true -mllvm -linxv5-enable-HL-Inst-Opt=true -mllvm -linxv5-enable-dim-opt=true -mllvm -linxv5-enable-ldst-bridge=false -mllvm -linxv5-enable-continuous-mem-opt=true -mllvm -linxv5-enable-tile-clock-hand=false -mllvm -linxv5-enable-simt-clock-hand=true -mllvm -enable-misched=false -std=c++20 -I/mnt/workspace/CANNBOT/wt/snb-main-latest/benchmark/one-level-arch/include -I/mnt/workspace/CANNBOT/wt/snb-main-latest/benchmark/one-level-arch/test/common -I/mnt/workspace/CANNBOT/wt/snb-main-latest/benchmark/one-level-arch/test/common/src -I/mnt/workspace/CANNBOT/wt/snb-main-latest/benchmark/one-level-arch/kernels -I/mnt/workspace/CANNBOT/wt/snb-main-latest/benchmark/one-level-arch/models -D__linx -DENABLE_TENSOR_INSTR /mnt/workspace/CANNBOT/wt/snb-main-latest/benchmark/one-level-arch/test/solution/group_token_vec/src/group_token_vec_mt.cpp -o /mnt/workspace/CANNBOT/wt/snb-main-latest/benchmark/one-level-arch/output/solution/group_token_vec/src/group_token_vec_mt.o
+1.	<eof> parser at end of file
+2.	Code generation
+3.	Running pass 'Function Pass Manager' on module '/mnt/workspace/CANNBOT/wt/snb-main-latest/benchmark/one-level-arch/test/solution/group_token_vec/src/group_token_vec_mt.cpp'.
+4.	Running pass 'ClockHands Coloring' on function '@main'
+ #0 0x0000aaaab5e4ec14 PrintStackTraceSignalHandler(void*) Signals.cpp:0:0
+ #1 0x0000aaaab5e4ce20 llvm::sys::CleanupOnSignal(unsigned long) (/tmp/opencode/linx-toolchain-build/output/linx_blockisa_llvm_musl/bin/clang+++0x1e4ce20)
+ #2 0x0000aaaab5dab4c0 llvm::CrashRecoveryContext::HandleExit(int) (/tmp/opencode/linx-toolchain-build/output/linx_blockisa_llvm_musl/bin/clang+++0x1dab4c0)
+ #3 0x0000aaaab5e462d4 llvm::sys::Process::Exit(int, bool) (/tmp/opencode/linx-toolchain-build/output/linx_blockisa_llvm_musl/bin/clang+++0x1e462d4)
+ #4 0x0000aaaab4c36774 LLVMErrorHandler(void*, char const*, bool) cc1_main.cpp:0:0
+ #5 0x0000aaaab5db3920 llvm::report_fatal_error(llvm::Twine const&, bool) (/tmp/opencode/linx-toolchain-build/output/linx_blockisa_llvm_musl/bin/clang+++0x1db3920)
+ #6 0x0000aaaab5db3a98 (/tmp/opencode/linx-toolchain-build/output/linx_blockisa_llvm_musl/bin/clang+++0x1db3a98)
+ #7 0x0000aaaab4d52110 llvm::LinxV5InstrInfo::getBranchDestBlock(llvm::MachineInstr const&) const (/tmp/opencode/linx-toolchain-build/output/linx_blockisa_llvm_musl/bin/clang+++0xd52110)
+ #8 0x0000aaaab4d584a0 getInlineAsmTileDescriptor(llvm::MachineInstr&, llvm::Register) LinxV5InstrInfo.cpp:0:0
+ #9 0x0000aaaab4d59b74 resolveTileDescriptor(llvm::MachineBasicBlock&, llvm::MachineInstrBundleIterator<llvm::MachineInstr, false>, llvm::Register, llvm::SmallVectorImpl<std::pair<llvm::MachineBasicBlock*, llvm::Register>>&) LinxV5InstrInfo.cpp:0:0
+#10 0x0000aaaab4d59dc0 llvm::LinxV5::tryGetTileRegDescriptor(llvm::MachineBasicBlock&, llvm::MachineInstrBundleIterator<llvm::MachineInstr, false>, llvm::MCRegister) (/tmp/opencode/linx-toolchain-build/output/linx_blockisa_llvm_musl/bin/clang+++0xd59dc0)
+#11 0x0000aaaab4ccc2d4 (anonymous namespace)::LinxV5ClockhandsColoring::assignTileReg(llvm::MachineFunction&) LinxV5ClockhandsColoring.cpp:0:0
+#12 0x0000aaaab4cce514 (anonymous namespace)::LinxV5ClockhandsColoring::runOnMachineFunction(llvm::MachineFunction&) LinxV5ClockhandsColoring.cpp:0:0
+#13 0x0000aaaab51d1404 llvm::MachineFunctionPass::runOnFunction(llvm::Function&) (.part.0) MachineFunctionPass.cpp:0:0
+#14 0x0000aaaab570c000 llvm::FPPassManager::runOnFunction(llvm::Function&) (/tmp/opencode/linx-toolchain-build/output/linx_blockisa_llvm_musl/bin/clang+++0x170c000)
+#15 0x0000aaaab570c3cc llvm::FPPassManager::runOnModule(llvm::Module&) (/tmp/opencode/linx-toolchain-build/output/linx_blockisa_llvm_musl/bin/clang+++0x170c3cc)
+#16 0x0000aaaab570cf30 llvm::legacy::PassManagerImpl::run(llvm::Module&) (/tmp/opencode/linx-toolchain-build/output/linx_blockisa_llvm_musl/bin/clang+++0x170cf30)
+#17 0x0000aaaab61a9e20 (anonymous namespace)::EmitAssemblyHelper::EmitAssembly(clang::BackendAction, std::unique_ptr<llvm::raw_pwrite_stream, std::default_delete<llvm::raw_pwrite_stream>>) BackendUtil.cpp:0:0
+#18 0x0000aaaab61aa558 clang::EmitBackendOutput(clang::DiagnosticsEngine&, clang::HeaderSearchOptions const&, clang::CodeGenOptions const&, clang::TargetOptions const&, clang::LangOptions const&, llvm::StringRef, llvm::Module*, clang::BackendAction, std::unique_ptr<llvm::raw_pwrite_stream, std::default_delete<llvm::raw_pwrite_stream>>) (/tmp/opencode/linx-toolchain-build/output/linx_blockisa_llvm_musl/bin/clang+++0x21aa558)
+#19 0x0000aaaab6e5aa8c clang::BackendConsumer::HandleTranslationUnit(clang::ASTContext&) (/tmp/opencode/linx-toolchain-build/output/linx_blockisa_llvm_musl/bin/clang+++0x2e5aa8c)
+#20 0x0000aaaab7b6c0f8 clang::ParseAST(clang::Sema&, bool, bool) (/tmp/opencode/linx-toolchain-build/output/linx_blockisa_llvm_musl/bin/clang+++0x3b6c0f8)
+#21 0x0000aaaab688cd78 clang::FrontendAction::Execute() (/tmp/opencode/linx-toolchain-build/output/linx_blockisa_llvm_musl/bin/clang+++0x288cd78)
+#22 0x0000aaaab682dcd8 clang::CompilerInstance::ExecuteAction(clang::FrontendAction&) (/tmp/opencode/linx-toolchain-build/output/linx_blockisa_llvm_musl/bin/clang+++0x282dcd8)
+#23 0x0000aaaab695e5c0 clang::ExecuteCompilerInvocation(clang::CompilerInstance*) (/tmp/opencode/linx-toolchain-build/output/linx_blockisa_llvm_musl/bin/clang+++0x295e5c0)
+#24 0x0000aaaab4c373c0 cc1_main(llvm::ArrayRef<char const*>, char const*, void*) (/tmp/opencode/linx-toolchain-build/output/linx_blockisa_llvm_musl/bin/clang+++0xc373c0)
+#25 0x0000aaaab4c31634 ExecuteCC1Tool(llvm::SmallVectorImpl<char const*>&) driver.cpp:0:0
+#26 0x0000aaaab66c59bc void llvm::function_ref<void ()>::callback_fn<clang::driver::CC1Command::Execute(llvm::ArrayRef<llvm::Optional<llvm::StringRef>>, std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char>>*, bool*) const::'lambda'()>(long) Job.cpp:0:0
+#27 0x0000aaaab5dab380 llvm::CrashRecoveryContext::RunSafely(llvm::function_ref<void ()>) (/tmp/opencode/linx-toolchain-build/output/linx_blockisa_llvm_musl/bin/clang+++0x1dab380)
+#28 0x0000aaaab66c73b8 clang::driver::CC1Command::Execute(llvm::ArrayRef<llvm::Optional<llvm::StringRef>>, std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char>>*, bool*) const (.part.0) Job.cpp:0:0
+#29 0x0000aaaab6695980 clang::driver::Compilation::ExecuteCommand(clang::driver::Command const&, clang::driver::Command const*&, bool) const (/tmp/opencode/linx-toolchain-build/output/linx_blockisa_llvm_musl/bin/clang+++0x2695980)
+#30 0x0000aaaab66962d4 clang::driver::Compilation::ExecuteJobs(clang::driver::JobList const&, llvm::SmallVectorImpl<std::pair<int, clang::driver::Command const*>>&, bool) const (/tmp/opencode/linx-toolchain-build/output/linx_blockisa_llvm_musl/bin/clang+++0x26962d4)
+#31 0x0000aaaab66a6084 clang::driver::Driver::ExecuteCompilation(clang::driver::Compilation&, llvm::SmallVectorImpl<std::pair<int, clang::driver::Command const*>>&) (/tmp/opencode/linx-toolchain-build/output/linx_blockisa_llvm_musl/bin/clang+++0x26a6084)
+#32 0x0000aaaab4c35c30 clang_main(int, char**) (/tmp/opencode/linx-toolchain-build/output/linx_blockisa_llvm_musl/bin/clang+++0xc35c30)
+#33 0x0000ffffbe2284c4 __libc_start_call_main ./csu/../sysdeps/nptl/libc_start_call_main.h:74:3
+#34 0x0000ffffbe228598 call_init ./csu/../csu/libc-start.c:128:20
+#35 0x0000ffffbe228598 __libc_start_main ./csu/../csu/libc-start.c:347:5
+#36 0x0000aaaab4c30930 _start (/tmp/opencode/linx-toolchain-build/output/linx_blockisa_llvm_musl/bin/clang+++0xc30930)
+clang-15: error: clang frontend command failed with exit code 70 (use -v to see invocation)
+clang version 15.0.4 (linx64v5-musl-local 910e5c8a07a6fa503c98755407e15bb68995bd3c)
+Target: linx64v5-unknown-linux-musl
+Thread model: posix
+InstalledDir: /tmp/opencode/linx-toolchain-build/output/linx_blockisa_llvm_musl/bin
+clang-15: note: diagnostic msg: 
+********************
+
+PLEASE ATTACH THE FOLLOWING FILES TO THE BUG REPORT:
+Preprocessed source(s) and associated run script(s) are located at:
+clang-15: note: diagnostic msg: /tmp/group_token_vec_mt-b944d3.cpp
+clang-15: note: diagnostic msg: /tmp/group_token_vec_mt-b944d3.sh
+clang-15: note: diagnostic msg: 
+
+********************
+make: *** [../../common/Makefile.common:142: /mnt/workspace/CANNBOT/wt/snb-main-latest/benchmark/one-level-arch/output/solution/group_token_vec/src/group_token_vec_mt.o] Error 1
+Makefile:25: warning: overriding recipe for target 'clean'
+../../common/Makefile.common:173: warning: ignoring old recipe for target 'clean'
+/tmp/opencode/linx-toolchain-build/output/linx_blockisa_llvm_musl/bin/clang++ -c -mlxbc -fenable-matrix -O2 -mllvm -enable-all-vector-as-tilereg=true  -mllvm -linxv5-enable-HL-Inst-Opt=true -mllvm -linxv5-enable-dim-opt=true -mllvm -linxv5-enable-ldst-bridge=false -mllvm -linxv5-enable-continuous-mem-opt=true -mllvm -linxv5-enable-tile-clock-hand=false -mllvm -linxv5-enable-simt-clock-hand=true -mllvm -enable-misched=false -std=c++20  -I/mnt/workspace/CANNBOT/wt/snb-main-latest/benchmark/one-level-arch/include -I/mnt/workspace/CANNBOT/wt/snb-main-latest/benchmark/one-level-arch/test/common -I/mnt/workspace/CANNBOT/wt/snb-main-latest/benchmark/one-level-arch/test/common/src -I/mnt/workspace/CANNBOT/wt/snb-main-latest/benchmark/one-level-arch/kernels -I/mnt/workspace/CANNBOT/wt/snb-main-latest/benchmark/one-level-arch/models -D__linx -DENABLE_TENSOR_INSTR /mnt/workspace/CANNBOT/wt/snb-main-latest/benchmark/one-level-arch/test/solution/group_token_vec/src/group_token_vec_mt_dyn.cpp -o /mnt/workspace/CANNBOT/wt/snb-main-latest/benchmark/one-level-arch/output/solution/group_token_vec/src/group_token_vec_mt_dyn.o
+fatal error: error in backend: Local tile descriptor geometry does not fit its SizeCode
+PLEASE submit a bug report to https://github.com/llvm/llvm-project/issues/ and include the crash backtrace, preprocessed source, and associated run script.
+Stack dump:
+0.	Program arguments: /tmp/opencode/linx-toolchain-build/output/linx_blockisa_llvm_musl/bin/clang++ -c -mlxbc -fenable-matrix -O2 -mllvm -enable-all-vector-as-tilereg=true -mllvm -linxv5-enable-HL-Inst-Opt=true -mllvm -linxv5-enable-dim-opt=true -mllvm -linxv5-enable-ldst-bridge=false -mllvm -linxv5-enable-continuous-mem-opt=true -mllvm -linxv5-enable-tile-clock-hand=false -mllvm -linxv5-enable-simt-clock-hand=true -mllvm -enable-misched=false -std=c++20 -I/mnt/workspace/CANNBOT/wt/snb-main-latest/benchmark/one-level-arch/include -I/mnt/workspace/CANNBOT/wt/snb-main-latest/benchmark/one-level-arch/test/common -I/mnt/workspace/CANNBOT/wt/snb-main-latest/benchmark/one-level-arch/test/common/src -I/mnt/workspace/CANNBOT/wt/snb-main-latest/benchmark/one-level-arch/kernels -I/mnt/workspace/CANNBOT/wt/snb-main-latest/benchmark/one-level-arch/models -D__linx -DENABLE_TENSOR_INSTR /mnt/workspace/CANNBOT/wt/snb-main-latest/benchmark/one-level-arch/test/solution/group_token_vec/src/group_token_vec_mt_dyn.cpp -o /mnt/workspace/CANNBOT/wt/snb-main-latest/benchmark/one-level-arch/output/solution/group_token_vec/src/group_token_vec_mt_dyn.o
+1.	<eof> parser at end of file
+2.	Code generation
+3.	Running pass 'Function Pass Manager' on module '/mnt/workspace/CANNBOT/wt/snb-main-latest/benchmark/one-level-arch/test/solution/group_token_vec/src/group_token_vec_mt_dyn.cpp'.
+4.	Running pass 'ClockHands Coloring' on function '@main'
+ #0 0x0000aaaaae07ec14 PrintStackTraceSignalHandler(void*) Signals.cpp:0:0
+ #1 0x0000aaaaae07ce20 llvm::sys::CleanupOnSignal(unsigned long) (/tmp/opencode/linx-toolchain-build/output/linx_blockisa_llvm_musl/bin/clang+++0x1e4ce20)
+ #2 0x0000aaaaadfdb4c0 llvm::CrashRecoveryContext::HandleExit(int) (/tmp/opencode/linx-toolchain-build/output/linx_blockisa_llvm_musl/bin/clang+++0x1dab4c0)
+ #3 0x0000aaaaae0762d4 llvm::sys::Process::Exit(int, bool) (/tmp/opencode/linx-toolchain-build/output/linx_blockisa_llvm_musl/bin/clang+++0x1e462d4)
+ #4 0x0000aaaaace66774 LLVMErrorHandler(void*, char const*, bool) cc1_main.cpp:0:0
+ #5 0x0000aaaaadfe3920 llvm::report_fatal_error(llvm::Twine const&, bool) (/tmp/opencode/linx-toolchain-build/output/linx_blockisa_llvm_musl/bin/clang+++0x1db3920)
+ #6 0x0000aaaaadfe3a98 (/tmp/opencode/linx-toolchain-build/output/linx_blockisa_llvm_musl/bin/clang+++0x1db3a98)
+ #7 0x0000aaaaacf82110 llvm::LinxV5InstrInfo::getBranchDestBlock(llvm::MachineInstr const&) const (/tmp/opencode/linx-toolchain-build/output/linx_blockisa_llvm_musl/bin/clang+++0xd52110)
+ #8 0x0000aaaaacf884a0 getInlineAsmTileDescriptor(llvm::MachineInstr&, llvm::Register) LinxV5InstrInfo.cpp:0:0
+ #9 0x0000aaaaacf89b74 resolveTileDescriptor(llvm::MachineBasicBlock&, llvm::MachineInstrBundleIterator<llvm::MachineInstr, false>, llvm::Register, llvm::SmallVectorImpl<std::pair<llvm::MachineBasicBlock*, llvm::Register>>&) LinxV5InstrInfo.cpp:0:0
+#10 0x0000aaaaacf89dc0 llvm::LinxV5::tryGetTileRegDescriptor(llvm::MachineBasicBlock&, llvm::MachineInstrBundleIterator<llvm::MachineInstr, false>, llvm::MCRegister) (/tmp/opencode/linx-toolchain-build/output/linx_blockisa_llvm_musl/bin/clang+++0xd59dc0)
+#11 0x0000aaaaacefc2d4 (anonymous namespace)::LinxV5ClockhandsColoring::assignTileReg(llvm::MachineFunction&) LinxV5ClockhandsColoring.cpp:0:0
+#12 0x0000aaaaacefe514 (anonymous namespace)::LinxV5ClockhandsColoring::runOnMachineFunction(llvm::MachineFunction&) LinxV5ClockhandsColoring.cpp:0:0
+#13 0x0000aaaaad401404 llvm::MachineFunctionPass::runOnFunction(llvm::Function&) (.part.0) MachineFunctionPass.cpp:0:0
+#14 0x0000aaaaad93c000 llvm::FPPassManager::runOnFunction(llvm::Function&) (/tmp/opencode/linx-toolchain-build/output/linx_blockisa_llvm_musl/bin/clang+++0x170c000)
+#15 0x0000aaaaad93c3cc llvm::FPPassManager::runOnModule(llvm::Module&) (/tmp/opencode/linx-toolchain-build/output/linx_blockisa_llvm_musl/bin/clang+++0x170c3cc)
+#16 0x0000aaaaad93cf30 llvm::legacy::PassManagerImpl::run(llvm::Module&) (/tmp/opencode/linx-toolchain-build/output/linx_blockisa_llvm_musl/bin/clang+++0x170cf30)
+#17 0x0000aaaaae3d9e20 (anonymous namespace)::EmitAssemblyHelper::EmitAssembly(clang::BackendAction, std::unique_ptr<llvm::raw_pwrite_stream, std::default_delete<llvm::raw_pwrite_stream>>) BackendUtil.cpp:0:0
+#18 0x0000aaaaae3da558 clang::EmitBackendOutput(clang::DiagnosticsEngine&, clang::HeaderSearchOptions const&, clang::CodeGenOptions const&, clang::TargetOptions const&, clang::LangOptions const&, llvm::StringRef, llvm::Module*, clang::BackendAction, std::unique_ptr<llvm::raw_pwrite_stream, std::default_delete<llvm::raw_pwrite_stream>>) (/tmp/opencode/linx-toolchain-build/output/linx_blockisa_llvm_musl/bin/clang+++0x21aa558)
+#19 0x0000aaaaaf08aa8c clang::BackendConsumer::HandleTranslationUnit(clang::ASTContext&) (/tmp/opencode/linx-toolchain-build/output/linx_blockisa_llvm_musl/bin/clang+++0x2e5aa8c)
+#20 0x0000aaaaafd9c0f8 clang::ParseAST(clang::Sema&, bool, bool) (/tmp/opencode/linx-toolchain-build/output/linx_blockisa_llvm_musl/bin/clang+++0x3b6c0f8)
+#21 0x0000aaaaaeabcd78 clang::FrontendAction::Execute() (/tmp/opencode/linx-toolchain-build/output/linx_blockisa_llvm_musl/bin/clang+++0x288cd78)
+#22 0x0000aaaaaea5dcd8 clang::CompilerInstance::ExecuteAction(clang::FrontendAction&) (/tmp/opencode/linx-toolchain-build/output/linx_blockisa_llvm_musl/bin/clang+++0x282dcd8)
+#23 0x0000aaaaaeb8e5c0 clang::ExecuteCompilerInvocation(clang::CompilerInstance*) (/tmp/opencode/linx-toolchain-build/output/linx_blockisa_llvm_musl/bin/clang+++0x295e5c0)
+#24 0x0000aaaaace673c0 cc1_main(llvm::ArrayRef<char const*>, char const*, void*) (/tmp/opencode/linx-toolchain-build/output/linx_blockisa_llvm_musl/bin/clang+++0xc373c0)
+#25 0x0000aaaaace61634 ExecuteCC1Tool(llvm::SmallVectorImpl<char const*>&) driver.cpp:0:0
+#26 0x0000aaaaae8f59bc void llvm::function_ref<void ()>::callback_fn<clang::driver::CC1Command::Execute(llvm::ArrayRef<llvm::Optional<llvm::StringRef>>, std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char>>*, bool*) const::'lambda'()>(long) Job.cpp:0:0
+#27 0x0000aaaaadfdb380 llvm::CrashRecoveryContext::RunSafely(llvm::function_ref<void ()>) (/tmp/opencode/linx-toolchain-build/output/linx_blockisa_llvm_musl/bin/clang+++0x1dab380)
+#28 0x0000aaaaae8f73b8 clang::driver::CC1Command::Execute(llvm::ArrayRef<llvm::Optional<llvm::StringRef>>, std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char>>*, bool*) const (.part.0) Job.cpp:0:0
+#29 0x0000aaaaae8c5980 clang::driver::Compilation::ExecuteCommand(clang::driver::Command const&, clang::driver::Command const*&, bool) const (/tmp/opencode/linx-toolchain-build/output/linx_blockisa_llvm_musl/bin/clang+++0x2695980)
+#30 0x0000aaaaae8c62d4 clang::driver::Compilation::ExecuteJobs(clang::driver::JobList const&, llvm::SmallVectorImpl<std::pair<int, clang::driver::Command const*>>&, bool) const (/tmp/opencode/linx-toolchain-build/output/linx_blockisa_llvm_musl/bin/clang+++0x26962d4)
+#31 0x0000aaaaae8d6084 clang::driver::Driver::ExecuteCompilation(clang::driver::Compilation&, llvm::SmallVectorImpl<std::pair<int, clang::driver::Command const*>>&) (/tmp/opencode/linx-toolchain-build/output/linx_blockisa_llvm_musl/bin/clang+++0x26a6084)
+#32 0x0000aaaaace65c30 clang_main(int, char**) (/tmp/opencode/linx-toolchain-build/output/linx_blockisa_llvm_musl/bin/clang+++0xc35c30)
+#33 0x0000ffff8c8b84c4 __libc_start_call_main ./csu/../sysdeps/nptl/libc_start_call_main.h:74:3
+#34 0x0000ffff8c8b8598 call_init ./csu/../csu/libc-start.c:128:20
+#35 0x0000ffff8c8b8598 __libc_start_main ./csu/../csu/libc-start.c:347:5
+#36 0x0000aaaaace60930 _start (/tmp/opencode/linx-toolchain-build/output/linx_blockisa_llvm_musl/bin/clang+++0xc30930)
+clang-15: error: clang frontend command failed with exit code 70 (use -v to see invocation)
+clang version 15.0.4 (linx64v5-musl-local 910e5c8a07a6fa503c98755407e15bb68995bd3c)
+Target: linx64v5-unknown-linux-musl
+Thread model: posix
+InstalledDir: /tmp/opencode/linx-toolchain-build/output/linx_blockisa_llvm_musl/bin
+clang-15: note: diagnostic msg: 
+********************
+
+PLEASE ATTACH THE FOLLOWING FILES TO THE BUG REPORT:
+Preprocessed source(s) and associated run script(s) are located at:
+clang-15: note: diagnostic msg: /tmp/group_token_vec_mt_dyn-d5826d.cpp
+clang-15: note: diagnostic msg: /tmp/group_token_vec_mt_dyn-d5826d.sh
+clang-15: note: diagnostic msg: 
+
+********************
+make: *** [../../common/Makefile.common:142: /mnt/workspace/CANNBOT/wt/snb-main-latest/benchmark/one-level-arch/output/solution/group_token_vec/src/group_token_vec_mt_dyn.o] Error 1
