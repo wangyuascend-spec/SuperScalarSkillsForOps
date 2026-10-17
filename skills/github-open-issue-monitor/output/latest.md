@@ -1,20 +1,20 @@
 # 监控账号未关闭 Issue 报告
 
-- 生成时间：2026-10-14T09:08:05+08:00
+- 生成时间：2026-10-17T08:05:32+08:00
 - 时区：Asia/Shanghai
 - 监控账号：18
 - 目标仓库：5
-- 匹配的未关闭 Issue：27
+- 匹配的未关闭 Issue：31
 
 ## 汇总
 
 | 类型 | 仓库 | 未关闭 Issue | 查询状态 |
 | --- | --- | ---: | --- |
 | spec | [PTO-ISA/pto-spec](https://github.com/PTO-ISA/pto-spec) | 0 | 成功 |
-| benchmark | [PTO-ISA/SuperNPUBench](https://github.com/PTO-ISA/SuperNPUBench) | 4 | 成功 |
+| benchmark | [PTO-ISA/SuperNPUBench](https://github.com/PTO-ISA/SuperNPUBench) | 6 | 成功 |
 | compiler | [LinxISA/llvm-project](https://github.com/LinxISA/llvm-project) | 1 | 成功 |
-| compiler | [LinxISA/Linx-TileOP-API](https://github.com/LinxISA/Linx-TileOP-API) | 2 | 成功 |
-| model | [LinxISA/SuperScalarModel](https://github.com/LinxISA/SuperScalarModel) | 20 | 成功 |
+| compiler | [LinxISA/Linx-TileOP-API](https://github.com/LinxISA/Linx-TileOP-API) | 1 | 成功 |
+| model | [LinxISA/SuperScalarModel](https://github.com/LinxISA/SuperScalarModel) | 23 | 成功 |
 
 ## PTO-ISA/pto-spec
 
@@ -24,7 +24,9 @@
 
 | Issue | 作者 | 标题 | 创建时间 | 更新时间 | 标签 |
 | ---: | --- | --- | --- | --- | --- |
-| [#238](https://github.com/PTO-ISA/SuperNPUBench/issues/238) | 林鹏翔 (`ordinarylpx`) | matmul_test M120 Cube 气泡——TLSU 搬运带宽不足 + tN=256 受 internal_acc 条目数限制 | 2026-10-13 13:56:59 UTC | 2026-10-13 13:56:59 UTC | - |
+| [#249](https://github.com/PTO-ISA/SuperNPUBench/issues/249) | 林鹏翔 (`ordinarylpx`) | [matmul]pow2 tile 约束 + tM∈{64,128} 组合契约挤压非 2 幂 shape——M160 逻辑 MFU 实测上限仅 53.9% | 2026-10-16 08:56:57 UTC | 2026-10-16 08:56:57 UTC | - |
+| [#238](https://github.com/PTO-ISA/SuperNPUBench/issues/238) | 林鹏翔 (`ordinarylpx`) | matmul_test M120 Cube 气泡——TLSU 搬运带宽不足 + tN=256 受 internal_acc 条目数限制 | 2026-10-13 13:56:59 UTC | 2026-10-15 06:37:27 UTC | - |
+| [#240](https://github.com/PTO-ISA/SuperNPUBench/issues/240) | 林鹏翔 (`ordinarylpx`) | Matmul BF16场景基本块设置(128, 256)会出现模型报错 | 2026-10-14 02:09:39 UTC | 2026-10-14 02:09:39 UTC | - |
 | [#132](https://github.com/PTO-ISA/SuperNPUBench/issues/132) | 王宇 (`wangyuascend-spec`) | [gfsim][normalization] group_norm_grad_static 4PE Real-L2 deadlock | 2026-09-13 09:13:03 UTC | 2026-10-09 00:54:30 UTC | - |
 | [#199](https://github.com/PTO-ISA/SuperNPUBench/issues/199) | 王宇 (`wangyuascend-spec`) | [quant_batch_matmul][mxfp4] 单 PE M8192 用例编译失败：Local MX ScaleA 需 CUBE_M32 layout，kernel 仍为 RowMajor | 2026-09-29 03:41:43 UTC | 2026-09-29 10:12:26 UTC | - |
 | [#115](https://github.com/PTO-ISA/SuperNPUBench/issues/115) | 王宇 (`wangyuascend-spec`) | [matmul][gfrun] 全量验证 ops-20260904:shared 系 6 例 cooperative TMATMUL 输出全 NaN + FP4 packed 全错 + 13 例 CUBE 契约编译失败 | 2026-09-07 10:49:34 UTC | 2026-09-29 09:51:20 UTC | - |
@@ -39,18 +41,20 @@
 
 | Issue | 作者 | 标题 | 创建时间 | 更新时间 | 标签 |
 | ---: | --- | --- | --- | --- | --- |
-| [#262](https://github.com/LinxISA/Linx-TileOP-API/issues/262) | 程子杨 (`ziyang-cheng`) | [Linx-TileOP-API] PR #248 起 pto_region_unary 引用 Tile 类不存在的 PhysicalCol 成员（实际定义在 SubTileView 上），自带测试 TileRegionCubeSubview（compile.all 默认清单内）编译失败，TPARTVIEW 切片 + TROWMAX/TROWSUM/TEXP/TROWMIN 全部堵死 | 2026-10-13 07:17:27 UTC | 2026-10-13 07:17:27 UTC | - |
 | [#166](https://github.com/LinxISA/Linx-TileOP-API/issues/166) | 王宇 (`wangyuascend-spec`) | [TROWSUM] Assemble parent valid shape 与后续 consumer B.DIM 不一致，缺 bounded source view/shape propagation | 2026-09-17 15:02:30 UTC | 2026-09-30 01:44:33 UTC | bug |
 
 ## LinxISA/SuperScalarModel
 
 | Issue | 作者 | 标题 | 创建时间 | 更新时间 | 标签 |
 | ---: | --- | --- | --- | --- | --- |
+| [#968](https://github.com/LinxISA/SuperScalarModel/issues/968) | 程子杨 (`ziyang-cheng`) | [gfsim][TLSU] TASSEMBLE 组装 parent 的消费路径未闭合：TSTORE 组装 parent 默认配置崩 l2_agu.cpp:251 entry.col >= entry.validCol；开 assemble_enable 改崩 GetProducerTag mapQ 断言 | 2026-10-13 08:12:43 UTC | 2026-10-16 09:06:13 UTC | - |
+| [#989](https://github.com/LinxISA/SuperScalarModel/issues/989) | 程子杨 (`ziyang-cheng`) | [gfrun][NA] TROWEXPAND 族双源 B.IOT + 双 B.SUBVIEW 支持缺口：HandleBSubview 操作数绑定错位 + DeferredSubviewSourceCarrierLegal 误拒宽 parent（TileOP #253 发射侧已修） | 2026-10-15 08:40:35 UTC | 2026-10-16 06:25:12 UTC | - |
+| [#979](https://github.com/LinxISA/SuperScalarModel/issues/979) | 程子杨 (`ziyang-cheng`) | [gfrun][NA] TROWEXPAND 族不解码 B.DATR.RMode 的 BroadcastByteOffset（规范 normative 字段）——CUBE 打包 CELL 广播恒读列 0，奇数槽拿错系数，静默错值无断言 | 2026-10-14 09:32:23 UTC | 2026-10-16 06:25:06 UTC | - |
+| [#993](https://github.com/LinxISA/SuperScalarModel/issues/993) | 程子杨 (`ziyang-cheng`) | [gfsim][VECTOR] gfrun 逐字节 PASS 而 gfsim abort：PTO #291 CUBE 元素级严格校验拒绝 B.ASSEMBLE 组装产物作为元素级源/目的（请求按 pto-spec 裁决并统一两模型实现） | 2026-10-15 14:25:16 UTC | 2026-10-15 14:25:16 UTC | - |
+| [#971](https://github.com/LinxISA/SuperScalarModel/issues/971) | 程子杨 (`ziyang-cheng`) | [gfsim][CELLREG] tile size-class 分配器路径 FreeSingleFreeEntry producerCnt 下溢断言：TileN=128 宽 tile kernel gfsim abort（tile_size_class_enable=false 即跑通，80,923 cycles） | 2026-10-13 09:17:14 UTC | 2026-10-14 08:54:12 UTC | - |
 | [#644](https://github.com/LinxISA/SuperScalarModel/issues/644) | 王宇 (`wangyuascend-spec`) | [gfrun][NA] Diagnose GroupNormGrad1D TLOAD descriptor preflight failure | 2026-09-12 09:53:12 UTC | 2026-10-13 16:56:24 UTC | - |
 | [#894](https://github.com/LinxISA/SuperScalarModel/issues/894) | 王宇 (`wangyuascend-spec`) | [gfrun][gfsim] 支持 ISA v0.2 Core4 屏障 SYNCALL<core_scope>（FENCE.D.CORE4）：解码 FenceMode=1 + 4PE 汇合，保证跨 PE GM 写后读 | 2026-09-29 10:55:12 UTC | 2026-10-13 16:55:14 UTC | invalid-title |
 | [#963](https://github.com/LinxISA/SuperScalarModel/issues/963) | 王宇 (`wangyuascend-spec`) | [gfrun][SSR] THREAD_ID 0x0026 is unimplemented: four-PE threads read zero; gfsim has the same handling gap | 2026-10-13 01:51:58 UTC | 2026-10-13 16:54:55 UTC | invalid-title |
-| [#971](https://github.com/LinxISA/SuperScalarModel/issues/971) | 程子杨 (`ziyang-cheng`) | [gfsim][CELLREG] tile size-class 分配器路径 FreeSingleFreeEntry producerCnt 下溢断言：TileN=128 宽 tile kernel gfsim abort（tile_size_class_enable=false 即跑通，80,923 cycles） | 2026-10-13 09:17:14 UTC | 2026-10-13 09:17:44 UTC | - |
-| [#968](https://github.com/LinxISA/SuperScalarModel/issues/968) | 程子杨 (`ziyang-cheng`) | [gfsim][TLSU] TASSEMBLE 组装 parent 的消费路径未闭合：TSTORE 组装 parent 默认配置崩 l2_agu.cpp:251 entry.col >= entry.validCol；开 assemble_enable 改崩 GetProducerTag mapQ 断言 | 2026-10-13 08:12:43 UTC | 2026-10-13 08:18:51 UTC | - |
 | [#945](https://github.com/LinxISA/SuperScalarModel/issues/945) | 陈毅然 (`CYR-Firework`) | [gfsim][TLSU] Tile-store data half never lands (dataRdy=0) with hazard-sleeping loads: csa deadlock stable across main versions, now also hits the Td=256 residency form | 2026-10-12 01:43:00 UTC | 2026-10-12 14:17:39 UTC | - |
 | [#929](https://github.com/LinxISA/SuperScalarModel/issues/929) | 陈毅然 (`CYR-Firework`) | [gfsim][GROUP] 4-PE Shared TLOAD (GMMA_LD) collective-completion deadlock: one thread allocated, three completed-but-not-committed in circular wait (repro: QSMLA v3 CSA / fa_gmma_dynamic) | 2026-10-10 02:55:06 UTC | 2026-10-12 09:03:04 UTC | - |
 | [#930](https://github.com/LinxISA/SuperScalarModel/issues/930) | 陈毅然 (`CYR-Firework`) | [gfsim][TLSU] Local TMOV keep-alive for cross-back-edge tiles is emitted illegal: Shared-binder TMOV and generation size-mismatch (srcSize != dstSize) both trip 'Local TMOV requires one matching source and destination Tile' | 2026-10-10 03:26:34 UTC | 2026-10-12 08:57:03 UTC | - |
