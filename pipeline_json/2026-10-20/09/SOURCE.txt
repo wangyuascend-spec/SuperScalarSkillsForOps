@@ -1,0 +1,16 @@
+artifact=SwimLane pipeline JSON (gzip) + overview PNG, group_norm_grad before/after PR #250
+shapes=HxW N2 C16 G8 HxW2048; 1D N256 C512 G8; dtype=fp16, PE=4, res_check=off
+bench_v1=e21875bd1e31f6cd623658f6fcac158268de437d (main before PR #250; archived in group_norm_grad/V1)
+bench_merged=e0abfcd3b565c7ffb96e98be684533170000ff92 (PR #250 merge; active kernels == d68382f)
+compiler=clang 15.0.4 llvm-project 25f419f48bb4226ac29c0038f9162185ee6e3147, Linx-TileOP-API 9c3748e6aeb682b5e67fc916f9725a29276a2679 (0.58.7)
+model_cycles=a072ea3dc92c778255333050d2d23f4bd2ff8353, gfsim sha256 61dc6230d5109ace0acd485daf597ac4c4c679b50182f062ba0289ebf113a77a
+model_swimlane=a072ea3 + LinxISA/SuperScalarModel#992 fix (e.stid == cmd->stid), gfsim sha256 35a872fa015b6398875c12434ff22744aaad89e786cc4d92668a42f6cf214617
+command=gfsim -f <elf> --conf fourpe --pto-v02 true -s tlsu.fake_l2_enable=false -s core.soc_random=true -s core.soc_lat_random_seed=2 [--swimlane 1]
+gfsim_hw_v1=PASS, cycles=17060, scb_waw_tile=93
+gfsim_hw_merged=PASS, cycles=12021, scb_waw_tile=34
+gfsim_1d_v1=PASS, cycles=55417, scb_waw_tile=0
+gfsim_1d_merged=PASS, cycles=22651, scb_waw_tile=17
+950123d321e79ea56f26244f1d870b3dee3467f455ecaca41506fd40b0dd8342  group_norm_grad_dynamic_N2_C16_G8_HxW2048_v1_e21875b.elf
+60312d336415c983609fe9007fc7a4ac226f06922abaf230aa1b4ef765042c38  group_norm_grad_dynamic_N2_C16_G8_HxW2048_merged_e0abfcd.elf
+39f72ab4bb18b507ed4934f35eed765644e6be84f464bee9f86c11425e99a3c7  group_norm_grad_1d_dynamic_N256_C512_G8_v1_e21875b.elf
+b1b7e6a138f59c2a374bda8b3f43298f142d26cda4273cf54d4504571a2086ca  group_norm_grad_1d_dynamic_N256_C512_G8_merged_e0abfcd.elf
