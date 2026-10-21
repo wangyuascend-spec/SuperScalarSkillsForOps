@@ -1,0 +1,9 @@
+artifact=ELF disassembly (llvm-objdump -dl) for solution/conv2d
+cases=conv2d_img2col (static N=2 Cin=8 32x32 Co=32 K=2x2 S=2); conv2d_img2col_dyn (dyn N=2 Cin=16 32x64 Co=48 K=1x2)
+dtype=fp16, PE=4, res_check=off
+bench=ops-20261021-newcc = origin/main = 5afe215169495bb8e8f03644be5000ffb5b51fe3
+compiler=clang 15.0.4 llvm-project 25f419f48bb4226ac29c0038f9162185ee6e3147, Linx-TileOP-API 9c3748e6aeb682b5e67fc916f9725a29276a2679
+command=cd test/solution/conv2d && COMPILER_DIR=<linx_blockisa_llvm_musl/bin> bash compile.all  # make TESTCASE=... diss
+source_elf=solution_conv2d_conv2d_img2col_PE4.elf ; solution_conv2d_conv2d_img2col_dyn_PE4.elf
+f495cdf516bbaa32b150a652faaf8fdda37a8b18d94469853031a9edc745ae07  solution_conv2d_conv2d_img2col_PE4.elf.diss
+3bb81c4e900fc11b912b33e2a54dcff147a50fff0eeb129b8b87eaf93a2d3cbc  solution_conv2d_conv2d_img2col_dyn_PE4.elf.diss
