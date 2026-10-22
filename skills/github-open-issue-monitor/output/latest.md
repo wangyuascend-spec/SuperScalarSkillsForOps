@@ -1,10 +1,10 @@
 # 监控账号未关闭 Issue 报告
 
-- 生成时间：2026-10-21T08:01:51+08:00
+- 生成时间：2026-10-22T08:29:43+08:00
 - 时区：Asia/Shanghai
 - 监控账号：18
 - 目标仓库：5
-- 匹配的未关闭 Issue：37
+- 匹配的未关闭 Issue：38
 
 ## 汇总
 
@@ -14,7 +14,7 @@
 | benchmark | [PTO-ISA/SuperNPUBench](https://github.com/PTO-ISA/SuperNPUBench) | 7 | 成功 |
 | compiler | [LinxISA/llvm-project](https://github.com/LinxISA/llvm-project) | 2 | 成功 |
 | compiler | [LinxISA/Linx-TileOP-API](https://github.com/LinxISA/Linx-TileOP-API) | 1 | 成功 |
-| model | [LinxISA/SuperScalarModel](https://github.com/LinxISA/SuperScalarModel) | 27 | 成功 |
+| model | [LinxISA/SuperScalarModel](https://github.com/LinxISA/SuperScalarModel) | 28 | 成功 |
 
 ## PTO-ISA/pto-spec
 
@@ -49,6 +49,7 @@
 
 | Issue | 作者 | 标题 | 创建时间 | 更新时间 | 标签 |
 | ---: | --- | --- | --- | --- | --- |
+| [#1050](https://github.com/LinxISA/SuperScalarModel/issues/1050) | 张旭波 (`KeepTryingTo`) | [gfsim][vector] 使用最新SuperScalarModel主线代码对moe_dispatch_mt_dyn的gfsim仿真出错SuperScalarModel/TimingSim/frontend/bctrl/bfu/bfu_brq.cpp:821行“Assertion `it != brq[stid].end()' failed.” | 2026-10-21 02:07:05 UTC | 2026-10-21 02:07:14 UTC | invalid-title |
 | [#1038](https://github.com/LinxISA/SuperScalarModel/issues/1038) | 陈毅然 (`CYR-Firework`) | [gfsim][OEX] 均匀常量数组物化错误（奇数下标元素 2×）→ 污染 shape 数组致 transpose 小 shape 结果错误 | 2026-10-20 07:03:09 UTC | 2026-10-20 12:41:40 UTC | bug |
 | [#1036](https://github.com/LinxISA/SuperScalarModel/issues/1036) | 陈毅然 (`CYR-Firework`) | [gfrun][NA] v3 CSA 多 work（kWorkCount>1）时编译器 tile 窗口引用未物化槽 → tile-ROB 越界 | 2026-10-20 04:34:09 UTC | 2026-10-20 08:17:05 UTC | - |
 | [#989](https://github.com/LinxISA/SuperScalarModel/issues/989) | 程子杨 (`ziyang-cheng`) | [gfrun][NA] TROWEXPAND 族双源 B.IOT + 双 B.SUBVIEW 支持缺口：HandleBSubview 操作数绑定错位 + DeferredSubviewSourceCarrierLegal 误拒宽 parent（TileOP #253 发射侧已修） | 2026-10-15 08:40:35 UTC | 2026-10-20 01:38:38 UTC | - |
