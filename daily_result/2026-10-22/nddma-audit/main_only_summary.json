@@ -1,0 +1,38 @@
+[
+  {
+    "repo": "ops-nn",
+    "total": 648,
+    "direct": 58,
+    "broadcast": 25,
+    "reduce": 9,
+    "shared": 13,
+    "nddma": 105
+  },
+  {
+    "repo": "ops-math",
+    "total": 398,
+    "direct": 25,
+    "broadcast": 47,
+    "reduce": 18,
+    "shared": 16,
+    "nddma": 106
+  },
+  {
+    "repo": "ops-transformer",
+    "total": 220,
+    "direct": 2,
+    "broadcast": 0,
+    "reduce": 2,
+    "shared": 3,
+    "nddma": 7
+  },
+  {
+    "repo": "ops-cv",
+    "total": 94,
+    "direct": 2,
+    "broadcast": 0,
+    "reduce": 0,
+    "shared": 0,
+    "nddma": 2
+  }
+]

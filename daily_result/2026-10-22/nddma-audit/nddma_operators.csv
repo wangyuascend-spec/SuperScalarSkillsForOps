@@ -1,0 +1,221 @@
+﻿repo,operator,path,classification,evidence
+ops-nn,confusion_softmax_grad,activation/confusion_softmax_grad,显式 NDDMA,ops-nn/activation/confusion_softmax_grad/op_kernel/arch35/confusion_softmax_grad_ar_small_r.h:308; ops-nn/activation/confusion_softmax_grad/op_kernel/arch35/confusion_softmax_grad_ar_small_r.h:315
+ops-nn,fused_bias_leaky_relu_grad,activation/fused_bias_leaky_relu_grad,显式 NDDMA,ops-nn/activation/fused_bias_leaky_relu_grad/op_kernel/arch35/fused_bias_leaky_relu_grad_kernel.h:151
+ops-nn,gelu_grad,activation/gelu_grad,atvoss broadcast,ops-nn/activation/gelu_grad/op_kernel/gelu_grad_apt.cpp:29
+ops-nn,gelu_grad_v2,activation/gelu_grad_v2,atvoss broadcast,ops-nn/activation/gelu_grad_v2/op_kernel/gelu_grad_v2_apt.cpp:31; ops-nn/activation/gelu_grad_v2/op_kernel/gelu_grad_v2_apt.cpp:35
+ops-nn,leaky_relu_grad,activation/leaky_relu_grad,atvoss broadcast,ops-nn/activation/leaky_relu_grad/op_kernel/leaky_relu_grad_apt.cpp:30
+ops-nn,log_softmax_grad,activation/log_softmax_grad,显式 NDDMA,ops-nn/activation/log_softmax_grad/op_kernel/arch35/log_softmax_grad_ar_small_r.h:283; ops-nn/activation/log_softmax_grad/op_kernel/arch35/log_softmax_grad_ar_small_r.h:290
+ops-nn,log_softmax_v2,activation/log_softmax_v2,显式 NDDMA,ops-nn/activation/log_softmax_v2/op_kernel/arch35/log_softmax_v2_ar_small_r.h:280; ops-nn/activation/log_softmax_v2/op_kernel/arch35/log_softmax_v2_ar_small_r.h:287
+ops-nn,logsigmoid_grad,activation/logsigmoid_grad,atvoss broadcast,ops-nn/activation/logsigmoid_grad/op_kernel/logsigmoid_grad.cpp:31
+ops-nn,p_relu,activation/p_relu,atvoss broadcast,ops-nn/activation/p_relu/op_kernel/p_relu_apt.cpp:26
+ops-nn,p_relu_grad_reduce,activation/p_relu_grad_reduce,atvoss reduce,ops-nn/activation/p_relu_grad_reduce/op_kernel/p_relu_grad_reduce_apt.cpp:42
+ops-nn,p_relu_grad_update,activation/p_relu_grad_update,atvoss broadcast,ops-nn/activation/p_relu_grad_update/op_kernel/p_relu_grad_update_apt.cpp:33
+ops-nn,relu6_grad,activation/relu6_grad,atvoss broadcast,ops-nn/activation/relu6_grad/op_kernel/relu6_grad_apt.cpp:32; ops-nn/activation/relu6_grad/op_kernel/relu6_grad_apt.cpp:36
+ops-nn,relu_grad,activation/relu_grad,atvoss broadcast,ops-nn/activation/relu_grad/op_kernel/relu_grad_apt.cpp:34; ops-nn/activation/relu_grad/op_kernel/relu_grad_apt.cpp:38
+ops-nn,silu_grad,activation/silu_grad,显式 NDDMA,ops-nn/activation/silu_grad/op_kernel/arch35/silu_grad_bf16_nddma_with_loops.h:89; ops-nn/activation/silu_grad/op_kernel/arch35/silu_grad_bf16_nddma_with_loops.h:150
+ops-nn,softmax_cross_entropy_with_logits,activation/softmax_cross_entropy_with_logits,显式 NDDMA,ops-nn/activation/softmax_cross_entropy_with_logits/op_kernel/arch35/softmax_cross_entropy_with_logits_full_load.h:286; ops-nn/activation/softmax_cross_entropy_with_logits/op_kernel/arch35/softmax_cross_entropy_with_logits_full_load.h:304
+ops-nn,softmax_grad,activation/softmax_grad,显式 NDDMA,ops-nn/activation/softmax_grad/op_kernel/arch35/softmax_grad_ar_small_r.h:283; ops-nn/activation/softmax_grad/op_kernel/arch35/softmax_grad_ar_small_r.h:290
+ops-nn,softmax_grad_ext,activation/softmax_grad_ext,显式 NDDMA,ops-nn/activation/softmax_grad_ext/op_kernel/arch35/softmax_grad_ext_ar_small_r.h:401; ops-nn/activation/softmax_grad_ext/op_kernel/arch35/softmax_grad_ext_ar_small_r.h:410
+ops-nn,softmax_v2,activation/softmax_v2,显式 NDDMA,ops-nn/activation/softmax_v2/op_kernel/arch35/softmax_v2_ar_small_r.h:274; ops-nn/activation/softmax_v2/op_kernel/arch35/softmax_v2_ar_small_r.h:281
+ops-nn,softplus_grad,activation/softplus_grad,atvoss broadcast,ops-nn/activation/softplus_grad/op_kernel/softplus_grad.cpp:40
+ops-nn,softplus_v2_grad,activation/softplus_v2_grad,显式 NDDMA,ops-nn/activation/softplus_v2_grad/op_kernel/arch35/softplus_v2_grad_kernel.h:143
+ops-nn,threshold_grad_v2_d,activation/threshold_grad_v2_d,atvoss broadcast,ops-nn/activation/threshold_grad_v2_d/op_kernel/threshold_grad_v2_d.cpp:30; ops-nn/activation/threshold_grad_v2_d/op_kernel/threshold_grad_v2_d.cpp:33
+ops-nn,conv2d_v2,conv/conv2d_v2,显式 NDDMA,ops-nn/conv/conv2d_v2/op_kernel/arch35/conv2d_v2_depthwise_simplify.h:410; ops-nn/conv/conv2d_v2/op_kernel/arch35/conv2d_v2_depthwise_simplify.h:429
+ops-nn,conv3d_backprop_input_v2,conv/conv3d_backprop_input_v2,显式 NDDMA,ops-nn/conv/conv3d_backprop_input_v2/op_kernel/arch35/convolution_3d_backprop/conv3d_bp_impl_base.h:162
+ops-nn,conv3d_transpose_v2,conv/conv3d_transpose_v2,共享 kernel,ops-nn/conv/conv3d_backprop_input_v2/op_kernel/arch35/convolution_3d_backprop/conv3d_bp_impl_base.h:162
+ops-nn,conv3d_v2,conv/conv3d_v2,共享 kernel,ops-nn/conv/common/op_kernel/arch35/conv_instr_opt_group_impl.h:120; ops-nn/conv/common/op_kernel/arch35/conv_instr_opt_group_impl.h:121
+ops-nn,extend_conv2d,conv/extend_conv2d,共享 kernel,ops-nn/conv/common/op_kernel/arch35/conv_instr_opt_group_impl.h:120; ops-nn/conv/common/op_kernel/arch35/conv_instr_opt_group_impl.h:121
+ops-nn,extend_conv_transpose,conv/extend_conv_transpose,共享 kernel,ops-nn/conv/conv3d_backprop_input_v2/op_kernel/arch35/convolution_3d_backprop/conv3d_bp_impl_base.h:162
+ops-nn,extend_conv_transpose_v2,conv/extend_conv_transpose_v2,共享 kernel,ops-nn/conv/conv3d_backprop_input_v2/op_kernel/arch35/convolution_3d_backprop/conv3d_bp_impl_base.h:162
+ops-nn,quant_conv2d,conv/quant_conv2d,共享 kernel,ops-nn/conv/common/op_kernel/arch35/conv_instr_opt_group_impl.h:120; ops-nn/conv/common/op_kernel/arch35/conv_instr_opt_group_impl.h:121
+ops-nn,quant_conv3d,conv/quant_conv3d,共享 kernel,ops-nn/conv/common/op_kernel/arch35/conv_instr_opt_group_impl.h:120; ops-nn/conv/common/op_kernel/arch35/conv_instr_opt_group_impl.h:121
+ops-nn,repeat_interleave_grad,index/repeat_interleave_grad,atvoss reduce,ops-nn/index/repeat_interleave_grad/op_kernel/repeat_interleave_grad_apt.cpp:54
+ops-nn,scatter_elements,index/scatter_elements,显式 NDDMA,ops-nn/index/scatter_elements/op_kernel/arch35/scatter_elements_deterministic.h:443; ops-nn/index/scatter_elements/op_kernel/arch35/scatter_elements_deterministic.h:457
+ops-nn,scatter_elements_v2,index/scatter_elements_v2,显式 NDDMA,ops-nn/index/scatter_elements_v2/op_kernel/arch35/scatter_elements_v2_deterministic.h:414; ops-nn/index/scatter_elements_v2/op_kernel/arch35/scatter_elements_v2_deterministic.h:428
+ops-nn,sparse_slice,index/sparse_slice,显式 NDDMA,ops-nn/index/sparse_slice/op_kernel/arch35/sparse_slice_dimension_base.h:393; ops-nn/index/sparse_slice/op_kernel/arch35/sparse_slice_dimension_base.h:398
+ops-nn,unique_with_counts_and_sorting,index/unique_with_counts_and_sorting,显式 NDDMA,ops-nn/index/unique_with_counts_and_sorting/op_kernel/arch35/sort/unique_sort_small_axis_two_stage.h:192; ops-nn/index/unique_with_counts_and_sorting/op_kernel/arch35/sort/unique_sort_small_axis_two_stage.h:194
+ops-nn,binary_cross_entropy,loss/binary_cross_entropy,atvoss reduce,ops-nn/loss/binary_cross_entropy/op_kernel/binary_cross_entropy.cpp:48; ops-nn/loss/binary_cross_entropy/op_kernel/binary_cross_entropy.cpp:49
+ops-nn,binary_cross_entropy_grad,loss/binary_cross_entropy_grad,atvoss broadcast,ops-nn/loss/binary_cross_entropy_grad/op_kernel/binary_cross_entropy_grad.cpp:31; ops-nn/loss/binary_cross_entropy_grad/op_kernel/binary_cross_entropy_grad.cpp:35
+ops-nn,kl_div_loss_grad,loss/kl_div_loss_grad,atvoss broadcast,ops-nn/loss/kl_div_loss_grad/op_kernel/kl_div_loss_grad.cpp:30; ops-nn/loss/kl_div_loss_grad/op_kernel/kl_div_loss_grad.cpp:34
+ops-nn,kl_div_target_loss_grad,loss/kl_div_target_loss_grad,atvoss broadcast,ops-nn/loss/kl_div_target_loss_grad/op_kernel/kl_div_target_loss_grad_apt.cpp:30; ops-nn/loss/kl_div_target_loss_grad/op_kernel/kl_div_target_loss_grad_apt.cpp:34
+ops-nn,l1_loss_grad,loss/l1_loss_grad,atvoss broadcast,ops-nn/loss/l1_loss_grad/op_kernel/l1_loss_grad.cpp:38; ops-nn/loss/l1_loss_grad/op_kernel/l1_loss_grad.cpp:42
+ops-nn,l2_loss,loss/l2_loss,atvoss reduce,ops-nn/loss/l2_loss/op_kernel/l2_loss.cpp:42
+ops-nn,lp_loss,loss/lp_loss,atvoss reduce,ops-nn/loss/lp_loss/op_kernel/lp_loss.cpp:43; ops-nn/loss/lp_loss/op_kernel/lp_loss.cpp:48
+ops-nn,mse_loss,loss/mse_loss,atvoss reduce,ops-nn/loss/mse_loss/op_kernel/mse_loss.cpp:43; ops-nn/loss/mse_loss/op_kernel/mse_loss.cpp:48
+ops-nn,mse_loss_grad,loss/mse_loss_grad,atvoss broadcast,ops-nn/loss/mse_loss_grad/op_kernel/mse_loss_grad.cpp:29; ops-nn/loss/mse_loss_grad/op_kernel/mse_loss_grad.cpp:33
+ops-nn,mse_loss_grad_v2,loss/mse_loss_grad_v2,显式 NDDMA,ops-nn/loss/mse_loss_grad_v2/op_kernel/arch35/mse_loss_grad_v2_kernel.h:177
+ops-nn,sigmoid_cross_entropy_with_logits_grad_v2,loss/sigmoid_cross_entropy_with_logits_grad_v2,atvoss broadcast,ops-nn/loss/sigmoid_cross_entropy_with_logits_grad_v2/op_kernel/sigmoid_cross_entropy_with_logits_grad_v2_apt.cpp:34; ops-nn/loss/sigmoid_cross_entropy_with_logits_grad_v2/op_kernel/sigmoid_cross_entropy_with_logits_grad_v2_apt.cpp:38
+ops-nn,sigmoid_cross_entropy_with_logits_v2,loss/sigmoid_cross_entropy_with_logits_v2,atvoss broadcast,ops-nn/loss/sigmoid_cross_entropy_with_logits_v2/op_kernel/sigmoid_cross_entropy_with_logits_v2.cpp:32; ops-nn/loss/sigmoid_cross_entropy_with_logits_v2/op_kernel/sigmoid_cross_entropy_with_logits_v2.cpp:37
+ops-nn,smooth_l1_loss_grad_v2,loss/smooth_l1_loss_grad_v2,atvoss broadcast,ops-nn/loss/smooth_l1_loss_grad_v2/op_kernel/smooth_l1_loss_grad_v2.cpp:28; ops-nn/loss/smooth_l1_loss_grad_v2/op_kernel/smooth_l1_loss_grad_v2.cpp:32
+ops-nn,smooth_l1_loss_v2,loss/smooth_l1_loss_v2,atvoss reduce,ops-nn/loss/smooth_l1_loss_v2/op_kernel/smooth_l1_loss_v2.cpp:46; ops-nn/loss/smooth_l1_loss_v2/op_kernel/smooth_l1_loss_v2.cpp:55
+ops-nn,soft_margin_loss,loss/soft_margin_loss,atvoss reduce,ops-nn/loss/soft_margin_loss/op_kernel/soft_margin_loss.cpp:41; ops-nn/loss/soft_margin_loss/op_kernel/soft_margin_loss.cpp:46
+ops-nn,soft_margin_loss_grad,loss/soft_margin_loss_grad,显式 NDDMA,ops-nn/loss/soft_margin_loss_grad/op_kernel/arch35/soft_margin_loss_grad.h:105
+ops-nn,batch_mat_mul_v3,matmul/batch_mat_mul_v3,共享 kernel,ops-nn/matmul/common/cmct/tile/x3_copy_utils.h:35
+ops-nn,add_rms_norm,norm/add_rms_norm,显式 NDDMA,ops-nn/norm/add_rms_norm/op_kernel/arch35/add_rms_norm_regbase.h:312; ops-nn/norm/add_rms_norm/op_kernel/arch35/add_rms_norm_regbase_trans.h:153
+ops-nn,add_rms_norm_cast,norm/add_rms_norm_cast,显式 NDDMA,ops-nn/norm/add_rms_norm_cast/op_kernel/arch35/add_rms_norm_cast_regbase.h:114
+ops-nn,batch_norm,norm/batch_norm,显式 NDDMA,ops-nn/norm/batch_norm/op_kernel/arch35/batch_norm_full_reduce.h:196; ops-nn/norm/batch_norm/op_kernel/arch35/batch_norm_full_reduce.h:214
+ops-nn,batch_norm3_d,norm/batch_norm3_d,显式 NDDMA,ops-nn/norm/batch_norm3_d/op_kernel/arch35/batch_norm3d_full_reduce.h:196; ops-nn/norm/batch_norm3_d/op_kernel/arch35/batch_norm3d_full_reduce.h:214
+ops-nn,batch_norm_ext2,norm/batch_norm_ext2,显式 NDDMA,ops-nn/norm/batch_norm_ext2/op_kernel/arch35/batch_norm_ext2_full_reduce.h:196; ops-nn/norm/batch_norm_ext2/op_kernel/arch35/batch_norm_ext2_full_reduce.h:214
+ops-nn,batch_norm_grad_v3,norm/batch_norm_grad_v3,显式 NDDMA,ops-nn/norm/batch_norm_grad_v3/op_kernel/arch35/batch_norm_grad_v3_common.h:269; ops-nn/norm/batch_norm_grad_v3/op_kernel/arch35/batch_norm_grad_v3_common.h:277
+ops-nn,batch_norm_v3,norm/batch_norm_v3,显式 NDDMA,ops-nn/norm/batch_norm_v3/op_kernel/arch35/batch_norm_v3.h:236; ops-nn/norm/batch_norm_v3/op_kernel/arch35/batch_norm_v3.h:254
+ops-nn,bn3_d_training_reduce_grad,norm/bn3_d_training_reduce_grad,显式 NDDMA,ops-nn/norm/bn3_d_training_reduce_grad/op_kernel/arch35/bn3d_training_reduce_grad_kernel.h:742; ops-nn/norm/bn3_d_training_reduce_grad/op_kernel/arch35/bn3d_training_reduce_grad_kernel.h:743
+ops-nn,bn3d_training_update_grad,norm/bn3d_training_update_grad,显式 NDDMA,ops-nn/norm/bn3d_training_update_grad/op_kernel/arch35/bn3d_training_update_grad_base_kernel.h:639; ops-nn/norm/bn3d_training_update_grad/op_kernel/arch35/bn3d_training_update_grad_base_kernel.h:641
+ops-nn,bn_infer_grad,norm/bn_infer_grad,显式 NDDMA,ops-nn/norm/bn_infer_grad/op_kernel/arch35/bn_infer_grad.h:114; ops-nn/norm/bn_infer_grad/op_kernel/arch35/bn_infer_grad.h:115
+ops-nn,bn_training_reduce,norm/bn_training_reduce,显式 NDDMA,ops-nn/norm/bn_training_reduce/op_kernel/arch35/bn_training_reduce_small_r.h:154; ops-nn/norm/bn_training_reduce/op_kernel/arch35/bn_training_reduce_small_r.h:161
+ops-nn,bn_training_update,norm/bn_training_update,显式 NDDMA,ops-nn/norm/bn_training_update/op_kernel/arch35/bn_training_update.h:297; ops-nn/norm/bn_training_update/op_kernel/arch35/bn_training_update.h:298
+ops-nn,dua_quantize_add_layer_norm,norm/dua_quantize_add_layer_norm,显式 NDDMA,ops-nn/norm/dua_quantize_add_layer_norm/op_kernel/arch35/dua_quantize_add_layer_norm_base.h:1109; ops-nn/norm/dua_quantize_add_layer_norm/op_kernel/arch35/dua_quantize_add_layer_norm_base.h:1114
+ops-nn,gn_training_update,norm/gn_training_update,显式 NDDMA,ops-nn/norm/gn_training_update/op_kernel/arch35/gn_training_update_kernel.h:192; ops-nn/norm/gn_training_update/op_kernel/arch35/gn_training_update_kernel.h:193
+ops-nn,group_norm_silu,norm/group_norm_silu,显式 NDDMA,ops-nn/norm/group_norm_silu/op_kernel/arch35/group_norm_silu_regbase_base.h:1583; ops-nn/norm/group_norm_silu/op_kernel/arch35/group_norm_silu_regbase_base.h:1598
+ops-nn,group_norm_silu_quant,norm/group_norm_silu_quant,显式 NDDMA,ops-nn/norm/group_norm_silu_quant/op_kernel/arch35/group_norm_silu_quant_regbase_base.h:1754; ops-nn/norm/group_norm_silu_quant/op_kernel/arch35/group_norm_silu_quant_regbase_base.h:1769
+ops-nn,in_training_reduce_grad,norm/in_training_reduce_grad,显式 NDDMA,ops-nn/norm/in_training_reduce_grad/op_kernel/arch35/in_training_reduce_grad.h:140; ops-nn/norm/in_training_reduce_grad/op_kernel/arch35/in_training_reduce_grad.h:141
+ops-nn,inplace_add_rms_norm,norm/inplace_add_rms_norm,共享 kernel,ops-nn/norm/add_rms_norm/op_kernel/arch35/add_rms_norm_regbase.h:312
+ops-nn,layer_norm,norm/layer_norm,共享 kernel,ops-nn/norm/layer_norm_v3/op_kernel/arch35/layer_norm_v3_norm_not_equal_params.h:169; ops-nn/norm/layer_norm_v3/op_kernel/arch35/layer_norm_v3_norm_not_equal_params.h:180
+ops-nn,layer_norm_grad,norm/layer_norm_grad,显式 NDDMA,ops-nn/norm/layer_norm_grad/op_kernel/arch35/layer_norm_grad_base.h:1011; ops-nn/norm/layer_norm_grad/op_kernel/arch35/layer_norm_grad_base.h:1018
+ops-nn,layer_norm_grad_v3,norm/layer_norm_grad_v3,显式 NDDMA,ops-nn/norm/layer_norm_grad_v3/op_kernel/arch35/layer_norm_grad_v3_base.h:1376; ops-nn/norm/layer_norm_grad_v3/op_kernel/arch35/layer_norm_grad_v3_base.h:1383
+ops-nn,layer_norm_v3,norm/layer_norm_v3,显式 NDDMA,ops-nn/norm/layer_norm_v3/op_kernel/arch35/layer_norm_v3_norm_not_equal_params.h:169; ops-nn/norm/layer_norm_v3/op_kernel/arch35/layer_norm_v3_norm_not_equal_params.h:180
+ops-nn,lp_norm_v2,norm/lp_norm_v2,atvoss reduce,ops-nn/norm/lp_norm_v2/op_kernel/lp_norm_v2_apt.cpp:52; ops-nn/norm/lp_norm_v2/op_kernel/lp_norm_v2_apt.cpp:58
+ops-nn,rms_norm,norm/rms_norm,显式 NDDMA,ops-nn/norm/rms_norm/op_kernel/arch35/rms_norm_regbase.h:188
+ops-nn,adam_apply_one,optim/adam_apply_one,atvoss broadcast,ops-nn/optim/adam_apply_one/op_kernel/arch35/adam_apply_one.cpp:33; ops-nn/optim/adam_apply_one/op_kernel/arch35/adam_apply_one.cpp:38
+ops-nn,adam_apply_one_assign,optim/adam_apply_one_assign,显式 NDDMA,ops-nn/optim/adam_apply_one_assign/op_kernel/arch35/adam_apply_one_assign_kernel.h:105
+ops-nn,adam_apply_one_with_decay,optim/adam_apply_one_with_decay,atvoss broadcast,ops-nn/optim/adam_apply_one_with_decay/op_kernel/arch35/adam_apply_one_with_decay.cpp:33
+ops-nn,adam_apply_one_with_decay_assign,optim/adam_apply_one_with_decay_assign,atvoss broadcast,ops-nn/optim/adam_apply_one_with_decay_assign/op_kernel/arch35/adam_apply_one_with_decay_assign.cpp:34; ops-nn/optim/adam_apply_one_with_decay_assign/op_kernel/arch35/adam_apply_one_with_decay_assign.cpp:39
+ops-nn,apply_adam_v2,optim/apply_adam_v2,显式 NDDMA,ops-nn/optim/apply_adam_v2/op_kernel/arch35/apply_adam_v2_kernel.h:290
+ops-nn,fused_mul_apply_keras_momentum,optim/fused_mul_apply_keras_momentum,显式 NDDMA,ops-nn/optim/fused_mul_apply_keras_momentum/op_kernel/arch35/fused_mul_apply_keras_momentum_kernel.h:121
+ops-nn,fused_mul_apply_momentum,optim/fused_mul_apply_momentum,显式 NDDMA,ops-nn/optim/fused_mul_apply_momentum/op_kernel/arch35/fused_mul_apply_momentum_kernel.h:86
+ops-nn,inplace_apply_ada_max,optim/inplace_apply_ada_max,显式 NDDMA,ops-nn/optim/inplace_apply_ada_max/op_kernel/arch35/inplace_apply_ada_max.h:158; ops-nn/optim/inplace_apply_ada_max/op_kernel/arch35/inplace_apply_ada_max.h:427
+ops-nn,lamb_apply_weight_assign,optim/lamb_apply_weight_assign,atvoss broadcast,ops-nn/optim/lamb_apply_weight_assign/op_kernel/lamb_apply_weight_assign.cpp:33; ops-nn/optim/lamb_apply_weight_assign/op_kernel/lamb_apply_weight_assign.cpp:37
+ops-nn,lamb_next_right,optim/lamb_next_right,atvoss broadcast,ops-nn/optim/lamb_next_right/op_kernel/lamb_next_right.cpp:32; ops-nn/optim/lamb_next_right/op_kernel/lamb_next_right.cpp:36
+ops-nn,lamb_update_with_lr,optim/lamb_update_with_lr,atvoss broadcast,ops-nn/optim/lamb_update_with_lr/op_kernel/lamb_update_with_lr.cpp:33; ops-nn/optim/lamb_update_with_lr/op_kernel/lamb_update_with_lr.cpp:38
+ops-nn,lamb_update_with_lr_v2,optim/lamb_update_with_lr_v2,atvoss broadcast,ops-nn/optim/lamb_update_with_lr_v2/op_kernel/lamb_update_with_lr_v2.cpp:32; ops-nn/optim/lamb_update_with_lr_v2/op_kernel/lamb_update_with_lr_v2.cpp:36
+ops-nn,adaptive_avg_pool2d,pooling/adaptive_avg_pool2d,显式 NDDMA,ops-nn/pooling/adaptive_avg_pool2d/op_kernel/arch35/adaptive_pool2d_big_kernel.h:144; ops-nn/pooling/adaptive_avg_pool2d/op_kernel/arch35/adaptive_pool2d_big_kernel.h:158
+ops-nn,adaptive_avg_pool2d_grad,pooling/adaptive_avg_pool2d_grad,显式 NDDMA,ops-nn/pooling/adaptive_avg_pool2d_grad/op_kernel/arch35/adaptive_avg_pool2d_grad_big_kernel.h:249; ops-nn/pooling/adaptive_avg_pool2d_grad/op_kernel/arch35/adaptive_avg_pool2d_grad_big_kernel.h:263
+ops-nn,adaptive_avg_pool3d_grad,pooling/adaptive_avg_pool3d_grad,显式 NDDMA,ops-nn/pooling/adaptive_avg_pool3d_grad/op_kernel/arch35/adaptive_avg_pool3d_grad_ncdhw_big_kernel.h:317; ops-nn/pooling/adaptive_avg_pool3d_grad/op_kernel/arch35/adaptive_avg_pool3d_grad_ncdhw_big_kernel.h:334
+ops-nn,avg_pool3_d,pooling/avg_pool3_d,共享 kernel,ops-nn/pooling/pool_3d_common/op_kernel/arch35/pool_3d_ncdhw_small_kernel.h:63; ops-nn/pooling/pool_3d_common/op_kernel/arch35/pool_3d_ncdhw_small_kernel.h:65
+ops-nn,avg_pool3_d_grad,pooling/avg_pool3_d_grad,显式 NDDMA,ops-nn/pooling/avg_pool3_d_grad/op_kernel/arch35/avg_pool3_d_grad_ndhwc_kernel.h:527; ops-nn/pooling/avg_pool3_d_grad/op_kernel/arch35/avg_pool3_d_grad_ndhwc_kernel.h:544
+ops-nn,max_pool3_d,pooling/max_pool3_d,共享 kernel,ops-nn/pooling/pool_3d_common/op_kernel/arch35/pool_3d_ncdhw_small_kernel.h:63; ops-nn/pooling/pool_3d_common/op_kernel/arch35/pool_3d_ncdhw_small_kernel.h:65
+ops-nn,max_pool3d_grad,pooling/max_pool3d_grad,显式 NDDMA,ops-nn/pooling/max_pool3d_grad/op_kernel/arch35/max_pool3d_grad_ndhwc_impl_gather.h:681; ops-nn/pooling/max_pool3d_grad/op_kernel/arch35/max_pool3d_grad_ndhwc_impl_gather.h:698
+ops-nn,acts_ulq,quant/acts_ulq,显式 NDDMA,ops-nn/quant/acts_ulq/op_kernel/arch35/acts_ulq_kernel.h:162
+ops-nn,ascend_anti_quant_v2,quant/ascend_anti_quant_v2,显式 NDDMA,ops-nn/quant/ascend_anti_quant_v2/op_kernel/arch35/ascend_anti_quant_v2_per_channel_nddma_regbase.h:173; ops-nn/quant/ascend_anti_quant_v2/op_kernel/arch35/ascend_anti_quant_v2_per_channel_nddma_regbase.h:182
+ops-nn,ascend_quant_v2,quant/ascend_quant_v2,共享 kernel,ops-nn/quant/quantize/op_kernel/arch35/quantize_per_head_regbase.h:241; ops-nn/quant/quantize/op_kernel/arch35/quantize_per_head_regbase.h:252
+ops-nn,ascend_requant,quant/ascend_requant,显式 NDDMA,ops-nn/quant/ascend_requant/op_kernel/arch35/ascend_requant_kernel.h:97; ops-nn/quant/ascend_requant/op_kernel/arch35/ascend_requant_kernel.h:98
+ops-nn,dequant_bias,quant/dequant_bias,显式 NDDMA,ops-nn/quant/dequant_bias/op_kernel/arch35/dequant_bias_kernel.h:169; ops-nn/quant/dequant_bias/op_kernel/arch35/dequant_bias_kernel.h:179
+ops-nn,dequantize,quant/dequantize,显式 NDDMA,ops-nn/quant/dequantize/op_kernel/arch35/dequantize_min_combined_kernel.h:124; ops-nn/quant/dequantize/op_kernel/arch35/dequantize_min_combined_kernel.h:125
+ops-nn,dynamic_mx_quant,quant/dynamic_mx_quant,显式 NDDMA,ops-nn/quant/dynamic_mx_quant/op_kernel/arch35/dynamic_mx_quant_post.h:378; ops-nn/quant/dynamic_mx_quant/op_kernel/arch35/dynamic_mx_quant_post.h:383
+ops-nn,quantize,quant/quantize,显式 NDDMA,ops-nn/quant/quantize/op_kernel/arch35/quantize_per_channel_nddma_no_offset_regbase.h:118; ops-nn/quant/quantize/op_kernel/arch35/quantize_per_channel_nddma_no_offset_regbase.h:127
+ops-nn,wts_arq,quant/wts_arq,显式 NDDMA,ops-nn/quant/wts_arq/op_kernel/arch35/wts_arq_kernel.h:447
+ops-nn,thnn_fused_gru_cell,rnn/thnn_fused_gru_cell,显式 NDDMA,ops-nn/rnn/thnn_fused_gru_cell/op_kernel/arch35/thnn_fused_gru_cell_kernel.h:132
+ops-math,as_strided,conversion/as_strided,显式 NDDMA,ops-math/conversion/as_strided/op_kernel/arch35/as_strided.h:261; ops-math/conversion/as_strided/op_kernel/arch35/as_strided.h:262
+ops-math,broadcast_to,conversion/broadcast_to,显式 NDDMA,ops-math/conversion/broadcast_to/op_kernel/arch35/broadcast_to_with_dma.h:56; ops-math/conversion/broadcast_to/op_kernel/arch35/broadcast_to_with_dma.h:57
+ops-math,clip_by_norm_no_div_sum,conversion/clip_by_norm_no_div_sum,显式 NDDMA,ops-math/conversion/clip_by_norm_no_div_sum/op_kernel/arch35/clip_by_norm_no_div_sum_kernel.h:145
+ops-math,clip_by_value,conversion/clip_by_value,atvoss broadcast,ops-math/conversion/clip_by_value/op_kernel/arch35/clip_by_value.cpp:29
+ops-math,clip_by_value_v2,conversion/clip_by_value_v2,atvoss broadcast,ops-math/conversion/clip_by_value_v2/op_kernel/arch35/clip_by_value_v2.cpp:29
+ops-math,confusion_transpose_d,conversion/confusion_transpose_d,共享 kernel,ops-math/conversion/transpose/op_kernel/arch35/transpose_cut_one_axis.h:66; ops-math/conversion/transpose/op_kernel/arch35/transpose_cut_one_axis.h:74
+ops-math,depth_to_space,conversion/depth_to_space,共享 kernel,ops-math/conversion/transpose/op_kernel/arch35/transpose_cut_one_axis.h:66; ops-math/conversion/transpose/op_kernel/arch35/transpose_cut_one_axis.h:74
+ops-math,dynamic_partition,conversion/dynamic_partition,显式 NDDMA,ops-math/conversion/dynamic_partition/op_kernel/arch35/dynamic_partition_with_h_mc_small_w.h:129; ops-math/conversion/dynamic_partition/op_kernel/arch35/dynamic_partition_with_h_mc_small_w.h:134
+ops-math,masked_fill,conversion/masked_fill,atvoss broadcast,ops-math/conversion/masked_fill/op_kernel/masked_fill_apt.cpp:29; ops-math/conversion/masked_fill/op_kernel/masked_fill_apt.cpp:33
+ops-math,mirror_pad,conversion/mirror_pad,共享 kernel,ops-math/conversion/slice/op_kernel/arch35/slice_nddma.h:34; ops-math/conversion/slice/op_kernel/arch35/slice_nddma.h:35
+ops-math,pad,conversion/pad,共享 kernel,ops-math/conversion/slice/op_kernel/arch35/slice_nddma.h:34; ops-math/conversion/slice/op_kernel/arch35/slice_nddma.h:35
+ops-math,pad_v2,conversion/pad_v2,共享 kernel,ops-math/conversion/slice/op_kernel/arch35/slice_nddma.h:34; ops-math/conversion/slice/op_kernel/arch35/slice_nddma.h:35
+ops-math,pad_v3,conversion/pad_v3,共享 kernel,ops-math/conversion/slice/op_kernel/arch35/slice_nddma.h:34; ops-math/conversion/slice/op_kernel/arch35/slice_nddma.h:35
+ops-math,slice,conversion/slice,显式 NDDMA,ops-math/conversion/slice/op_kernel/arch35/slice_nddma.h:34; ops-math/conversion/slice/op_kernel/arch35/slice_nddma.h:35
+ops-math,slice_last_dim,conversion/slice_last_dim,显式 NDDMA,ops-math/conversion/slice_last_dim/op_kernel/arch35/slice_last_dim.h:131; ops-math/conversion/slice_last_dim/op_kernel/arch35/slice_last_dim.h:138
+ops-math,space_to_depth,conversion/space_to_depth,共享 kernel,ops-math/conversion/transpose/op_kernel/arch35/transpose_cut_one_axis.h:66; ops-math/conversion/transpose/op_kernel/arch35/transpose_cut_one_axis.h:74
+ops-math,strided_slice,conversion/strided_slice,显式 NDDMA,ops-math/conversion/strided_slice/op_kernel/arch35/strided_slice_nddma.h:32; ops-math/conversion/strided_slice/op_kernel/arch35/strided_slice_nddma.h:33
+ops-math,strided_slice_grad,conversion/strided_slice_grad,显式 NDDMA,ops-math/conversion/strided_slice_grad/op_kernel/arch35/split_all_axis_nddma.h:42; ops-math/conversion/strided_slice_grad/op_kernel/arch35/split_front_axis_nddma.h:47
+ops-math,strided_slice_v2,conversion/strided_slice_v2,共享 kernel,ops-math/conversion/strided_slice/op_kernel/arch35/strided_slice_nddma.h:32; ops-math/conversion/strided_slice/op_kernel/arch35/strided_slice_nddma.h:33
+ops-math,strided_slice_v3,conversion/strided_slice_v3,共享 kernel,ops-math/conversion/strided_slice/op_kernel/arch35/strided_slice_nddma.h:32; ops-math/conversion/strided_slice/op_kernel/arch35/strided_slice_nddma.h:33
+ops-math,tile_with_axis,conversion/tile_with_axis,显式 NDDMA,ops-math/conversion/tile_with_axis/op_kernel/arch35/tile_with_axis.h:127; ops-math/conversion/tile_with_axis/op_kernel/arch35/tile_with_axis.h:298
+ops-math,transpose,conversion/transpose,显式 NDDMA,ops-math/conversion/transpose/op_kernel/arch35/transpose_big_dim.h:51; ops-math/conversion/transpose/op_kernel/arch35/transpose_big_dim.h:52
+ops-math,view_copy,conversion/view_copy,显式 NDDMA,ops-math/conversion/view_copy/op_kernel/arch35/view_copy_base.h:110; ops-math/conversion/view_copy/op_kernel/arch35/view_copy_base.h:112
+ops-math,add,math/add,atvoss broadcast,ops-math/math/add/op_kernel/arch35/add.cpp:37; ops-math/math/add/op_kernel/arch35/add.cpp:41
+ops-math,add_mat_mat_elements,math/add_mat_mat_elements,显式 NDDMA,ops-math/math/add_mat_mat_elements/op_kernel/arch35/add_mat_mat_elements.h:85
+ops-math,add_v2,math/add_v2,atvoss broadcast,ops-math/math/add_v2/op_kernel/arch35/add_v2.cpp:42; ops-math/math/add_v2/op_kernel/arch35/add_v2.cpp:46
+ops-math,addcdiv,math/addcdiv,atvoss broadcast,ops-math/math/addcdiv/op_kernel/addcdiv_apt.cpp:28
+ops-math,addcmul,math/addcmul,atvoss broadcast,ops-math/math/addcmul/op_kernel/addcmul_apt.cpp:29; ops-math/math/addcmul/op_kernel/addcmul_apt.cpp:33
+ops-math,addr,math/addr,atvoss broadcast,ops-math/math/addr/op_kernel/addr.cpp:30; ops-math/math/addr/op_kernel/addr.cpp:34
+ops-math,arg_max_v2,math/arg_max_v2,共享 kernel,ops-math/math/arg_max_with_value/op_kernel/arch35/arg_max_with_value_ara.h:613; ops-math/math/arg_max_with_value/op_kernel/arch35/arg_max_with_value_ara.h:632
+ops-math,arg_max_with_value,math/arg_max_with_value,显式 NDDMA,ops-math/math/arg_max_with_value/op_kernel/arch35/arg_max_with_value_ara.h:613; ops-math/math/arg_max_with_value/op_kernel/arch35/arg_max_with_value_ara.h:632
+ops-math,arg_min,math/arg_min,共享 kernel,ops-math/math/arg_max_with_value/op_kernel/arch35/arg_max_with_value_ara.h:613; ops-math/math/arg_max_with_value/op_kernel/arch35/arg_max_with_value_ara.h:632
+ops-math,arg_min_with_value,math/arg_min_with_value,共享 kernel,ops-math/math/arg_max_with_value/op_kernel/arch35/arg_max_with_value_ara.h:613; ops-math/math/arg_max_with_value/op_kernel/arch35/arg_max_with_value_ara.h:632
+ops-math,atan2,math/atan2,atvoss broadcast,ops-math/math/atan2/op_kernel/atan2_apt.cpp:34
+ops-math,axpy,math/axpy,atvoss broadcast,ops-math/math/axpy/op_kernel/axpy_apt.cpp:29; ops-math/math/axpy/op_kernel/axpy_apt.cpp:33
+ops-math,axpy_v2,math/axpy_v2,atvoss broadcast,ops-math/math/axpy_v2/op_kernel/axpy_v2_apt.cpp:33; ops-math/math/axpy_v2/op_kernel/axpy_v2_apt.cpp:37
+ops-math,bias,math/bias,显式 NDDMA,ops-math/math/bias/op_kernel/arch35/bias_kernel.h:79; ops-math/math/bias/op_kernel/arch35/bias_kernel.h:84
+ops-math,bias_add,math/bias_add,atvoss broadcast,ops-math/math/bias_add/op_kernel/bias_add_apt.cpp:28
+ops-math,bias_add_grad,math/bias_add_grad,atvoss reduce,ops-math/math/bias_add_grad/op_kernel/bias_add_grad_apt.cpp:42
+ops-math,bitwise_and,math/bitwise_and,atvoss broadcast,ops-math/math/bitwise_and/op_kernel/bitwise_and_apt.cpp:27
+ops-math,bitwise_or,math/bitwise_or,atvoss broadcast,ops-math/math/bitwise_or/op_kernel/bitwise_or_apt.cpp:27
+ops-math,bitwise_xor,math/bitwise_xor,atvoss broadcast,ops-math/math/bitwise_xor/op_kernel/bitwise_xor_apt.cpp:27
+ops-math,cdist,math/cdist,显式 NDDMA,ops-math/math/cdist/op_kernel/broadcast_common.h:213; ops-math/math/cdist/op_kernel/broadcast_common.h:217
+ops-math,cdist_grad,math/cdist_grad,atvoss reduce,ops-math/math/cdist_grad/op_kernel/cdist_grad_apt.cpp:29; ops-math/math/cdist_grad/op_kernel/cdist_grad_apt.cpp:61
+ops-math,complex,math/complex,atvoss broadcast,ops-math/math/complex/op_kernel/arch35/complex.h:38; ops-math/math/complex/op_kernel/arch35/complex.h:42
+ops-math,cumsum,math/cumsum,显式 NDDMA,ops-math/math/cumsum/op_kernel/arch35/cumsum_base/cumsum_core_sklansky.h:246
+ops-math,div,math/div,atvoss broadcast,ops-math/math/div/op_kernel/div_apt.cpp:29; ops-math/math/div/op_kernel/div_apt.cpp:33
+ops-math,div_no_nan,math/div_no_nan,atvoss broadcast,ops-math/math/div_no_nan/op_kernel/div_no_nan_apt.cpp:29; ops-math/math/div_no_nan/op_kernel/div_no_nan_apt.cpp:33
+ops-math,dot,math/dot,atvoss reduce,ops-math/math/dot/op_kernel/dot_apt.cpp:41; ops-math/math/dot/op_kernel/dot_apt.cpp:47
+ops-math,equal,math/equal,atvoss broadcast,ops-math/math/equal/op_kernel/equal_apt.cpp:28; ops-math/math/equal/op_kernel/equal_apt.cpp:32
+ops-math,expand,math/expand,共享 kernel,ops-math/conversion/broadcast_to/op_kernel/arch35/broadcast_to_with_dma.h:56; ops-math/conversion/broadcast_to/op_kernel/arch35/broadcast_to_with_dma.h:57
+ops-math,floor_div,math/floor_div,atvoss broadcast,ops-math/math/floor_div/op_kernel/floor_div_apt.cpp:28; ops-math/math/floor_div/op_kernel/floor_div_apt.cpp:32
+ops-math,floor_mod,math/floor_mod,atvoss broadcast,ops-math/math/floor_mod/op_kernel/floor_mod_apt.cpp:29; ops-math/math/floor_mod/op_kernel/floor_mod_apt.cpp:33
+ops-math,fused_mul_add,math/fused_mul_add,atvoss broadcast,ops-math/math/fused_mul_add/op_kernel/fused_mul_add_apt.cpp:31; ops-math/math/fused_mul_add/op_kernel/fused_mul_add_apt.cpp:35
+ops-math,fused_mul_add_add,math/fused_mul_add_add,atvoss broadcast,ops-math/math/fused_mul_add_add/op_kernel/fused_mul_add_add_apt.cpp:31; ops-math/math/fused_mul_add_add/op_kernel/fused_mul_add_add_apt.cpp:35
+ops-math,gcd,math/gcd,atvoss broadcast,ops-math/math/gcd/op_kernel/gcd_apt.cpp:28
+ops-math,ger,math/ger,atvoss broadcast,ops-math/math/ger/op_kernel/ger_apt.cpp:29
+ops-math,greater,math/greater,atvoss broadcast,ops-math/math/greater/op_kernel/greater_apt.cpp:24; ops-math/math/greater/op_kernel/greater_apt.cpp:28
+ops-math,greater_equal,math/greater_equal,atvoss broadcast,ops-math/math/greater_equal/op_kernel/greater_equal_apt.cpp:24; ops-math/math/greater_equal/op_kernel/greater_equal_apt.cpp:28
+ops-math,grouped_bias_add_grad,math/grouped_bias_add_grad,atvoss reduce,ops-math/math/grouped_bias_add_grad/op_kernel/grouped_bias_add_grad_apt.cpp:50
+ops-math,is_close,math/is_close,atvoss broadcast,ops-math/math/is_close/op_kernel/is_close_apt.cpp:30; ops-math/math/is_close/op_kernel/is_close_apt.cpp:34
+ops-math,kl_div,math/kl_div,atvoss reduce,ops-math/math/kl_div/op_kernel/kl_div_apt.cpp:44; ops-math/math/kl_div/op_kernel/kl_div_apt.cpp:50
+ops-math,kl_div_v2,math/kl_div_v2,atvoss reduce,ops-math/math/kl_div_v2/op_kernel/kl_div_v2_apt.cpp:48; ops-math/math/kl_div_v2/op_kernel/kl_div_v2_apt.cpp:55
+ops-math,lerp,math/lerp,显式 NDDMA,ops-math/math/lerp/op_kernel/arch35/lerp_bf16_nddma_with_loops.h:83; ops-math/math/lerp/op_kernel/arch35/lerp_bf16_nddma_with_loops.h:98
+ops-math,less,math/less,atvoss broadcast,ops-math/math/less/op_kernel/less_apt.cpp:29; ops-math/math/less/op_kernel/less_apt.cpp:33
+ops-math,less_equal,math/less_equal,atvoss broadcast,ops-math/math/less_equal/op_kernel/less_equal_apt.cpp:28; ops-math/math/less_equal/op_kernel/less_equal_apt.cpp:32
+ops-math,log_add_exp,math/log_add_exp,atvoss broadcast,ops-math/math/log_add_exp/op_kernel/log_add_exp_apt.cpp:33; ops-math/math/log_add_exp/op_kernel/log_add_exp_apt.cpp:37
+ops-math,logical_and,math/logical_and,atvoss broadcast,ops-math/math/logical_and/op_kernel/logical_and_apt.cpp:27
+ops-math,logical_or,math/logical_or,atvoss broadcast,ops-math/math/logical_or/op_kernel/logical_or_apt.cpp:29; ops-math/math/logical_or/op_kernel/logical_or_apt.cpp:33
+ops-math,maximum,math/maximum,atvoss broadcast,ops-math/math/maximum/op_kernel/maximum_apt.cpp:28
+ops-math,minimum,math/minimum,atvoss broadcast,ops-math/math/minimum/op_kernel/minimum_apt.cpp:28
+ops-math,mod,math/mod,atvoss broadcast,ops-math/math/mod/op_kernel/mod_apt.cpp:29; ops-math/math/mod/op_kernel/mod_apt.cpp:33
+ops-math,mul,math/mul,atvoss broadcast,ops-math/math/mul/op_kernel/mul_apt.cpp:30; ops-math/math/mul/op_kernel/mul_apt.cpp:35
+ops-math,mul_no_nan,math/mul_no_nan,atvoss broadcast,ops-math/math/mul_no_nan/op_kernel/mul_no_nan_apt.cpp:31; ops-math/math/mul_no_nan/op_kernel/mul_no_nan_apt.cpp:35
+ops-math,not_equal,math/not_equal,atvoss broadcast,ops-math/math/not_equal/op_kernel/not_equal_apt.cpp:29; ops-math/math/not_equal/op_kernel/not_equal_apt.cpp:33
+ops-math,pow,math/pow,显式 NDDMA,ops-math/math/pow/op_kernel/arch35/pow_bf16_nddma_with_loops.h:79; ops-math/math/pow/op_kernel/arch35/pow_bf16_nddma_with_loops.h:94
+ops-math,real_div,math/real_div,atvoss broadcast,ops-math/math/real_div/op_kernel/real_div_apt.cpp:28; ops-math/math/real_div/op_kernel/real_div_apt.cpp:32
+ops-math,reduce_all,math/reduce_all,atvoss reduce,ops-math/math/reduce_all/op_kernel/reduce_all_apt.cpp:41; ops-math/math/reduce_all/op_kernel/reduce_all_apt.cpp:46
+ops-math,reduce_any,math/reduce_any,atvoss reduce,ops-math/math/reduce_any/op_kernel/reduce_any_apt.cpp:41; ops-math/math/reduce_any/op_kernel/reduce_any_apt.cpp:47
+ops-math,reduce_log_sum,math/reduce_log_sum,atvoss reduce,ops-math/math/reduce_log_sum/op_kernel/reduce_log_sum_apt.cpp:41
+ops-math,reduce_log_sum_exp,math/reduce_log_sum_exp,atvoss reduce,ops-math/math/reduce_log_sum_exp/op_kernel/reduce_log_sum_exp_apt.cpp:64
+ops-math,reduce_max,math/reduce_max,atvoss reduce,ops-math/math/reduce_max/op_kernel/reduce_max_apt.cpp:61; ops-math/math/reduce_max/op_kernel/reduce_max_apt.cpp:66
+ops-math,reduce_mean,math/reduce_mean,atvoss reduce,ops-math/math/reduce_mean/op_kernel/reduce_mean_apt.cpp:41
+ops-math,reduce_mean_with_count,math/reduce_mean_with_count,atvoss reduce,ops-math/math/reduce_mean_with_count/op_kernel/reduce_mean_with_count_apt.cpp:52
+ops-math,reduce_min,math/reduce_min,atvoss reduce,ops-math/math/reduce_min/op_kernel/reduce_min_apt.cpp:60; ops-math/math/reduce_min/op_kernel/reduce_min_apt.cpp:65
+ops-math,reduce_nansum,math/reduce_nansum,atvoss reduce,ops-math/math/reduce_nansum/op_kernel/reduce_nansum_apt.cpp:55
+ops-math,reduce_prod,math/reduce_prod,atvoss reduce,ops-math/math/reduce_prod/op_kernel/reduce_prod_apt.cpp:42; ops-math/math/reduce_prod/op_kernel/reduce_prod_apt.cpp:48
+ops-math,reduce_std_v2,math/reduce_std_v2,共享 kernel,ops-math/math/reduce_var/op_kernel/arch35/reduce_var_sch.h:1489; ops-math/math/reduce_var/op_kernel/arch35/reduce_var_sch.h:1497
+ops-math,reduce_sum,math/reduce_sum,atvoss reduce,ops-math/math/reduce_sum/op_kernel/reduce_sum_apt.cpp:43
+ops-math,reduce_var,math/reduce_var,显式 NDDMA,ops-math/math/reduce_var/op_kernel/arch35/reduce_var_sch.h:1489; ops-math/math/reduce_var/op_kernel/arch35/reduce_var_sch.h:1497
+ops-math,right_shift,math/right_shift,atvoss broadcast,ops-math/math/right_shift/op_kernel/right_shift_apt.cpp:30; ops-math/math/right_shift/op_kernel/right_shift_apt.cpp:34
+ops-math,scale,math/scale,显式 NDDMA,ops-math/math/scale/op_kernel/arch35/scale_kernel.h:102
+ops-math,select,math/select,atvoss broadcast,ops-math/math/select/op_kernel/select_apt.cpp:37; ops-math/math/select/op_kernel/select_apt.cpp:41
+ops-math,select_v2,math/select_v2,atvoss broadcast,ops-math/math/select_v2/op_kernel/select_v2_apt.cpp:28
+ops-math,sort,math/sort,显式 NDDMA,ops-math/math/sort/op_kernel/arch35/common/non_last_small_axis_base.h:169; ops-math/math/sort/op_kernel/arch35/common/non_last_small_axis_base.h:175
+ops-math,square_sum_v1,math/square_sum_v1,atvoss reduce,ops-math/math/square_sum_v1/op_kernel/square_sum_v1_apt.cpp:49
+ops-math,squared_difference,math/squared_difference,atvoss broadcast,ops-math/math/squared_difference/op_kernel/squared_difference_apt.cpp:29; ops-math/math/squared_difference/op_kernel/squared_difference_apt.cpp:33
+ops-math,sub,math/sub,atvoss broadcast,ops-math/math/sub/op_kernel/sub_apt.cpp:32; ops-math/math/sub/op_kernel/sub_apt.cpp:36
+ops-math,tanh_grad,math/tanh_grad,显式 NDDMA,ops-math/math/tanh_grad/op_kernel/arch35/tanh_grad_bf16_nddma_with_loops.h:80; ops-math/math/tanh_grad/op_kernel/arch35/tanh_grad_bf16_nddma_with_loops.h:95
+ops-math,tile,math/tile,共享 kernel,ops-math/conversion/broadcast_to/op_kernel/arch35/broadcast_to_with_dma.h:56; ops-math/conversion/broadcast_to/op_kernel/arch35/broadcast_to_with_dma.h:57
+ops-math,top_k_v2,math/top_k_v2,共享 kernel,ops-math/math/sort/op_kernel/arch35/common/non_last_small_axis_base.h:169; ops-math/math/sort/op_kernel/arch35/common/non_last_small_axis_base.h:175
+ops-math,truncate_div,math/truncate_div,atvoss broadcast,ops-math/math/truncate_div/op_kernel/truncate_div_apt.cpp:25; ops-math/math/truncate_div/op_kernel/truncate_div_apt.cpp:29
+ops-math,truncate_mod,math/truncate_mod,atvoss broadcast,ops-math/math/truncate_mod/op_kernel/truncate_mod_apt.cpp:24; ops-math/math/truncate_mod/op_kernel/truncate_mod_apt.cpp:28
+ops-math,xdivy,math/xdivy,显式 NDDMA,ops-math/math/xdivy/op_kernel/arch35/xdivy_kernel.h:110
+ops-math,xlog1py,math/xlog1py,显式 NDDMA,ops-math/math/xlog1py/op_kernel/arch35/xlog1py_kernel.h:105
+ops-math,xlogy,math/xlogy,显式 NDDMA,ops-math/math/xlogy/op_kernel/arch35/xlogy_kernel.h:117
+ops-transformer,gather_pa_kv_cache,attention/gather_pa_kv_cache,显式 NDDMA,ops-transformer/attention/gather_pa_kv_cache/op_kernel/arch35/gather_pa_kv_cache_nz.h:344; ops-transformer/attention/gather_pa_kv_cache/op_kernel/arch35/gather_pa_kv_cache_nz.h:354
+ops-transformer,all_gather_matmul_v2,mc2/all_gather_matmul_v2,共享 kernel,ops-transformer/mc2/3rd/quant_batch_matmul_v3/op_kernel/arch35/qbmm_perblock_api_utils.h:123; ops-transformer/mc2/3rd/quant_batch_matmul_v3/op_kernel/arch35/qbmm_perblock_api_utils.h:636
+ops-transformer,matmul_all_reduce,mc2/matmul_all_reduce,共享 kernel,ops-transformer/mc2/3rd/quant_batch_matmul_v3/op_kernel/arch35/qbmm_perblock_api_utils.h:123; ops-transformer/mc2/3rd/quant_batch_matmul_v3/op_kernel/arch35/qbmm_perblock_api_utils.h:636
+ops-transformer,matmul_reduce_scatter_v2,mc2/matmul_reduce_scatter_v2,共享 kernel,ops-transformer/mc2/3rd/quant_batch_matmul_v3/op_kernel/arch35/qbmm_perblock_api_utils.h:123; ops-transformer/mc2/3rd/quant_batch_matmul_v3/op_kernel/arch35/qbmm_perblock_api_utils.h:636
+ops-transformer,apply_rotary_pos_emb_grad,posembedding/apply_rotary_pos_emb_grad,atvoss reduce,ops-transformer/posembedding/apply_rotary_pos_emb_grad/op_kernel/apply_rotary_pos_emb_grad_apt.cpp:145
+ops-transformer,kv_rms_norm_rope_cache,posembedding/kv_rms_norm_rope_cache,显式 NDDMA,ops-transformer/posembedding/kv_rms_norm_rope_cache/op_kernel/arch35/kv_rms_norm_rope_cache_regbase_base.h:319; ops-transformer/posembedding/kv_rms_norm_rope_cache/op_kernel/arch35/kv_rms_norm_rope_cache_regbase_base.h:323
+ops-transformer,rotary_position_embedding_grad,posembedding/rotary_position_embedding_grad,atvoss reduce,ops-transformer/posembedding/rotary_position_embedding_grad/op_kernel/rotary_position_embedding_grad_apt.cpp:126
+ops-cv,nms_with_mask,image/nms_with_mask,显式 NDDMA,ops-cv/image/nms_with_mask/op_kernel/arch35/nms_with_mask_regbase_multiprocess.h:169; ops-cv/image/nms_with_mask/op_kernel/arch35/nms_with_mask_regbase_multiprocess.h:178
+ops-cv,points_in_polygons,image/points_in_polygons,显式 NDDMA,ops-cv/image/points_in_polygons/op_kernel/arch35/points_in_polygons.h:364; ops-cv/image/points_in_polygons/op_kernel/arch35/points_in_polygons.h:365
