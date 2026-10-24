@@ -1,10 +1,10 @@
 # 监控账号未关闭 Issue 报告
 
-- 生成时间：2026-10-23T08:02:23+08:00
+- 生成时间：2026-10-24T08:07:15+08:00
 - 时区：Asia/Shanghai
 - 监控账号：18
 - 目标仓库：5
-- 匹配的未关闭 Issue：41
+- 匹配的未关闭 Issue：43
 
 ## 汇总
 
@@ -14,7 +14,7 @@
 | benchmark | [PTO-ISA/SuperNPUBench](https://github.com/PTO-ISA/SuperNPUBench) | 8 | 成功 |
 | compiler | [LinxISA/llvm-project](https://github.com/LinxISA/llvm-project) | 2 | 成功 |
 | compiler | [LinxISA/Linx-TileOP-API](https://github.com/LinxISA/Linx-TileOP-API) | 1 | 成功 |
-| model | [LinxISA/SuperScalarModel](https://github.com/LinxISA/SuperScalarModel) | 30 | 成功 |
+| model | [LinxISA/SuperScalarModel](https://github.com/LinxISA/SuperScalarModel) | 32 | 成功 |
 
 ## PTO-ISA/pto-spec
 
@@ -24,7 +24,7 @@
 
 | Issue | 作者 | 标题 | 创建时间 | 更新时间 | 标签 |
 | ---: | --- | --- | --- | --- | --- |
-| [#259](https://github.com/PTO-ISA/SuperNPUBench/issues/259) | 芦葳 (`luwei512`) | [Performance][TLSU] TSTORE 源收集与 AGU 串行、源响应隔拍消费，限制大 shape 搬运带宽 | 2026-10-22 01:46:09 UTC | 2026-10-22 01:50:29 UTC | - |
+| [#259](https://github.com/PTO-ISA/SuperNPUBench/issues/259) | 芦葳 (`luwei512`) | [Performance][TLSU] TSTORE 源收集与 AGU 串行、源响应隔拍消费，限制大 shape 搬运带宽 | 2026-10-22 01:46:09 UTC | 2026-10-23 04:34:17 UTC | - |
 | [#257](https://github.com/PTO-ISA/SuperNPUBench/issues/257) | 林鹏翔 (`ordinarylpx`) | 新模型（587ec8cbe）下 matmul_test fp16 输出路径 TCVT 断言崩溃 | 2026-10-20 09:33:18 UTC | 2026-10-20 16:33:11 UTC | - |
 | [#240](https://github.com/PTO-ISA/SuperNPUBench/issues/240) | 林鹏翔 (`ordinarylpx`) | Matmul BF16场景基本块设置(128, 256)会出现模型报错 | 2026-10-14 02:09:39 UTC | 2026-10-19 18:35:28 UTC | - |
 | [#249](https://github.com/PTO-ISA/SuperNPUBench/issues/249) | 林鹏翔 (`ordinarylpx`) | [matmul]pow2 tile 约束 + tM∈{64,128} 组合契约挤压非 2 幂 shape——M160 逻辑 MFU 实测上限仅 53.9% | 2026-10-16 08:56:57 UTC | 2026-10-16 08:56:57 UTC | - |
@@ -50,7 +50,10 @@
 
 | Issue | 作者 | 标题 | 创建时间 | 更新时间 | 标签 |
 | ---: | --- | --- | --- | --- | --- |
-| [#1063](https://github.com/LinxISA/SuperScalarModel/issues/1063) | 刘志涵 (`robot-inteligence`) | [gfsim][IFU] hosted SMT4 的 PE0-only openat 持续等待 1/4，默认配置下 concat 120 秒未完成 | 2026-10-22 03:44:30 UTC | 2026-10-22 07:13:00 UTC | - |
+| [#1075](https://github.com/LinxISA/SuperScalarModel/issues/1075) | 王宇 (`wangyuascend-spec`) | [gfsim][TLSU] 单 PE CTC element-if：gfrun 精度通过，同 ELF 在 cycle 27973 死锁，6 条 scalar load 未发出 | 2026-10-23 12:04:32 UTC | 2026-10-23 12:04:32 UTC | - |
+| [#1074](https://github.com/LinxISA/SuperScalarModel/issues/1074) | 王宇 (`wangyuascend-spec`) | [gfrun][NA] 原生 FP32 TEXP(-1000) 返回 Inf，独立 TileOp 探针复现（冻结 8e8d8ac7） | 2026-10-23 12:04:21 UTC | 2026-10-23 12:04:21 UTC | - |
+| [#1068](https://github.com/LinxISA/SuperScalarModel/issues/1068) | 张旭波 (`KeepTryingTo`) | [gfsim][VECTOR] ASSERTION FAILED: false && "Deadlock detected: simulation stalled, no new blocks committed for too long" , func ResVerify, file ../SuperScalarModel/TimingSim/infra/SimSys.cpp:1660 | 2026-10-23 03:16:56 UTC | 2026-10-23 08:28:52 UTC | - |
+| [#1063](https://github.com/LinxISA/SuperScalarModel/issues/1063) | 刘志涵 (`robot-inteligence`) | [gfsim][IFU] hosted SMT4 的 PE0-only openat 持续等待 1/4，默认配置下 concat 120 秒未完成 | 2026-10-22 03:44:30 UTC | 2026-10-23 07:48:38 UTC | - |
 | [#1062](https://github.com/LinxISA/SuperScalarModel/issues/1062) | 刘志涵 (`robot-inteligence`) | [gfsim][OEX] 已验证修复：SMT4 AgeQueue 跨线程 load 限流导致初始化死锁 | 2026-10-22 03:44:28 UTC | 2026-10-22 07:12:57 UTC | - |
 | [#1050](https://github.com/LinxISA/SuperScalarModel/issues/1050) | 张旭波 (`KeepTryingTo`) | [gfsim][vector] 使用最新SuperScalarModel主线代码对moe_dispatch_mt_dyn的gfsim仿真出错SuperScalarModel/TimingSim/frontend/bctrl/bfu/bfu_brq.cpp:821行“Assertion `it != brq[stid].end()' failed.” | 2026-10-21 02:07:05 UTC | 2026-10-21 02:07:14 UTC | invalid-title |
 | [#1038](https://github.com/LinxISA/SuperScalarModel/issues/1038) | 陈毅然 (`CYR-Firework`) | [gfsim][OEX] 均匀常量数组物化错误（奇数下标元素 2×）→ 污染 shape 数组致 transpose 小 shape 结果错误 | 2026-10-20 07:03:09 UTC | 2026-10-20 12:41:40 UTC | bug |
@@ -58,7 +61,6 @@
 | [#989](https://github.com/LinxISA/SuperScalarModel/issues/989) | 程子杨 (`ziyang-cheng`) | [gfrun][NA] TROWEXPAND 族双源 B.IOT + 双 B.SUBVIEW 支持缺口：HandleBSubview 操作数绑定错位 + DeferredSubviewSourceCarrierLegal 误拒宽 parent（TileOP #253 发射侧已修） | 2026-10-15 08:40:35 UTC | 2026-10-20 01:38:38 UTC | - |
 | [#979](https://github.com/LinxISA/SuperScalarModel/issues/979) | 程子杨 (`ziyang-cheng`) | [gfrun][NA] TROWEXPAND 族不解码 B.DATR.RMode 的 BroadcastByteOffset（规范 normative 字段）——CUBE 打包 CELL 广播恒读列 0，奇数槽拿错系数，静默错值无断言 | 2026-10-14 09:32:23 UTC | 2026-10-19 08:23:56 UTC | - |
 | [#1005](https://github.com/LinxISA/SuperScalarModel/issues/1005) | 王宇 (`wangyuascend-spec`) | [gfrun][NA] TROWEXPANDMUL 拒绝 ValidCol<物理 Col 的 CUBE TLOAD 源（同源同 LB2 的 TADD 通过） | 2026-10-17 17:15:09 UTC | 2026-10-19 03:42:44 UTC | - |
-| [#1007](https://github.com/LinxISA/SuperScalarModel/issues/1007) | 张旭波 (`KeepTryingTo`) | [gfsim][SOC] 动态shape的4 PE的gfsim性能测试加入参数-s core.soc_random=true报错caught std::exception: ASSERTION FAILED: mapQEntry[handType][tag].vld , func GetProducerTag, file TimingSim/frontend/bctrl/BIssue.cpp:4197[gfsim][IFU] | 2026-10-19 02:46:19 UTC | 2026-10-19 02:46:19 UTC | - |
 | [#968](https://github.com/LinxISA/SuperScalarModel/issues/968) | 程子杨 (`ziyang-cheng`) | [gfsim][TLSU] TASSEMBLE 组装 parent 的消费路径未闭合：TSTORE 组装 parent 默认配置崩 l2_agu.cpp:251 entry.col >= entry.validCol；开 assemble_enable 改崩 GetProducerTag mapQ 断言 | 2026-10-13 08:12:43 UTC | 2026-10-16 09:06:13 UTC | - |
 | [#993](https://github.com/LinxISA/SuperScalarModel/issues/993) | 程子杨 (`ziyang-cheng`) | [gfsim][VECTOR] gfrun 逐字节 PASS 而 gfsim abort：PTO #291 CUBE 元素级严格校验拒绝 B.ASSEMBLE 组装产物作为元素级源/目的（请求按 pto-spec 裁决并统一两模型实现） | 2026-10-15 14:25:16 UTC | 2026-10-15 14:25:16 UTC | - |
 | [#971](https://github.com/LinxISA/SuperScalarModel/issues/971) | 程子杨 (`ziyang-cheng`) | [gfsim][CELLREG] tile size-class 分配器路径 FreeSingleFreeEntry producerCnt 下溢断言：TileN=128 宽 tile kernel gfsim abort（tile_size_class_enable=false 即跑通，80,923 cycles） | 2026-10-13 09:17:14 UTC | 2026-10-14 08:54:12 UTC | - |
