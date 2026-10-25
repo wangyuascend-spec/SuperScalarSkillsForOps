@@ -1,20 +1,20 @@
 # 监控账号未关闭 Issue 报告
 
-- 生成时间：2026-10-24T08:07:15+08:00
+- 生成时间：2026-10-25T08:03:58+08:00
 - 时区：Asia/Shanghai
 - 监控账号：18
 - 目标仓库：5
-- 匹配的未关闭 Issue：43
+- 匹配的未关闭 Issue：41
 
 ## 汇总
 
 | 类型 | 仓库 | 未关闭 Issue | 查询状态 |
 | --- | --- | ---: | --- |
 | spec | [PTO-ISA/pto-spec](https://github.com/PTO-ISA/pto-spec) | 0 | 成功 |
-| benchmark | [PTO-ISA/SuperNPUBench](https://github.com/PTO-ISA/SuperNPUBench) | 8 | 成功 |
+| benchmark | [PTO-ISA/SuperNPUBench](https://github.com/PTO-ISA/SuperNPUBench) | 7 | 成功 |
 | compiler | [LinxISA/llvm-project](https://github.com/LinxISA/llvm-project) | 2 | 成功 |
 | compiler | [LinxISA/Linx-TileOP-API](https://github.com/LinxISA/Linx-TileOP-API) | 1 | 成功 |
-| model | [LinxISA/SuperScalarModel](https://github.com/LinxISA/SuperScalarModel) | 32 | 成功 |
+| model | [LinxISA/SuperScalarModel](https://github.com/LinxISA/SuperScalarModel) | 31 | 成功 |
 
 ## PTO-ISA/pto-spec
 
@@ -25,7 +25,6 @@
 | Issue | 作者 | 标题 | 创建时间 | 更新时间 | 标签 |
 | ---: | --- | --- | --- | --- | --- |
 | [#259](https://github.com/PTO-ISA/SuperNPUBench/issues/259) | 芦葳 (`luwei512`) | [Performance][TLSU] TSTORE 源收集与 AGU 串行、源响应隔拍消费，限制大 shape 搬运带宽 | 2026-10-22 01:46:09 UTC | 2026-10-23 04:34:17 UTC | - |
-| [#257](https://github.com/PTO-ISA/SuperNPUBench/issues/257) | 林鹏翔 (`ordinarylpx`) | 新模型（587ec8cbe）下 matmul_test fp16 输出路径 TCVT 断言崩溃 | 2026-10-20 09:33:18 UTC | 2026-10-20 16:33:11 UTC | - |
 | [#240](https://github.com/PTO-ISA/SuperNPUBench/issues/240) | 林鹏翔 (`ordinarylpx`) | Matmul BF16场景基本块设置(128, 256)会出现模型报错 | 2026-10-14 02:09:39 UTC | 2026-10-19 18:35:28 UTC | - |
 | [#249](https://github.com/PTO-ISA/SuperNPUBench/issues/249) | 林鹏翔 (`ordinarylpx`) | [matmul]pow2 tile 约束 + tM∈{64,128} 组合契约挤压非 2 幂 shape——M160 逻辑 MFU 实测上限仅 53.9% | 2026-10-16 08:56:57 UTC | 2026-10-16 08:56:57 UTC | - |
 | [#238](https://github.com/PTO-ISA/SuperNPUBench/issues/238) | 林鹏翔 (`ordinarylpx`) | matmul_test M120 Cube 气泡——TLSU 搬运带宽不足 + tN=256 受 internal_acc 条目数限制 | 2026-10-13 13:56:59 UTC | 2026-10-15 06:37:27 UTC | - |
@@ -50,12 +49,11 @@
 
 | Issue | 作者 | 标题 | 创建时间 | 更新时间 | 标签 |
 | ---: | --- | --- | --- | --- | --- |
-| [#1075](https://github.com/LinxISA/SuperScalarModel/issues/1075) | 王宇 (`wangyuascend-spec`) | [gfsim][TLSU] 单 PE CTC element-if：gfrun 精度通过，同 ELF 在 cycle 27973 死锁，6 条 scalar load 未发出 | 2026-10-23 12:04:32 UTC | 2026-10-23 12:04:32 UTC | - |
-| [#1074](https://github.com/LinxISA/SuperScalarModel/issues/1074) | 王宇 (`wangyuascend-spec`) | [gfrun][NA] 原生 FP32 TEXP(-1000) 返回 Inf，独立 TileOp 探针复现（冻结 8e8d8ac7） | 2026-10-23 12:04:21 UTC | 2026-10-23 12:04:21 UTC | - |
+| [#1075](https://github.com/LinxISA/SuperScalarModel/issues/1075) | 王宇 (`wangyuascend-spec`) | [gfsim][TLSU] 单 PE CTC element-if：gfrun 精度通过，同 ELF 在 cycle 27973 死锁，6 条 scalar load 未发出 | 2026-10-23 12:04:32 UTC | 2026-10-24 02:39:03 UTC | - |
+| [#1074](https://github.com/LinxISA/SuperScalarModel/issues/1074) | 王宇 (`wangyuascend-spec`) | [gfrun][NA] 原生 FP32 TEXP(-1000) 返回 Inf，独立 TileOp 探针复现（冻结 8e8d8ac7） | 2026-10-23 12:04:21 UTC | 2026-10-24 02:39:00 UTC | - |
 | [#1068](https://github.com/LinxISA/SuperScalarModel/issues/1068) | 张旭波 (`KeepTryingTo`) | [gfsim][VECTOR] ASSERTION FAILED: false && "Deadlock detected: simulation stalled, no new blocks committed for too long" , func ResVerify, file ../SuperScalarModel/TimingSim/infra/SimSys.cpp:1660 | 2026-10-23 03:16:56 UTC | 2026-10-23 08:28:52 UTC | - |
 | [#1063](https://github.com/LinxISA/SuperScalarModel/issues/1063) | 刘志涵 (`robot-inteligence`) | [gfsim][IFU] hosted SMT4 的 PE0-only openat 持续等待 1/4，默认配置下 concat 120 秒未完成 | 2026-10-22 03:44:30 UTC | 2026-10-23 07:48:38 UTC | - |
 | [#1062](https://github.com/LinxISA/SuperScalarModel/issues/1062) | 刘志涵 (`robot-inteligence`) | [gfsim][OEX] 已验证修复：SMT4 AgeQueue 跨线程 load 限流导致初始化死锁 | 2026-10-22 03:44:28 UTC | 2026-10-22 07:12:57 UTC | - |
-| [#1050](https://github.com/LinxISA/SuperScalarModel/issues/1050) | 张旭波 (`KeepTryingTo`) | [gfsim][vector] 使用最新SuperScalarModel主线代码对moe_dispatch_mt_dyn的gfsim仿真出错SuperScalarModel/TimingSim/frontend/bctrl/bfu/bfu_brq.cpp:821行“Assertion `it != brq[stid].end()' failed.” | 2026-10-21 02:07:05 UTC | 2026-10-21 02:07:14 UTC | invalid-title |
 | [#1038](https://github.com/LinxISA/SuperScalarModel/issues/1038) | 陈毅然 (`CYR-Firework`) | [gfsim][OEX] 均匀常量数组物化错误（奇数下标元素 2×）→ 污染 shape 数组致 transpose 小 shape 结果错误 | 2026-10-20 07:03:09 UTC | 2026-10-20 12:41:40 UTC | bug |
 | [#1036](https://github.com/LinxISA/SuperScalarModel/issues/1036) | 陈毅然 (`CYR-Firework`) | [gfrun][NA] v3 CSA 多 work（kWorkCount>1）时编译器 tile 窗口引用未物化槽 → tile-ROB 越界 | 2026-10-20 04:34:09 UTC | 2026-10-20 08:17:05 UTC | - |
 | [#989](https://github.com/LinxISA/SuperScalarModel/issues/989) | 程子杨 (`ziyang-cheng`) | [gfrun][NA] TROWEXPAND 族双源 B.IOT + 双 B.SUBVIEW 支持缺口：HandleBSubview 操作数绑定错位 + DeferredSubviewSourceCarrierLegal 误拒宽 parent（TileOP #253 发射侧已修） | 2026-10-15 08:40:35 UTC | 2026-10-20 01:38:38 UTC | - |
