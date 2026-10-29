@@ -1,0 +1,258 @@
+<!doctype html>
+<html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>moonep_plan 实现分析 · PR 238</title>
+<style>
+:root{--bg:#f4f6f9;--ink:#233043;--muted:#647184;--line:#dce3ec;--blue:#245da8}*{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.85 system-ui,"Microsoft YaHei",sans-serif}main{max-width:1100px;margin:auto;padding:45px 28px 70px}header{padding-bottom:22px;border-bottom:1px solid var(--line)}h1{font-size:36px;line-height:1.3;margin:12px 0}h2{font-size:24px;margin:0 0 18px}h3{font-size:18px;margin:24px 0 10px}p{margin:12px 0}.eyebrow{font-size:12px;letter-spacing:2px;color:var(--blue);font-weight:700}.lead{font-size:19px}.meta,footer,.caption{font-size:13px;color:var(--muted)}nav{display:flex;flex-wrap:wrap;gap:9px 22px;padding:20px 0;font-size:14px}a{color:var(--blue);text-underline-offset:3px}section{background:white;border:1px solid var(--line);border-radius:9px;margin:22px 0;padding:30px;scroll-margin-top:18px}code{font: .9em Consolas,monospace;background:#edf1f6;padding:2px 5px;border-radius:3px;overflow-wrap:anywhere}pre{background:#192637;color:#edf2fa;padding:19px;border-radius:7px;overflow:auto;font:14px/1.7 Consolas,monospace}pre code{background:none;padding:0;color:inherit;overflow-wrap:normal}.note{padding:15px 19px;background:#eef4fd;border-left:4px solid var(--blue);margin:18px 0}.warn{background:#fff7e7;border-color:#9a7029}.grid{display:grid;grid-template-columns:1fr 1fr;gap:20px}.flow{display:flex;gap:7px;flex-wrap:wrap;margin:20px 0}.step{flex:1;min-width:108px;background:#eef4fd;padding:14px 10px;border-radius:5px;font-size:13px}.step b{display:block;color:var(--blue)}.step span{color:var(--muted)}.scroll{overflow:auto}table{border-collapse:collapse;width:100%;font-size:14px;margin:18px 0}th,td{text-align:left;vertical-align:top;padding:12px;border-bottom:1px solid var(--line)}th{background:#f0f3f7}li{margin:7px 0}.rank{border:1px solid var(--line);padding:18px;border-radius:6px}.bar{display:flex;height:35px;margin:15px 0;border-radius:4px;overflow:hidden;background:#e8edf3}.bar span{display:flex;align-items:center;justify-content:center;background:#245da8;color:white;font-size:12px}.bar .other{background:#7d8fa7}.bar .replica{background:#5c82b5}.risk{padding:18px 0;border-bottom:1px solid var(--line)}.risk:last-child{border:0}.tag{font-size:12px;color:var(--blue);background:#edf3fb;padding:3px 8px;border-radius:3px}.risk h3{margin-top:12px}footer{margin-top:25px}@media(max-width:700px){main{padding:24px 15px}h1{font-size:28px}section{padding:22px 17px}.grid{grid-template-columns:1fr}table{min-width:560px}}@media print{body{background:white}main{padding:0;max-width:none}nav{display:none}section{border-radius:0}pre{white-space:pre-wrap}.rank{break-inside:avoid}a{color:inherit}}
+.kernel-detail{padding:24px 0;border-top:1px solid var(--line);scroll-margin-top:20px}.kernel-detail h3{margin-top:0}.kernel-detail .caption{margin-top:-5px}@media print{.kernel-detail{break-inside:auto}}
+</style></head><body><main>
+<header><div class="eyebrow">CANNBOT-DSL / OPERATOR IMPLEMENTATION</div><h1>moonep_plan 实现分析</h1><p class="lead">根据全局路由需求分配专家计算份额，再将本地 top-k 改写为虚拟专家编号，复用现有 EP dispatch 完成均衡分发。</p><p class="meta">2026-10-26 初稿 · 2026-10-27 补充 kernel 详解 · <a href="https://gitcode.com/cann/cannbot-dsl/pull/238">PR 238</a><br>固定提交：<code>eb25c890295aa83cb35f7aed4d344f2b84a7ff04</code><br>本地代码：<code>cannbot-dsl-pr238/samples/moonep/</code> · 分析过程未修改算子源码。</p></header>
+<div class="note"><strong>归档说明（2026-10-29）：</strong>本文对应 PR 238 提交 eb25c890 的原七 kernel 版本，后续 master 已有融合实现。验证范围中的环境描述为初稿时状态；后来 CPU golden 28项通过、PyPTO候选CPU语义测试8组通过，但原生编译及多卡验收仍未完成。</div><nav aria-label="目录"><a href="#overview">核心作用</a><a href="#contract">接口</a><a href="#pipeline">执行流程</a><a href="#kernel-details">kernel 输入输出</a><a href="#kernel-cooperation">kernel 配合示例</a><a href="#greedy">贪心示例</a><a href="#routing">虚拟专家</a><a href="#assign">token 分配</a><a href="#runtime">运行机制</a><a href="#risks">实现边界</a><a href="#verification">验证范围</a></nav>
+<section id="overview"><h2>01 · 它解决什么问题</h2><p>普通专家并行中，专家固定归属某个 rank。热门专家的路由需求集中时，该 rank 接收大量 token，其他 rank 可能空闲。MoonEP 允许在其他 rank 复制专家权重，让多个实例分担同一专家的计算。</p><div class="note"><strong>规划目标：</strong>在各 rank 输入形状相同、路由计数正确的前提下，让每 rank 的计划处理量等于 <code>N=S×K</code>。固定副本槽是否足够，是额外的可行性条件。</div><p>plan 处理计数、放置和路由元数据。hidden 搬运交给 <code>ElasticBuffer.dispatch</code>，权重预取交给 <code>prefetch_weight</code>，训练时副本权重梯度由 <code>reduce_grad</code> 归并。</p><pre><code>router → plan → dispatch → prefetch_weight → 专家计算 → combine
+          ├─ vtopk：虚拟路由
+          ├─ cu_seqlens：分组边界
+          └─ experts_to_copy：副本预取清单</code></pre></section>
+<section id="contract"><h2>02 · 输入输出与数据契约</h2><div class="note"><strong>关于 rank、S 和 K：</strong>rank 是 EP 组内进程编号，通常一个进程对应一张 NPU 卡。当前实现要求同一 EP 组内各 rank 的 S、K 一致；专家选择和每专家负载可以不同。该跨 rank 形状条件由调用方保证。</div><p><code>R</code> 为 rank 数，<code>E</code> 为专家数，<code>epn=E/R</code>；每 rank 输入 <code>S</code> 个 token，每 token 选择 <code>K</code> 个专家，展开为 <code>N=S×K</code> 份路由。</p><pre><code>dst_n, cu, etc, src_n, vtopk = moonep_plan(context, tpe, topk)</code></pre><div class="scroll"><table><thead><tr><th>张量</th><th>形状 / 类型</th><th>当前实现含义</th></tr></thead><tbody><tr><td>tokens_per_expert（tpe）</td><td>[E] / int32</td><td>输入：本 rank 发给各专家的份数，应与 top-k 直方图一致。</td></tr><tr><td>topk_experts_sk</td><td>[S,K] / int32</td><td>输入：真实专家 ID，按 token、k 顺序展开。</td></tr><tr><td>cu_seqlens（cu）</td><td>[2·epn] / int32</td><td>输出：本 rank 各专家/副本槽的累计结束位置，没有开头的零。</td></tr><tr><td>experts_to_copy（etc）</td><td>[R,epn] / int32</td><td>输出：各 rank 的远程专家清单，专家 ID 升序，空槽 -1。</td></tr><tr><td>vtopk</td><td>[N] / int32</td><td>输出：合法规划下位于 [0,2E) 的虚拟专家编号。</td></tr><tr><td>dst_n / src_n</td><td>[N] / int32</td><td>全零占位，未计算真实落位；同 N 下二者返回同一个缓存张量，应视为只读。</td></tr></tbody></table></div><p class="caption">入口：<a href="https://gitcode.com/cann/cannbot-dsl/blob/eb25c890295aa83cb35f7aed4d344f2b84a7ff04/samples/moonep/moonep_plan.py">moonep_plan.py</a> 第 1008–1080 行。张量须位于 NPU；入口显式检查 int32、E 上限和 E%R，其他条件有部分依赖调用方。</p></section>
+<section id="pipeline"><h2>03 · 七个 kernel 的执行流程</h2><div class="flow"><div class="step"><b>Exchange →</b><span>交换计数</span></div><div class="step"><b>GreedyInit →</b><span>初始放置</span></div><div class="step"><b>Greedy →</b><span>均衡负载</span></div><div class="step"><b>Tables →</b><span>副本槽表</span></div><div class="step"><b>Count →</b><span>分块计数</span></div><div class="step"><b>Pfx →</b><span>前缀与区间</span></div><div class="step"><b>Assign</b><span>虚拟 top-k</span></div></div><div class="scroll"><table><thead><tr><th>阶段 / 源码起始行</th><th>关键行为</th><th>并行方式</th></tr></thead><tbody><tr><td>Exchange / 141</td><td>对称堆 put、flag、flush、轮询，形成 dem_by_rank[R,E]；仅交换计数，不交换完整 top-k。</td><td>单 block 通信</td></tr><tr><td>GreedyInit / 209</td><td>汇总专家全局需求，全部放到 home；分块写独立的局部 loads 行，免原子操作。</td><td>按专家分块</td></tr><tr><td>Greedy / 274</td><td>汇总 loads，计算 cap，执行份额转移，生成当前 rank 的 cu。</td><td>单 block、SIMT 单线程控制流</td></tr><tr><td>Tables / 418</td><td>扫描 order，生成 jrep[R,E] 槽索引和 etc[R,epn]。</td><td>每 block 一个目标 rank</td></tr><tr><td>Count / 464</td><td>统计本地每 chunk 的专家直方图 counts[nc,E]。</td><td>多 block 分担 chunk</td></tr><tr><td>Pfx / 502</td><td>构造 chunk 前缀、来源 rank 前缀、承载实例区间和固定 vid 快路径表。</td><td>按专家分块</td></tr><tr><td>Assign / 629</td><td>计算专家内全局序号，定位承载实例，写出 vtopk。</td><td>多 block，chunk 内串行扫描</td></tr></tbody></table></div><p>每个 rank 获取相同的需求表，并执行确定性贪心，独立重建全局规划，省去再次广播 rem/order。源码说明：通信与复杂标量控制流混在一个 kernel 会超出 DSL 编译器限制，因此拆分为这些阶段。</p></section>
+<section id="kernel-details"><h2>03A · 七个 kernel：逐个看输入、输出和实现</h2>
+<p>以下用源码中的 <code>gm_*</code> 名称标识参数。<strong>gm 表示全局设备内存（GM）中的张量；ub 表示当前计算块使用的片上统一缓冲区（UB）。</strong> 除通信上下文和字节传输缓冲外，下列工作表均为 int32。</p>
+<div class="note"><strong>统一记号：</strong>me 为当前 rank；C 为 chunk 大小；nc=N/C；bd 为 Count/Assign 的 block 数；bdp 为 GreedyInit/Pfx 的 block 数。源码分别选取 nc、E 的不大于 32 的因子，保证任务可以整除分配。这里的 block 是设备计算任务块，不是 rank，也不应直接等同于某个固定物理核心。</div>
+<p><strong>启动前准备：</strong>Python wrapper 分配或复用 workspace，将本 rank 的 top-k 展平后以设备侧 copy_ 写入 <code>topk_all[me,:]</code>，分配本轮 epoch 标量 gm_flag，再调用编译程序。每个 rank 都执行自己的这套七阶段。</p>
+<nav aria-label="kernel 详情"><a href="#k-exchange">① Exchange</a><a href="#k-init">② GreedyInit</a><a href="#k-greedy">③ Greedy</a><a href="#k-tables">④ Tables</a><a href="#k-count">⑤ Count</a><a href="#k-pfx">⑥ Pfx</a><a href="#k-assign">⑦ Assign</a></nav>
+<article id="k-exchange" class="kernel-detail"><h3>① Exchange：让各 rank 看见同一份全局需求</h3><p class="caption">_MoonepPlanExchangeKernel · 第 141–201 行 · 启动 1 个 block</p>
+<div class="scroll"><table><thead><tr><th>方向</th><th>参数 / 形状</th><th>含义 / 后续消费者</th></tr></thead><tbody><tr><td>输入</td><td>gm_tpe [E]</td><td>本 rank 的专家需求直方图。</td></tr><tr><td>输入</td><td>gm_flag [1]；ctx</td><td>本轮 epoch 和通信上下文，ctx 用于访问各 rank 对称内存。</td></tr><tr><td>输出</td><td>gm_dem_by_rank [R,E]</td><td>第 r 行为来源 rank r 的 tpe。供 GreedyInit、Pfx 使用。</td></tr><tr><td>通信副作用</td><td>对称堆 dem_all、ready</td><td>向 peer 写本 rank 的计数行和 ready[me]；轮询本地各 peer 的 ready。</td></tr></tbody></table></div>
+<ol><li>使用 SymBuffer 描述对称堆中的计数区和 ready 标记区，创建 VEC transfer context。</li><li>向每个 peer 的计数区第 me 行 put 本 rank 的 tpe。</li><li>向每个 peer 的 ready[me] put 本轮 epoch，随后逐 peer flush；协议依赖数据与标记的通道保序。</li><li>把自己的 tpe 经 UB 写入本地对称堆第 me 行。</li><li>轮询本地 ready[r] 达到本轮 epoch，确认各来源计数到齐，再将有效 R×E 区域经 UB 拷到 gm_dem_by_rank。</li></ol>
+<p><strong>结果：</strong>正常协议下各 rank 得到相同的 dem_by_rank。该阶段不负责 token 搬运，不生成副本，也不交换 peers 的 top-k。</p></article>
+<article id="k-init" class="kernel-detail"><h3>② GreedyInit：把全部需求先放回专家 home</h3><p class="caption">_MoonepPlanGreedyInitKernel · 第 209–266 行 · 启动 bdp 个 block</p>
+<div class="scroll"><table><thead><tr><th>方向</th><th>参数 / 形状</th><th>含义 / 后续消费者</th></tr></thead><tbody><tr><td>输入</td><td>gm_dem_by_rank [R,E]</td><td>Exchange 的全局需求表。</td></tr><tr><td>输出</td><td>gm_rem [E,R]</td><td>初始专家处理份额，只有 home 列非零；交给 Greedy 原地修改。</td></tr><tr><td>输出</td><td>gm_order [E,R]</td><td>home 为 1，其他位置为 0；交给 Greedy 原地修改。</td></tr><tr><td>输出</td><td>gm_loads_part [bdp,R]</td><td>每个 block 负责的专家对各 rank 的负载贡献；Greedy 汇总。</td></tr></tbody></table></div>
+<pre><code># block b 负责连续 E/bdp 个专家
+for e in experts_of_block_b:
+    total = sum(dem_by_rank[r,e] for r in ranks)
+    h = e // epn
+    rem[e,:] = 0; order[e,:] = 0
+    rem[e,h] = total; order[e,h] = 1
+    loads_part[b,h] += total</code></pre>
+<p>每个 block 整表载入 dem 到 UB，逐专家使用 SIMT 单线程求和。rem/order 按<strong>单行 tile</strong>写回 GM，避免源码注释提到的动态多行 tile 编译问题。零需求专家也登记 home=1，但其 rem 为零。</p><p><strong>免原子的原因：</strong>不同 block 写不同专家行和不同 loads_part 行，不争抢同一个负载计数。下一阶段统一求和即可。</p></article>
+<article id="k-greedy" class="kernel-detail"><h3>③ Greedy：决定各实例份额，并产出本 rank 的分组边界</h3><p class="caption">_MoonepPlanGreedyKernel · 第 274–410 行 · 启动 1 个 block</p>
+<div class="scroll"><table><thead><tr><th>方向</th><th>参数 / 形状</th><th>含义 / 后续消费者</th></tr></thead><tbody><tr><td>输入并覆写</td><td>gm_rem [E,R]</td><td>读初始布局，写均衡后的专家份额；Pfx 消费。</td></tr><tr><td>输入并覆写</td><td>gm_order [E,R]</td><td>记录 home 与新副本的顺序；Tables、Pfx 消费。</td></tr><tr><td>输入</td><td>gm_loads_part [bdp,R]</td><td>初始化阶段的各 block 负载贡献。</td></tr><tr><td>输出</td><td>gm_cu [2epn]</td><td>当前 rank 专家视图的累计结束位置，是最终返回结果之一。</td></tr></tbody></table></div>
+<ol><li>将 rem、order、loads_part 载入 UB。先对 loads_part 按 block 求和，得到 loads[R]。</li><li>计算 cap=Σloads/R。相同 S、K 且计数正确时，cap=N。</li><li>在一个 vf(mode="simt",thread=1) 区域内完成有数据依赖的贪心循环：找最忙 src、最闲 dst、src 上份额最大的专家，转移 min(超载量、空闲量、专家份额)。</li><li>首次在 dst 承载专家时，赋 order[e,dst]=当前实例数+1；home 一直占顺序 1，不会因份额降为零被移除。</li><li>构造当前 rank 的 sizes：前 epn 行取本地专家的 rem；后 epn 行按专家 ID 升序填入 order[e,me]≥2 的副本份额，然后累加得到 cu。</li><li>把 rem、order、cu 写回 GM。loads 和 sizes 只是 UB 临时状态，没有对应的最终输出表。</li></ol><p><strong>为什么单 block：</strong>每次移动都会改变下一轮 argmax/argmin，当前实现选择串行维护全局状态。只保护副本槽写入，不在贪心选择时约束槽数，相关风险见第 08 节。</p></article>
+<article id="k-tables" class="kernel-detail"><h3>④ Tables：把放置关系变成目标 rank 上的副本槽</h3><p class="caption">_MoonepPlanTablesKernel · 第 418–455 行 · 启动 R 个 block</p>
+<div class="scroll"><table><thead><tr><th>方向</th><th>参数 / 形状</th><th>含义 / 后续消费者</th></tr></thead><tbody><tr><td>输入</td><td>gm_order [E,R]</td><td>Greedy 产出的实例存在关系和创建顺序。</td></tr><tr><td>输出</td><td>gm_jrep [R,E]</td><td>jrep[r,e]=rank r 上 ID 小于 e 的副本专家数量；对副本 e 而言就是它的槽号。Assign 使用。</td></tr><tr><td>输出</td><td>gm_etc [R,epn]</td><td>每 rank 槽号→真实专家 ID，空槽 -1；是最终结果，供 prefetch/reduce 使用。</td></tr></tbody></table></div>
+<pre><code># block 编号就是目标 rank r
+jc = 0
+for e in increasing_expert_id:
+    jrep[r,e] = jc
+    if order[e,r] &gt;= 2:
+        if jc &lt; epn: etc[r,jc] = e
+        jc += 1
+# 未使用的 etc 位置保持 -1</code></pre><p>上面是合并表达的等价逻辑；源码实际分两次扫描，先填 jrep，再初始化并填 etc。每个 block 读取完整 order，但只写自己 rank 的连续一行，无跨 block 写冲突。</p><div class="note"><strong>容易混淆的两个“顺序”：</strong>order 按<strong>同一个专家的实例创建顺序</strong>编号，用于划分 token 份额区间；jrep 按<strong>同一目标 rank 上的副本专家 ID</strong>编号，用于定位权重视图槽。这两种编号不能互换。</div></article>
+<article id="k-count" class="kernel-detail"><h3>⑤ Count：统计本 rank 各 chunk 的专家需求</h3><p class="caption">_MoonepPlanCountKernel · 第 464–494 行 · 启动 bd 个 block</p>
+<div class="scroll"><table><thead><tr><th>方向</th><th>参数 / 形状</th><th>含义 / 后续消费者</th></tr></thead><tbody><tr><td>输入</td><td>gm_topk_all [R,N]</td><td>只读 topk_all[me,:]，由 wrapper 提前拷入；其他行不参与当前 rank 的计算。</td></tr><tr><td>输出</td><td>gm_counts [nc,E]</td><td>counts[c,e]=当前 rank 第 c 个 chunk 中专家 e 的出现次数；Pfx 使用。</td></tr></tbody></table></div>
+<pre><code>for k in range(nc // bd):
+    c = block_id + k*bd
+    cnt[:] = 0
+    topk_chunk = topk_all[me, c*C:(c+1)*C]
+    for e in topk_chunk: cnt[e] += 1
+    counts[c,:] = cnt</code></pre><p>每 chunk 先清 UB 计数表，再载入 C 个专家 ID，用 SIMT 单线程更新直方图，最后写一行 counts。不同 block 负责不同 chunk，因此没有共享计数器。</p><p>源码 tile_slice 的坐标是<strong>tile 序号</strong>：<code>(me,c)</code> 搭配 tile 大小 (1,C)，对应元素起点 (me,c*C)，不是从元素 c 开始读。</p></article>
+<article id="k-pfx" class="kernel-detail"><h3>⑥ Pfx：把统计信息编译成可直接查找的路由表</h3><p class="caption">_MoonepPlanPfxKernel · 第 502–616 行 · 启动 bdp 个 block</p>
+<div class="scroll"><table><thead><tr><th>方向</th><th>参数 / 形状</th><th>含义</th></tr></thead><tbody><tr><td>输入</td><td>gm_dem_by_rank [R,E]</td><td>来源 rank 的需求，用于算全局专家内序号前缀。</td></tr><tr><td>输入</td><td>gm_counts [nc,E]</td><td>本 rank 的 chunk 计数，用于算 chunk 前缀。</td></tr><tr><td>输入</td><td>gm_rem、gm_order [E,R]</td><td>各实例份额及其创建顺序。</td></tr><tr><td>输出</td><td>gm_pcnt [E,nc]</td><td>pcnt[e,c]=Σq&lt;c counts[q,e]，即当前 chunk 之前的出现次数。</td></tr><tr><td>输出</td><td>gm_dpre [E]</td><td>dpre[e]=Σr&lt;me dem_by_rank[r,e]，即更小来源 rank 的出现次数。</td></tr><tr><td>输出</td><td>gm_vid [E]</td><td>无远程正份额时为 home 虚拟编号，否则为 -1，要求走区间查找。</td></tr><tr><td>输出</td><td>gm_ord_rank [E,R+1]</td><td>ord_rank[e,o-1]=r，其中 order[e,r]=o；未占用位置为 -1。</td></tr><tr><td>输出</td><td>gm_ord_end [E,R+1]</td><td>按 ord_rank 顺序累加 rem 得到的区间结束值；空位重复累计值。</td></tr></tbody></table></div>
+<p>以上五个输出全部交给 Assign。每个 block 负责连续 E/bdp 个专家，但会先将输入表整表载入 UB，再逐专家构造并按行写出。pcnt 与 counts 的布局相反，是为了按专家连续写前缀行。</p><pre><code># 某专家 home 在 rank 0，处理 8 份；副本在 rank 1，处理 4 份
+order[e,:]    = [1,2]
+rem[e,:]      = [8,4]
+ord_rank[e,:] = [0,1,-1]
+ord_end[e,:]  = [8,12,12]
+vid[e]        = -1
+
+# 专家内序号 pos 找第一个满足 pos &lt; ord_end[e,o] 的区间
+# [0,8) 对应 rank 0；[8,12) 对应 rank 1。</code></pre><p>这里的区间属于<strong>单个专家在全组的输入序列</strong>，与 cu 的“当前接收 rank 的不同专家分组边界”不同。零份额实例可能产生零长度区间，查找用严格小于号自然跳过。</p></article>
+<article id="k-assign" class="kernel-detail"><h3>⑦ Assign：为每个本地 (token,k) 生成虚拟专家 ID</h3><p class="caption">_MoonepPlanAssignKernel · 第 629–744 行 · 启动 bd 个 block</p>
+<div class="scroll"><table><thead><tr><th>方向</th><th>参数 / 形状</th><th>含义</th></tr></thead><tbody><tr><td>输入</td><td>gm_topk_all [R,N]</td><td>只读当前 rank 的真实专家序列。</td></tr><tr><td>输入</td><td>gm_pcnt [E,nc]；gm_dpre [E]</td><td>确定每个 chunk 首次出现专家 e 时的全局序号。</td></tr><tr><td>输入</td><td>gm_ord_rank、gm_ord_end [E,R+1]</td><td>专家的各处理区间及对应承载 rank。</td></tr><tr><td>输入</td><td>gm_jrep [R,E]</td><td>将远程承载实例映射到目标 rank 的副本槽。</td></tr><tr><td>输入</td><td>gm_vid [E]</td><td>无远程正份额专家的固定编号快路径。</td></tr><tr><td>输出</td><td>gm_vtopk [N]</td><td>与输入 top-k 展平顺序一一对应的虚拟路由，是最终返回结果。</td></tr></tbody></table></div>
+<ol><li>先把路由前缀与查找表载入 UB。按与 Count 相同的轮转方式认领 chunk。</li><li>对慢路径专家初始化 pos[e]=dpre[e]+pcnt[e,c]、segment_end[e]=0；当前 vid 延迟到首次使用时计算。</li><li>载入当前 chunk。按 token/k 顺序扫描：若 vid[e]≥0，直接写固定 vid；否则读取当前 pos。</li><li>若 pos 达到区间尾部，就在 ord_end 中查找第一个结束值大于 pos 的区间；取 ord_rank 得到目的 rank，再利用 home 槽或 jrep 副本槽编码 vid。</li><li>写 vtopk，慢路径 pos[e] 加一；同一区间内后续 token 复用缓存的 vid。完成后把该 chunk 连续写回 GM。</li></ol><pre><code>if fixed_vid[e] &gt;= 0:
+    vtopk[i] = fixed_vid[e]
+else:
+    if pos[e] &gt;= segment_end[e]:
+        o = first_index(ord_end[e,:] &gt; pos[e])
+        dst = ord_rank[e,o]
+        slot = e%epn if o==0 else epn+jrep[dst,e]
+        current_vid[e] = dst*(2*epn)+slot
+        segment_end[e] = ord_end[e,o]
+    vtopk[i] = current_vid[e]
+    pos[e] += 1</code></pre><p><strong>输出只标识去哪个实例：</strong>Assign 不生成目的接收缓冲中的具体行偏移，也不生成 src_n/dst_n；这些数据搬运与实际落位工作由后续原生 dispatch 完成。</p></article>
+</section>
+<section id="kernel-cooperation"><h2>03B · 这些 kernel 怎么配合</h2>
+<h3>1. 逻辑依赖不是简单的七段单链</h3>
+<pre><code>tpe ──→ Exchange ── dem_by_rank ──→ GreedyInit
+                   │                   │ rem / order / loads_part
+                   │                   ▼
+                   │                Greedy ──────────→ cu（最终输出）
+                   │                   │ rem / order
+                   │                   ├── order ──→ Tables ──→ etc（最终输出）
+                   │                   │                └── jrep ──────┐
+                   │                   └──────────────┐                │
+                   └───────────────────────────────┐  │                │
+                                                   ▼  ▼                │
+本地 topk ──→ Count ── counts ────────────────────→ Pfx                │
+     │                                             │                   │
+     │                      pcnt / dpre / vid / ord_rank / ord_end     │
+     │                                             ▼                   ▼
+     └──────────────────────────────────────────→ Assign ──→ vtopk（最终输出）</code></pre>
+<p>Count 只依赖本地 top-k，逻辑上不依赖 Greedy/Tables；Pfx 不读取 Tables 的 jrep；Assign 才把 Pfx 的“该去哪个 rank”与 Tables 的“该 rank 上哪个副本槽”结合起来。<strong>这些是数据依赖关系，不表示当前实现已经并发执行独立分支。</strong></p>
+<h3>2. 当前代码如何保证执行顺序</h3><p><code>_moonep_plan_host</code> 第 777 行附近按 <code>A→B0→B→Tab→Cnt→Pfx→Asg</code> 顺序调用七个 kernel，block 数依次是 <code>1、bdp、1、R、bd、bdp、bd</code>。依赖通过 GM 中间表衔接，按编译 host 程序的执行序消费前序结果；没有在 Python 中逐阶段 .item() 或 CPU 回读来衔接。</p><p>Exchange 内部才有跨 rank 的计数到达握手。其余六个 kernel 都处理本 rank 的本地工作表；多个 block 通过互不重叠的输出行/chunk 分工，串行贪心阶段独占全局状态。kernel 边界提供阶段衔接，而非让一个 kernel 的 block 在执行中直接读取另一个 block 的未完成结果。</p>
+<h3>3. 从七阶段到算子最终返回</h3><div class="scroll"><table><thead><tr><th>最终结果</th><th>谁生成</th><th>用途</th></tr></thead><tbody><tr><td>cu_seqlens</td><td>Greedy</td><td>当前 rank 的专家/副本计算分组边界。</td></tr><tr><td>experts_to_copy</td><td>Tables</td><td>所有 rank 的权重副本预取、梯度归并清单。</td></tr><tr><td>vtopk</td><td>Assign</td><td>当前 rank 的改写路由，供 dispatch。</td></tr><tr><td>dst_n、src_n</td><td>Python wrapper 的零张量缓存</td><td>兼容接口的只读占位，不是七个 kernel 的计算结果。</td></tr></tbody></table></div>
+<h3>4. 用 K=2 的完整例子走完七阶段</h3>
+<p>取 <strong>R=2、E=4、S=4、K=2</strong>。每张卡有 4 个输入 token，每个 token 选择两个不同专家，因此每卡有 <strong>N=S×K=8 次“token 交给专家处理”的任务</strong>，全组共 16 次，最终目标是每卡处理 8 次。</p>
+<p>专家 0、1 原本在 rank 0；专家 2、3 原本在 rank 1。下面用 <code>r0:t3</code> 表示“来源 rank 0 的第 3 个 token”。token 下标从 0 开始。</p>
+<h3>4.0 输入：每个 token 都选择两个专家</h3>
+<div class="grid"><div class="rank"><strong>rank 0 的 topk [4,2]</strong><pre><code>token    k=0  k=1
+t0       [0,   1]
+t1       [0,   1]
+t2       [0,   1]
+t3       [0,   2]
+
+展平：[0,1,0,1,0,1,0,2]
+tpe ：[4,3,1,0]</code></pre></div><div class="rank"><strong>rank 1 的 topk [4,2]</strong><pre><code>token    k=0  k=1
+t0       [0,   1]
+t1       [0,   1]
+t2       [0,   2]
+t3       [0,   3]
+
+展平：[0,1,0,1,0,2,0,3]
+tpe ：[4,2,1,1]</code></pre></div></div>
+<p>例如 rank 0 的 t0 产生两次处理：一次给专家 0，一次给专家 1，所以分别给 tpe[0] 和 tpe[1] 加 1。tpe 的和是 8，不是输入 token 数 4。</p>
+<div class="note">源码的真实分块对 N=8 返回 <strong>C=8、nc=1、bd=1</strong>；E=4 时 bdp=4。以下严格按该配置演示。K=2 展示同一 token 的两条路由，但这个小尺寸只有一个 chunk，因此 pcnt 全零；多 chunk 时的前缀公式仍见第 06 节。</div>
+<h3>4.1 Exchange：把各卡的 tpe 收集为二维表</h3>
+<pre><code>                    专家0  专家1  专家2  专家3
+dem_by_rank = [
+  rank 0 来源：      [ 4,    3,    1,    0 ],
+  rank 1 来源：      [ 4,    2,    1,    1 ]
+]
+按列求和，全局需求： [ 8,    5,    2,    1 ]</code></pre>
+<p>两个 rank 都得到这张相同的表。此时只知道输入需要哪些专家，还没有决定将计算分给哪些卡。</p>
+<h3>4.2 GreedyInit：先让 home 承担全部需求</h3>
+<pre><code>rem 的列：             rank0  rank1
+专家0                     8      0
+专家1                     5      0
+专家2                     0      2
+专家3                     0      1
+
+order = [[1,0], [1,0], [0,1], [0,1]]
+
+loads_part [bdp=4,R=2]：
+block0 初始化专家0 → [8,0]
+block1 初始化专家1 → [5,0]
+block2 初始化专家2 → [0,2]
+block3 初始化专家3 → [0,1]</code></pre>
+<p>每个 block 写自己的一行 loads_part，没有多个 block 同时累加一个全局 loads。Greedy 随后汇总，得到 <strong>loads=[13,3]</strong>。</p>
+<h3>4.3 Greedy：把专家 0 的 5 次计算交给 rank 1</h3>
+<pre><code>cap = (13+3)/2 = 8
+src = rank0（13次，超载5）
+dst = rank1（3次，空闲5）
+e   = 专家0（src 上专家0有8次，专家1有5次）
+move = min(13-8, 8-3, 8) = 5
+
+均衡后的 rem：         rank0  rank1
+专家0                     3      5
+专家1                     5      0
+专家2                     0      2
+专家3                     0      1
+
+order = [[1,2], [1,0], [0,1], [0,1]]
+loads = [8,8]</code></pre>
+<p>专家 0 在 rank 1 创建副本，order[0,1]=2。此时只决定专家 0 的 8 次计算中，home 处理 3 次、副本处理 5 次；还没逐个挑出具体 token。</p>
+<div class="scroll"><table><thead><tr><th>当前接收 rank</th><th>视图槽 0</th><th>视图槽 1</th><th>副本槽 0（视图槽 2）</th><th>副本槽 1（视图槽 3）</th><th>cu</th></tr></thead><tbody><tr><td>rank 0</td><td>专家0：3次</td><td>专家1：5次</td><td>空：0次</td><td>空：0次</td><td>[3,8,8,8]</td></tr><tr><td>rank 1</td><td>专家2：2次</td><td>专家3：1次</td><td>专家0副本：5次</td><td>空：0次</td><td>[2,3,8,8]</td></tr></tbody></table></div>
+<h3>4.4 Tables：给副本安排权重槽</h3>
+<pre><code>etc = [
+  [-1,-1],    # rank0 没有远程专家副本
+  [ 0,-1]     # rank1 的副本槽0放专家0
+]
+
+jrep [R,E] = [
+  [0,0,0,0],
+  [0,1,1,1]
+]
+# jrep[1,0]=0：专家0在rank1的副本槽号为0。
+# jrep[1,1..3]=1：它们之前有1个副本专家；它们自身不是副本，
+# 这些位置不会被当作它们的副本槽使用。</code></pre>
+<p>每 rank 占用 2×epn=4 个虚拟专家编号，映射如下：</p>
+<pre><code>rank0：vid 0→真实专家0；vid 1→真实专家1；vid 2、3→空预取槽
+rank1：vid 4→真实专家2；vid 5→真实专家3；vid 6→专家0副本；vid 7→空槽
+
+专家0副本的 vid = 1*4 + epn(2) + jrep[1,0](0) = 6</code></pre>
+<h3>4.5 Count：按本地 chunk 重新统计真实 top-k</h3>
+<p>每卡展平序列恰好占一个 chunk，Count 的输出都是 [1,4]：</p>
+<pre><code>rank0：counts = [[4,3,1,0]]
+rank1：counts = [[4,2,1,1]]</code></pre>
+<p>这个小例子里 counts 的唯一行恰好等于本地 tpe。真实大输入有多个 chunk，Count 的作用是把总计数拆成 chunk 局部计数，以便后续并行确定全局顺序。</p>
+<h3>4.6 Pfx：构造“输入序号”和“处理区间”</h3>
+<p><strong>输入序号前缀：</strong>pcnt 表示本卡更早 chunk 的计数；dpre 表示更小来源 rank 的计数。</p>
+<pre><code>两卡的 pcnt [E,1] 都是 [[0],[0],[0],[0]]，因为只有一个chunk。
+rank0：dpre = [0,0,0,0]
+rank1：dpre = [4,3,1,0]  # 正好是来源rank0的tpe
+
+# 例如：rank1 遇到的第一个专家0任务，其全局专家内序号
+pos = dpre[0] + pcnt[0,0] + chunk内更早的专家0次数 = 4+0+0 = 4</code></pre>
+<p><strong>处理区间表：</strong>按同一个专家的实例顺序，用 rem 构造区间：</p>
+<div class="scroll"><table><thead><tr><th>专家</th><th>ord_rank [R+1]</th><th>ord_end [R+1]</th><th>区间含义</th><th>快路径 vid</th></tr></thead><tbody><tr><td>0</td><td>[0,1,-1]</td><td>[3,8,8]</td><td>序号 [0,3) 给 rank0；[3,8) 给 rank1</td><td>-1，走区间查找</td></tr><tr><td>1</td><td>[0,-1,-1]</td><td>[5,5,5]</td><td>[0,5) 全给 home rank0</td><td>1</td></tr><tr><td>2</td><td>[1,-1,-1]</td><td>[2,2,2]</td><td>[0,2) 全给 home rank1</td><td>4</td></tr><tr><td>3</td><td>[1,-1,-1]</td><td>[1,1,1]</td><td>[0,1) 全给 home rank1</td><td>5</td></tr></tbody></table></div>
+<p>两卡得到相同的实例区间表和 vid=[-1,1,4,5]；不同的是 dpre，因为它与当前来源 rank 有关。</p>
+<h3>4.7 Assign：逐个任务选择实例，写回 K=2 路由</h3>
+<p>先单独追踪<strong>专家 0</strong>的 8 次计算。全局顺序先 rank 0 再 rank 1，各来源内按 token/k 排序：</p>
+<div class="scroll"><table><thead><tr><th>来源 token / k</th><th>dpre[0]</th><th>本 chunk 内此前专家0次数</th><th>pos</th><th>命中区间</th><th>实例 / vid</th></tr></thead><tbody><tr><td>r0:t0 / k0</td><td>0</td><td>0</td><td>0</td><td>[0,3)</td><td>rank0 home / 0</td></tr><tr><td>r0:t1 / k0</td><td>0</td><td>1</td><td>1</td><td>[0,3)</td><td>rank0 home / 0</td></tr><tr><td>r0:t2 / k0</td><td>0</td><td>2</td><td>2</td><td>[0,3)</td><td>rank0 home / 0</td></tr><tr><td>r0:t3 / k0</td><td>0</td><td>3</td><td>3</td><td>[3,8)</td><td>rank1 副本 / 6</td></tr><tr><td>r1:t0 / k0</td><td>4</td><td>0</td><td>4</td><td>[3,8)</td><td>rank1 副本 / 6</td></tr><tr><td>r1:t1 / k0</td><td>4</td><td>1</td><td>5</td><td>[3,8)</td><td>rank1 副本 / 6</td></tr><tr><td>r1:t2 / k0</td><td>4</td><td>2</td><td>6</td><td>[3,8)</td><td>rank1 副本 / 6</td></tr><tr><td>r1:t3 / k0</td><td>4</td><td>3</td><td>7</td><td>[3,8)</td><td>rank1 副本 / 6</td></tr></tbody></table></div>
+<p>r0:t3 使 pos 达到前一段结束值 3，触发重新查段、把当前 vid 从 0 切为 6。rank1 的第一个专家 0 任务起点已是 4，首次查段就落到副本区间。专家 1、2、3 无远程正份额，直接查固定 vid。</p>
+<div class="scroll"><table><thead><tr><th>来源</th><th>真实 topk [k0,k1]</th><th>虚拟 vtopk [k0,k1]</th><th>两个专家任务分别去哪</th></tr></thead><tbody><tr><td>r0:t0</td><td>[0,1]</td><td>[0,1]</td><td>rank0 专家0；rank0 专家1</td></tr><tr><td>r0:t1</td><td>[0,1]</td><td>[0,1]</td><td>rank0 专家0；rank0 专家1</td></tr><tr><td>r0:t2</td><td>[0,1]</td><td>[0,1]</td><td>rank0 专家0；rank0 专家1</td></tr><tr><td>r0:t3</td><td>[0,2]</td><td>[6,4]</td><td>rank1 专家0副本；rank1 专家2</td></tr><tr><td>r1:t0</td><td>[0,1]</td><td>[6,1]</td><td>rank1 专家0副本；rank0 专家1</td></tr><tr><td>r1:t1</td><td>[0,1]</td><td>[6,1]</td><td>rank1 专家0副本；rank0 专家1</td></tr><tr><td>r1:t2</td><td>[0,2]</td><td>[6,4]</td><td>rank1 专家0副本；rank1 专家2</td></tr><tr><td>r1:t3</td><td>[0,3]</td><td>[6,5]</td><td>rank1 专家0副本；rank1 专家3</td></tr></tbody></table></div>
+<pre><code># 算子实际返回展平 [N]，调用者再 view(S,K)
+rank0 vtopk = [0,1, 0,1, 0,1, 6,4]
+rank1 vtopk = [6,1, 6,1, 6,4, 6,5]</code></pre>
+<div class="note"><strong>K=2 的关键：</strong>例如 r1:t0 的同一个 hidden 需要被专家0和专家1各处理一次。它的 [6,1] 表示专家0任务在 rank1 副本处理，专家1任务在 rank0 处理。两个输出后续按路由权重组合回原来的一个 token。</div>
+<h3>4.8 最终核对：按真实专家任务统计，与 cu 完全对应</h3>
+<div class="scroll"><table><thead><tr><th>目标 rank / 槽</th><th>计算用的真实专家</th><th>输入来源 token</th><th>处理次数</th><th>累计结束位置</th></tr></thead><tbody><tr><td>rank0 / 0</td><td>专家0 home</td><td>r0:t0、t1、t2</td><td>3</td><td>3</td></tr><tr><td>rank0 / 1</td><td>专家1 home</td><td>r0:t0、t1、t2；r1:t0、t1</td><td>5</td><td>8</td></tr><tr><td>rank0 / 2</td><td>空副本槽</td><td>无</td><td>0</td><td>8</td></tr><tr><td>rank0 / 3</td><td>空副本槽</td><td>无</td><td>0</td><td>8</td></tr><tr><td>rank1 / 0</td><td>专家2 home</td><td>r0:t3；r1:t2</td><td>2</td><td>2</td></tr><tr><td>rank1 / 1</td><td>专家3 home</td><td>r1:t3</td><td>1</td><td>3</td></tr><tr><td>rank1 / 2</td><td>专家0副本</td><td>r0:t3；r1:t0、t1、t2、t3</td><td>5</td><td>8</td></tr><tr><td>rank1 / 3</td><td>空副本槽</td><td>无</td><td>0</td><td>8</td></tr></tbody></table></div>
+<p>两卡输入各 4 个 token，但各自产生 8 次专家任务。均衡后 rank0 处理 3+5=8 次，rank1 处理 2+1+5=8 次，cu 分别为 [3,8,8,8] 和 [2,3,8,8]。这里统计的是<strong>专家计算任务数</strong>；同一 hidden 可能被同卡两个专家消费，不能直接把它等同于跨卡网络实际搬运次数或去重后的物理缓冲行数。</p>
+<div class="note"><strong>配合的核心：</strong>Greedy 决定“每个实例处理多少”；Tables 决定“实例对应哪个权重槽”；Count/Pfx 决定“每个输入任务的专家内序号”；Assign 将三者合起来，生成 dispatch 使用的虚拟路由。</div>
+</section>
+<section id="greedy"><h2>04 · 贪心均衡：先决定处理份额</h2><p>初始时，专家 e 的全部需求由其 home rank <code>e//epn</code> 处理：</p><pre><code>demand[e] = Σr dem_by_rank[r,e]
+rem[e,home(e)] = demand[e]
+order[e,home(e)] = 1
+loads[r] = Σe rem[e,r]
+cap = Σr loads[r] // R</code></pre><p><code>rem[e,r]</code> 表示专家 e 在 rank r 的处理份数。<code>order[e,r]</code> 中，0 表示未承载，1 是 home，2 及以上表示副本创建顺序。随后每轮：</p><pre><code>src = argmax(loads)
+dst = argmin(loads)
+e   = argmax(rem[:,src])
+move = min(loads[src]-cap, cap-loads[dst], rem[e,src])
+
+# 必要时登记专家 e 在 dst 上的新副本
+rem[e,src] -= move; rem[e,dst] += move
+loads[src] -= move; loads[dst] += move</code></pre><p>实现最多执行 E 轮，每轮检查是否仍有超载。并列值由升序扫描确定，通常优先较小下标。这里更新的是计划，还没有搬 token 或权重。</p><h3>例子：把 [12,4] 的初始负载变成 [8,8]</h3><p>令 R=2、E=4、epn=2、N=8，全局专家需求为 <code>[12,0,2,2]</code>。把专家 0 的 4 份计算分给 rank 1：</p><div class="grid"><div class="rank"><strong>rank 0：保留专家 0 的 8 份</strong><div class="bar" role="img" aria-label="rank 0 总共 8 份，全部由专家 0 处理"><span style="width:100%">专家 0 × 8</span></div><code>cu=[8,8,8,8]</code><br><code>etc=[-1,-1]</code></div><div class="rank"><strong>rank 1：新增专家 0 的副本</strong><div class="bar" role="img" aria-label="rank 1 总共 8 份，专家 2 和 3 各 2 份，专家 0 副本 4 份"><span class="other" style="width:25%">e2 × 2</span><span class="other" style="width:25%">e3 × 2</span><span class="replica" style="width:50%">e0 副本 × 4</span></div><code>cu=[2,4,8,8]</code><br><code>etc=[0,-1]</code></div></div><p class="caption">按源码逻辑构造并通过标准 Python 模拟的例子。条形长度表示路由份数；etc 仅展示对应 rank 的一行。</p></section>
+<section id="routing"><h2>05 · 为什么扩展为 2E 个虚拟专家</h2><p>每 rank 的逻辑权重视图包含 2·epn 行：前半是本地真实专家，后半是远程专家预取槽，副本槽按真实专家 ID 升序排列。</p><pre><code>rank r：[ 本地专家 0 … epn-1 | 副本槽 0 … epn-1 ]
+
+# home 实例
+vid = home_rank * (2*epn) + e%epn
+
+# 远程实例，jrep 是目标 rank 上的副本槽号
+vid = dst_rank * (2*epn) + epn + jrep[dst_rank,e]
+
+# dispatch 解码
+dst_rank  = vid // (2*epn)
+local_slot = vid % (2*epn)</code></pre><p>前例中，虚拟空间大小是 8：专家 0 的 home 实例编号为 0；rank 1 的本地专家 2、3 编号为 4、5；rank 1 的专家 0 副本编号为 6。原路由到专家 0 的份数按计划分别改写为 0 或 6。</p><pre><code># 示意：容量等其余参数依调用方配置
+buf.dispatch(hidden,
+    topk_idx=vtopk.view(S,K),
+    topk_weights=route_weights,
+    num_experts=2*E, ...)</code></pre><div class="note"><strong>集成关键：</strong>vtopk 的本地槽、cu 的分组顺序、etc 的预取槽和权重视图行号必须一致。dispatch 以虚拟专家分组后，GMM 才能取到正确的专家权重。</div></section>
+<section id="assign"><h2>06 · 怎样并行决定每份 token 去哪个副本</h2><p>同一专家的来源顺序定义为 <code>(来源 rank, token 下标, top-k 下标)</code> 升序。该专家在各承载实例上的份额，则按 home 在前、副本创建顺序在后排列为连续区间。</p><pre><code>pos(e) = dpre[e] + pcnt[e,chunk] + 当前 chunk 内 e 的已出现次数
+
+dpre[e] = 更小来源 rank 对 e 的需求之和
+pcnt[e,chunk] = 本 rank 更早 chunk 中 e 的出现次数
+
+# 若 home 处理 8 份，副本处理 4 份
+pos ∈ [0,8)  → home
+pos ∈ [8,12) → 副本</code></pre><p>前缀将跨 chunk 依赖变成查表，各 block 无需争用原子计数，也能得到与按来源顺序逐份扫描一致的实例归属。</p><h3>Assign 的两项优化</h3><ul><li><strong>固定 vid 快路径：</strong>专家没有远程处理份额时，直接查一个固定 vid。</li><li><strong>区间缓存：</strong>为每个慢路径专家维护当前位置、当前区间结束值和当前 vid；只有跨区间时才扫描 ord 表重新定位。</li></ul><p>因此多数 token 不必逐个扫描全部 rank。不过 chunk 内仍存在串行依赖，每 chunk 也有重建 O(E) 状态的成本。</p></section>
+<section id="runtime"><h2>07 · 缓存与执行顺序</h2><ul><li><strong>编译缓存：</strong>键为 (S,K,E,R,me)。rank 在 trace 时固化，必须进入键；编译锁保护模块级参数与编译过程。</li><li><strong>workspace：</strong>context 按形状单槽复用中间表。同流顺序保护覆写，跨流切换通过事件等待串行化。</li><li><strong>本地 top-k 拷贝：</strong>Python 发起设备侧 copy_，并非 CPU 回读；只消费当前 rank 行，但 workspace 仍分配 [R,N]。</li><li><strong>epoch 握手：</strong>计数与 ready flag 发送到对称内存，接收端轮询 flag 达到本轮阈值；各 rank 须遵守一致调用顺序。</li><li><strong>通信器分离：</strong>moonep context 与 ElasticBuffer 使用独立通信器，避免对称堆布局相互覆盖。</li><li><strong>延迟结果检查：</strong>plan 返回前不回读 cu 尾值，把检查留到 prefetch/reduce 尾部。这避免了该处 D2H 同步，但不表示首次编译、分配等 host 工作没有耗时。</li></ul><p class="caption">参考 moonep_plan.py 第 752–1005 行，以及 <a href="https://gitcode.com/cann/cannbot-dsl/blob/eb25c890295aa83cb35f7aed4d344f2b84a7ff04/samples/moonep/moonep_context.py">moonep_context.py</a> 第 194、265、412 行附近。</p></section>
+<section id="risks"><h2>08 · 实现边界与需要改进的地方</h2>
+<div class="risk"><span class="tag">模拟已复现</span><h3>1. 贪心没有把副本槽数量纳入约束</h3><p>每 rank 只预留 epn 个副本槽，但贪心只看负载。即使份额可以均衡，槽数仍可能不足。</p><pre><code>R=3，E=3，epn=1；全局需求=[43,21,41]；cap=35
+第 1 轮：专家 0 从 rank 0 分出 8 份给 rank 1
+第 2 轮：专家 2 从 rank 2 分出 6 份给 rank 1
+最终 loads=[35,35,35]
+rank 1 需要两个副本，但只有一个槽。
+rank 1 的 cu 尾值=21+8=29，遗漏第二副本的 6 份。</code></pre><p>cu 和 etc 有写前保护，但 Assign 没有对应的超槽编码检查。本例第二副本的 vid=1×2+1+1=4，会被解码到 rank 2 本地槽，造成错误目标路由。</p><div class="note warn">当前报警延迟到后续 prefetch/reduce，dispatch 可能已执行。建议让贪心感知槽容量，或在产生可消费路由前输出并处理显式失败状态。</div></div>
+<div class="risk"><span class="tag">辅助函数实测 / 静态容量分析</span><h3>2. 奇数 N 可能使分块退化、前缀表膨胀</h3><p>chunk 从 2 的幂开始，逐次减半直到整除 N；奇数 N 会降到 1，block 数还须整除 chunk 数。</p><div class="scroll"><table><thead><tr><th>N</th><th>chunk</th><th>nc</th><th>block_dim</th></tr></thead><tbody><tr><td>65536</td><td>2048</td><td>32</td><td>32</td></tr><tr><td>65537</td><td>1</td><td>65537</td><td>1</td></tr></tbody></table></div><p>Pfx/Assign 将完整 counts 或 pcnt 表载入 UB。N=65537、E=8 时，单张 int32 表约 2 MiB，超过源码注释所述 256 KiB UB 预算。具体编译/运行失败形态仍需设备确认。</p><p>建议使用有界 chunk 数、带尾部掩码的分块，或分片载入中间表。</p></div>
+<div class="risk"><span class="tag">静态容量分析</span><h3>3. E、R 的独立上限不能代表所有组合都可运行</h3><p>E≤1024、R≤64 是显式上限。但在最大组合下，Greedy 的 rem 和 order 两张 int32 表就占 512 KiB，未计其他缓冲。其他阶段也有整表载入与多 block 重复读取。应结合各阶段 UB 总预算限制组合或重构表的组织。</p></div>
+<div class="risk"><span class="tag">源码控制流确认</span><h3>4. 延迟溢出检查只保存最新一次 plan</h3><p>pending_overflow 是单槽赋值。若依次执行 plan A、plan B，再到检查点，A 的记录会被 B 覆盖。“所有已执行 plan 都得到检查”需要额外调用纪律，当前代码本身没有完整保证。</p></div>
+<div class="risk"><span class="tag">接口前提</span><h3>5. 输入合法性与并发条件依赖调用方</h3><p>入口未全面验证计数和 top-k 一致性、专家 ID 范围、同设备、连续性及非空输入。N=0 时分块函数返回 (128,0,0)，没有合法启动保护。全零占位缓存仅按 N 键控，也不应把 workspace 复用理解为支持任意多线程并发。</p><p>分组内各 rank 的 S、K 和调用顺序须一致，否则 cap=N、前缀分配和 epoch 握手的前提可能不成立。</p></div></section>
+<section id="verification"><h2>09 · 验证范围</h2><div class="grid"><div><h3>本次完成</h3><ul><li>下载并检出 PR 的精确 head，确认源码工作区未修改。</li><li>阅读 plan、context、README、golden 及测试入口。</li><li>提取执行分块辅助函数，检查常见长度、奇数长度和空输入。</li><li>按源码贪心逻辑模拟 40,000 组随机需求，未发现份额未均衡样本，并复现副本槽不足。</li></ul></div><div><h3>本次未覆盖</h3><ul><li>未运行 DSL 编译、NPU 数值测试或多卡通信测试。</li><li>当前 WSL Python 缺少 PyTorch，未运行仓库 CPU golden 测试。</li><li>随机模拟不构成收敛性数学证明，也不验证设备内存模型。</li><li>未实测 UB 编译诊断、延迟、吞吐和跨流压力。</li></ul></div></div><h3>建议阅读顺序</h3><ol><li><a href="https://gitcode.com/cann/cannbot-dsl/blob/eb25c890295aa83cb35f7aed4d344f2b84a7ff04/samples/moonep/moonep_plan.py">moonep_plan.py</a>：1008 行入口 → host 编排 → 274 行贪心 → 502/629 行前缀与分配。</li><li><a href="https://gitcode.com/cann/cannbot-dsl/blob/eb25c890295aa83cb35f7aed4d344f2b84a7ff04/samples/moonep/moonep_context.py">moonep_context.py</a>：对称堆布局、epoch、延迟检查与跨流事件。</li><li><a href="https://gitcode.com/cann/cannbot-dsl/blob/eb25c890295aa83cb35f7aed4d344f2b84a7ff04/test/moonep/moonep_golden.py">moonep_golden.py</a>：参考分配语义；部分历史注释应与当前实际逻辑交叉核对。</li><li><a href="https://gitcode.com/cann/cannbot-dsl/blob/eb25c890295aa83cb35f7aed4d344f2b84a7ff04/test/moonep/test_moonep_ep.py">test_moonep_ep.py</a>：NPU 端到端验收入口。</li></ol></section>
+<footer>源码行号对应上述固定提交。源码链接已改为固定提交的在线链接，HTML 正文可离线阅读。本报告无外部脚本、字体或媒体依赖，可离线打开或打印为 PDF。</footer>
+</main></body></html>
