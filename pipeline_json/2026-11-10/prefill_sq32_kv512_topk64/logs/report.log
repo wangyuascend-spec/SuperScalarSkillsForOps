@@ -1,0 +1,28 @@
+
+███╗   ██╗██████╗ ██╗   ██╗    ███████╗██╗███╗   ███╗    
+████╗  ██║██╔══██╗██║   ██║    ██╔════╝██║████╗ ████║    
+██╔██╗ ██║██████╔╝██║   ██║    ███████╗██║██╔████╔██║    
+██║╚██╗██║██╔═══╝ ██║   ██║    ╚════██║██║██║╚██╔╝██║    
+██║ ╚████║██║     ╚██████╔╝    ███████║██║██║ ╚═╝ ██║    
+╚═╝  ╚═══╝╚═╝      ╚═════╝     ╚══════╝╚═╝╚═╝     ╚═╝    
+                                                        
+    Join the conversation and help shape the future.
+    └─ https://gitcode.com/org/cann/discussions/50
+
+Notice: The cannsim command has been renamed to npusim and will be deprecated soon.
+Please use npusim instead.
+
+[2026-11-10 01:35:22] [INFO] Detected cannsim_helper DB analysis mode.
+[2026-11-10 01:35:22] [INFO] Generating performance report...
+[2026-11-10 01:35:22] [INFO] Found cannsim_helper DB input: /mnt/workspace/flashmla_950sim/simout92/npusim_20261110093422_flashmla_sim/record
+[2026-11-10 01:35:22] [INFO] Running ProfRunner module...
+[2026-11-10 01:35:22] [INFO] Processing 1 cannsim_helper DB file(s).
+[2026-11-10 01:38:51] [INFO] Report generation completed successfully.
+[2026-11-10 01:38:51] [INFO] Reorganized reports by core in 0000_ascend::prefill::sparse_fwd::sparse_attn_fwd_kernel_reports: core_0 (4 files), core_1 (4 files), core_10 (4 files), core_11 (4 files), core_12 (4 files), core_13 (4 files), core_14 (4 files), core_15 (4 files), core_16 (4 files), core_17 (4 files), core_18 (4 files), core_19 (4 files), core_2 (4 files), core_20 (4 files), core_21 (4 files), core_22 (4 files), core_23 (4 files), core_24 (4 files), core_25 (4 files), core_26 (4 files), core_27 (4 files), core_28 (4 files), core_29 (4 files), core_3 (4 files), core_30 (4 files), core_31 (4 files), core_4 (4 files), core_5 (4 files), core_6 (4 files), core_7 (4 files), core_8 (4 files), core_9 (4 files)
+[2026-11-10 01:38:51] [INFO] Generating aggregated index.html...
+[2026-11-10 01:38:51] [WARN] No *_reports/ directories found in /mnt/workspace/flashmla_950sim/reports/prefill_sq32_kv512_topk64
+[2026-11-10 01:38:51] [INFO] Aggregated index.html generation had warnings.
+[2026-11-10 01:38:51] [INFO] Merging multi-core traces for /mnt/workspace/flashmla_950sim/reports/prefill_sq32_kv512_topk64 (0000_ascend::prefill::sparse_fwd::sparse_attn_fwd_kernel_reports)...
+[2026-11-10 01:38:58] [INFO]   -> /mnt/workspace/flashmla_950sim/reports/prefill_sq32_kv512_topk64/trace_chip0_kernel0.json (cores=32, pids=96, events=321519)
+[2026-11-10 01:38:58] [INFO] Merging all chip/kernel traces into one global trace...
+[2026-11-10 01:39:05] [INFO]   -> /mnt/workspace/flashmla_950sim/reports/prefill_sq32_kv512_topk64/trace_allchips.json (tasks=1, pids=96, events=321519)

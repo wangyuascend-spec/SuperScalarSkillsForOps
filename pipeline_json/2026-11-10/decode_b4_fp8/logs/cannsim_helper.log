@@ -1,0 +1,55 @@
+[cannsim_helper] init start: launch split enabled arch=Ascend950
+[cannsim_helper] camodel callback registration worker started
+[cannsim_helper] camodel callback registration delayed by 10000 ms
+[cannsim_helper] dlopen libpem_davinci.so success
+[cannsim_helper] dlsym DvcSetLogLevel success
+[cannsim_helper] dlsym DvcAttachLogCallback success
+[cannsim_helper] DvcSetLogLevel(6, 4, 2) called
+[cannsim_helper] DvcAttachLogCallback(DVC_INSTR_POPPED_LOG) called
+[cannsim_helper] DvcAttachLogCallback(DVC_INSTR_LOG) called
+[cannsim_helper] DvcAttachLogCallback(DVC_MTE_LOG) called
+[cannsim_helper] DvcAttachLogCallback(DVC_ICACHE_LOG) called
+[cannsim_helper] DvcAttachLogCallback(DVC_CCU_LOG) called
+[cannsim_helper] camodel callback registration completed after 1 attempts
+[cannsim_helper] runtime tracker discovered kernel symbol: ascend::prefill::sparse_fwd::sparse_attn_fwd_kernel
+[cannsim_helper] runtime tracker discovered kernel symbol: ascend::prefill::sparse_fwd::Kernel
+[cannsim_helper] runtime tracker discovered kernel symbol: ascend::prefill::sparse_fwd::run_sparse_fwd_kernel
+[cannsim_helper] runtime tracker discovered kernel symbol: std::unordered_map
+[cannsim_helper] runtime tracker discovered kernel symbol: std::_Hashtable
+[cannsim_helper] runtime tracker discovered kernel symbol: std::allocator
+[cannsim_helper] runtime tracker discovered kernel symbol: __gnu_cxx::new_allocator
+[cannsim_helper] runtime tracker discovered kernel symbol: std::__detail::_Hashtable_ebo_helper
+[cannsim_helper] runtime tracker discovered kernel symbol: std::__detail::_Hashtable_alloc
+[cannsim_helper] runtime tracker discovered kernel symbol: std::__detail::_Map_base
+[cannsim_helper] runtime tracker discovered kernel symbol: std::initializer_list
+[cannsim_helper] runtime tracker discovered kernel symbol: std::__detail::_Hash_code_base
+[cannsim_helper] runtime tracker discovered kernel symbol: std::__detail::_Hash_node_value_base
+[cannsim_helper] runtime tracker discovered kernel symbol: std::iterator_traits
+[cannsim_helper] runtime tracker discovered kernel symbol: std::__detail::_Insert_base
+[cannsim_helper] runtime tracker discovered kernel symbol: std::__detail::_Hash_node
+[cannsim_helper] runtime tracker discovered kernel symbol: std::__hash_enum
+[cannsim_helper] runtime tracker discovered kernel symbol: std::__detail::_Hashtable_base
+[cannsim_helper] runtime tracker discovered kernel symbol: std::__detail::_AllocNode
+[cannsim_helper] runtime tracker discovered kernel symbol: std::pair
+[cannsim_helper] runtime tracker discovered kernel symbol: std::pointer_traits
+[cannsim_helper] runtime tracker discovered kernel symbol: std::allocator_traits
+[cannsim_helper] runtime tracker discovered kernel symbol: __gnu_cxx::__aligned_buffer
+[cannsim_helper] runtime tracker discovered kernel symbol: decltype 
+[cannsim_helper] runtime tracker discovered kernel symbol: std::__detail::_Node_iterator
+[cannsim_helper] runtime tracker discovered kernel symbol: std::__detail::_Equal_helper
+[cannsim_helper] runtime tracker discovered kernel symbol: std::equal_to
+[cannsim_helper] runtime tracker discovered kernel symbol: std::tuple_element
+[cannsim_helper] runtime tracker discovered kernel symbol: std::__detail::_Node_iterator_base
+[cannsim_helper] runtime tracker discovered kernel symbol: std::hash
+[cannsim_helper] runtime tracker discovered kernel symbol: std::__pair_get
+[cannsim_helper] runtime tracker kernel name resolved: launch=0 raw=acl_kernel_aaaaf3a59c10 resolved=ascend::prefill::sparse_fwd::sparse_attn_fwd_kernel
+[cannsim_helper] start launch: id=0 db_path=/mnt/workspace/flashmla_950sim/simout92/npusim_20261110094319_flashmla_sim/record/0000_ascend__prefill__sparse_fwd__sparse_attn_fwd.db kernel=ascend::prefill::sparse_fwd::sparse_attn_fwd_kernel
+[cannsim_helper] dlopen /home/developer/Ascend92/cann-9.2.0/aarch64-linux/simulator/bin/libsqlite3.so.0 failed: /home/developer/Ascend92/cann-9.2.0/aarch64-linux/simulator/bin/libsqlite3.so.0: cannot open shared object file: No such file or directory
+[cannsim_helper] dlopen /home/developer/Ascend92/cann-9.2.0/aarch64-linux/simulator/bin/libsqlite3.so failed: /home/developer/Ascend92/cann-9.2.0/aarch64-linux/simulator/bin/libsqlite3.so: cannot open shared object file: No such file or directory
+[cannsim_helper] dlopen libsqlite3.so.0 success
+[cannsim_helper] sqlite3_open success path=/mnt/workspace/flashmla_950sim/simout92/npusim_20261110094319_flashmla_sim/record/0000_ascend__prefill__sparse_fwd__sparse_attn_fwd.db
+[cannsim_helper] INSTR_POPPED_LOG callback count=1
+[cannsim_helper] INSTR_LOG callback count=1
+[cannsim_helper] instruction handler flush: start_events=67520 end_events=67880 start_overwrites=25312 end_overwrites=25224 start_only=112 end_only=560 matched=42096 mismatched=0 invalid=0 written=42656 write_failed=0 status=ok
+[cannsim_helper] normalized zero-duration sync instructions: 888
+[cannsim_helper] finalize: total_writes=42656

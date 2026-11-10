@@ -1,0 +1,28 @@
+
+███╗   ██╗██████╗ ██╗   ██╗    ███████╗██╗███╗   ███╗    
+████╗  ██║██╔══██╗██║   ██║    ██╔════╝██║████╗ ████║    
+██╔██╗ ██║██████╔╝██║   ██║    ███████╗██║██╔████╔██║    
+██║╚██╗██║██╔═══╝ ██║   ██║    ╚════██║██║██║╚██╔╝██║    
+██║ ╚████║██║     ╚██████╔╝    ███████║██║██║ ╚═╝ ██║    
+╚═╝  ╚═══╝╚═╝      ╚═════╝     ╚══════╝╚═╝╚═╝     ╚═╝    
+                                                        
+    Join the conversation and help shape the future.
+    └─ https://gitcode.com/org/cann/discussions/50
+
+Notice: The cannsim command has been renamed to npusim and will be deprecated soon.
+Please use npusim instead.
+
+[2026-11-10 01:43:04] [INFO] Detected cannsim_helper DB analysis mode.
+[2026-11-10 01:43:04] [INFO] Generating performance report...
+[2026-11-10 01:43:04] [INFO] Found cannsim_helper DB input: /mnt/workspace/flashmla_950sim/simout92/npusim_20261110094230_flashmla_sim/record
+[2026-11-10 01:43:04] [INFO] Running ProfRunner module...
+[2026-11-10 01:43:04] [INFO] Processing 1 cannsim_helper DB file(s).
+[2026-11-10 01:43:11] [INFO] Report generation completed successfully.
+[2026-11-10 01:43:11] [INFO] Reorganized reports by core in 0000_ascend::prefill::sparse_fwd::sparse_attn_fwd_kernel_reports: core_0 (4 files), core_1 (4 files), core_16 (4 files), core_17 (4 files)
+[2026-11-10 01:43:11] [INFO] Generating aggregated index.html...
+[2026-11-10 01:43:11] [WARN] No *_reports/ directories found in /mnt/workspace/flashmla_950sim/reports/prefill_sq4_kv256_topk64_topklen
+[2026-11-10 01:43:11] [INFO] Aggregated index.html generation had warnings.
+[2026-11-10 01:43:11] [INFO] Merging multi-core traces for /mnt/workspace/flashmla_950sim/reports/prefill_sq4_kv256_topk64_topklen (0000_ascend::prefill::sparse_fwd::sparse_attn_fwd_kernel_reports)...
+[2026-11-10 01:43:12] [INFO]   -> /mnt/workspace/flashmla_950sim/reports/prefill_sq4_kv256_topk64_topklen/trace_chip0_kernel0.json (cores=4, pids=12, events=40163)
+[2026-11-10 01:43:12] [INFO] Merging all chip/kernel traces into one global trace...
+[2026-11-10 01:43:13] [INFO]   -> /mnt/workspace/flashmla_950sim/reports/prefill_sq4_kv256_topk64_topklen/trace_allchips.json (tasks=1, pids=12, events=40163)

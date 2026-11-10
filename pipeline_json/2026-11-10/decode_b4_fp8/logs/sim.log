@@ -1,0 +1,95 @@
+
+███╗   ██╗██████╗ ██╗   ██╗    ███████╗██╗███╗   ███╗    
+████╗  ██║██╔══██╗██║   ██║    ██╔════╝██║████╗ ████║    
+██╔██╗ ██║██████╔╝██║   ██║    ███████╗██║██╔████╔██║    
+██║╚██╗██║██╔═══╝ ██║   ██║    ╚════██║██║██║╚██╔╝██║    
+██║ ╚████║██║     ╚██████╔╝    ███████║██║██║ ╚═╝ ██║    
+╚═╝  ╚═══╝╚═╝      ╚═════╝     ╚══════╝╚═╝╚═╝     ╚═╝    
+                                                        
+    Join the conversation and help shape the future.
+    └─ https://gitcode.com/org/cann/discussions/50
+
+Notice: The cannsim command has been renamed to npusim and will be deprecated soon.
+Please use npusim instead.
+
+
+===============================================================================
+    AscendC Kernel Simulation Tool  -  Start (2026-11-10 09:43:19 +0800)
+===============================================================================
+[1/3] Preflight                OK  USER_APP=flashmla_sim SoC=Ascend950
+[2/3] Paths resolved           OK
+[3/3] Simulation
+[2026-11-10 01:43:19] [INFO] Runtime dirs ready: log, log/ub_log, run_log under /mnt/workspace/flashmla_950sim
+[2026-11-10 01:43:19] [INFO] log_ca under /mnt/workspace/flashmla_950sim/simout92/npusim_20261110094319_flashmla_sim/record
+
+Reference benchmarks (lab baseline · 64c@2.8GHz · for reference only)
+[NOTE] CAMODEL runs on CPU — slower than real hardware
+[NOTE] CPU > 16 cores · Memory > 32GB
+
++--------------+-----------------------+----------------------------------+-----------------+
+|Operator type | Case name             | Parameters                       | Simulation time |
++--------------+-----------------------+----------------------------------+-----------------+
+|CV MIX        | FA                    | query, key, value shape: {256, 1 | 93.6s           |
+|              |                       | 128}                             |                 |
+|CV MIX        | FAG                   | query, key, value shape: {256, 1 | 130.0s          |
+|              |                       | 128}                             |                 |
+|CV MIX        | IFA                   | query shape:{1, 2, 1, 16}, key   | 63.0s           |
+|              |                       | value shape: {1, 2, 2, 16}       |                 |
+|CV MIX        | PFA                   | query shape:{1, 2, 1, 16}, key   | 58.4s           |
+|              |                       | value shape: {1, 2, 2, 16}       |                 |
+|CUBE          | Matmul(Non-Quantized) | M*N, N*K, M=16, N=32, K=16       | 30.7s           |
+|CUBE          | Matmul A8W8           | M*N, N*K, M=16, N=16, K=16       | 32.7s           |
+|CUBE          | Matmul A16W8          | M*N, N*K, M=16, N=32, K=16       | 40.9s           |
+|VECTOR        | Softmax(Regbase)      | batch_size:4, feature_dim:2      | 24.5s           |
++--------------+-----------------------+----------------------------------+-----------------+
+
+  What will run
+   cwd             /mnt/workspace/flashmla_950sim
+   cmd             /mnt/workspace/flashmla_950sim/flashmla_sim /mnt/workspace/flashmla_950sim/cases/decode_b4_fp8
+   soc             Ascend950
+   python-env      /opt/buildtools/python-3.12.9/bin/python3.12
+   launch-kind     binary
+   user-opt        /mnt/workspace/flashmla_950sim/cases/decode_b4_fp8
+[2026-11-10 01:43:19] [INFO] cannsim_helper enabled: /home/developer/Ascend92/cann-9.2.0/aarch64-linux/simulator/bin/libcannsim_helper.so
+
+[npusim 00:00.1] [phase] phase → driver init
+[npusim 00:00.1] [user] » soc version: Ascend950PR
+[npusim 00:00.1] [user] » [camodel_config] Using config from SO dir: /home/developer/Ascend92/cann-9.2.0/tools/simulator/Ascend950PR_9589/camodel/camodel_v100.json
+[npusim 00:00.1] [user] » [camodel_config] Alias: sysconf -> soc_mp.cfg
+[npusim 00:00.1] [user] » [camodel_config] Loaded config from: /home/developer/Ascend92/cann-9.2.0/tools/simulator/Ascend950PR_9589/camodel/camodel_v100.json (1 sections)
+[npusim 00:00.1] [user] » [camodel_config] Override esl_top_thread_cnt = 32 (in soc_mp.cfg)
+[npusim 00:01.7] [phase] phase → loading model files
+[npusim 00:01.7] [info] ddr: lpddr5 1900 Mbps, 1 Channels, 1 Ranks, Gbuf false, IECC false
+[npusim 00:02.5] [phase] phase → core init (die 0)
+[npusim 00:02.5] [phase] phase → stars scheduler config
+[npusim 00:03.6] [phase] phase → core build (die 0)
+[npusim 00:03.6] [phase] phase → smmu page build
+[npusim 00:03.6] [info] smmu page build done
+[npusim 00:05.5] [phase] phase → sim start
+[npusim 00:05.6] [info] die 0 created
+[npusim 00:09.1] [info] smmu page build done
+[npusim 00:11.1] [info] die 1 created
+[npusim 00:11.4] [info] die 2 created
+[npusim 00:11.7] [info] die 3 created
+[npusim 00:11.7] [phase] phase → SoC ready, awaiting tasks
+[npusim 00:12.5] [user] » [sim] decode b=4 s_q=1 topk=64 blocks=4x64 extra=0 extra_topk=0 sink=0 topk_len=0
+[npusim 00:12.5] [phase] phase → task dispatching
+[npusim 00:12.5] [info] hardware sim finished: 6.96s (die 0)
+[npusim 00:12.6] [info] hardware sim finished: 1.23s (die 1)
+[npusim 00:12.6] [info] hardware sim finished: 1.55s (die 2)
+[npusim 00:30.2] [heartbeat] signal=alive + recent logs phase=task_dispatch pgid=91897 processes=1 threads=82 cpu_cores=18.1 resident=6.81G log_lines=264
+[npusim 00:31.9] [phase] phase → task 0 done
+[npusim 00:31.9] [user] » [sim] done -> /mnt/workspace/flashmla_950sim/cases/decode_b4_fp8
+[npusim 00:31.9] [user] » Parallel Simulation: All threads are joined.
+[npusim 00:31.9] [phase] phase → model stopped
+[2026-11-10 01:43:55] [INFO] USER_APP executed successfully in 35.62s
+────────────────────────────────────────────────────────────────────────
+Simulation SUCCESS  ·  run time 35.6s  ·  hardware sim 6.96s / 1.23s / 1.55s
+
+Artifacts
+  archive   /mnt/workspace/flashmla_950sim/simout92/npusim_20261110094319_flashmla_sim
+  log       /mnt/workspace/flashmla_950sim/simout92/npusim_20261110094319_flashmla_sim/npusim.log
+
+Next
+  $ npusim report -e /mnt/workspace/flashmla_950sim/simout92/npusim_20261110094319_flashmla_sim
+────────────────────────────────────────────────────────────────────────
