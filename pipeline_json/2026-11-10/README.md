@@ -9,10 +9,22 @@ DeepSeek FlashMLA `csrc/ascend_kernels/prefill/sparse` 在 CANN 9.2.0 `cannsim`
 <spec>/
   logs/      npusim / report 日志、helper 日志
   traces/    trace_allchips.json、trace_chip0_kernel0.json、core_N/trace_coreN.json
-  kernel/    该规格使用的 kernel .o（bisheng --npu-arch=dav-3510）
+  kernel/    该规格使用的 kernel .o（bisheng --npu-arch=dav-3510）及其 .disasm
+disasm/      6 个 kernel 的设备码反汇编（去重）
 ```
 
 流水图可直接拖入 `chrome://tracing` 或 `https://ui.perfetto.dev`。
+
+## 反汇编
+
+`.o` 中的 `.aicore_binary` 段是独立的 hiipu64 ELF，用编译器自带反汇编器导出：
+
+```bash
+llvm-objcopy --dump-section .aicore_binary=k.device.elf k.o
+llvm-objdump -d --triple=hiipu64 k.device.elf > k.disasm
+```
+
+`disasm/*.disasm` 为去重后的 6 份（prefill/decode × sink/nosink × FP8/FP4-extra）。
 
 ## 规格与精度
 
