@@ -1,0 +1,379 @@
+{
+  "config": {
+    "ranks": 4,
+    "S": 1024,
+    "K": 4,
+    "E": 16,
+    "AIV": 32,
+    "routing": "balanced",
+    "seed": 42
+  },
+  "metric_us": {
+    "PyPTO": 86.982,
+    "DSL_scalar_Count": 27.426
+  },
+  "kind": "source-derived dependency pipeline, not time-proportional",
+  "Pro": [
+    "Greedy + Publish (AIV0 producer)",
+    "SYNCALL 1",
+    "Count trusted (AIV0–1; eight chunks each)",
+    "SYNCALL 2",
+    "Tables (AIV0 / 4 lanes) + Prefix (AIV0 / 16 active lanes)",
+    "SYNCALL 3",
+    "Assign (AIV0–15 / T1 / one chunk each)"
+  ],
+  "DSL": [
+    "Count (token-block owners) ∥ Greedy (block0)",
+    "global_sync_all 1",
+    "Tables (one block per rank) ∥ Prefix (expert-block owners)",
+    "global_sync_all 2",
+    "Assign (token-block owners)"
+  ],
+  "hypothesis": "Speculative Count concurrent with Greedy removes one mode1 stage barrier but executes Count unnecessarily on mode0/2; must compare all routes before acceptance.",
+  "evidence_status": {
+    "pipeline": "source inspected",
+    "phase_cycles": "current trusted small-case sampled; serialized diagnostic",
+    "timings": "matched previous compute run"
+  },
+  "DSL_block0_note": "block0 executes its Count before Greedy; other Count blocks may overlap Greedy",
+  "phase_summary": [
+    {
+      "stage": "Greedy",
+      "worker": 0,
+      "cycles": 7749.5,
+      "edge": "21->1"
+    },
+    {
+      "stage": "Publish",
+      "worker": 0,
+      "cycles": 19195.0,
+      "edge": "1->2"
+    },
+    {
+      "stage": "Count AIV0",
+      "worker": 0,
+      "cycles": 10658.5,
+      "edge": "6->15"
+    },
+    {
+      "stage": "Count AIV1",
+      "worker": 1,
+      "cycles": 19824.5,
+      "edge": "6->15"
+    },
+    {
+      "stage": "Tables",
+      "worker": 0,
+      "cycles": 2576.5,
+      "edge": "16->17"
+    },
+    {
+      "stage": "Prefix",
+      "worker": 0,
+      "cycles": 3417.0,
+      "edge": "17->18"
+    },
+    {
+      "stage": "Assign AIV0",
+      "worker": 0,
+      "cycles": 31478.0,
+      "edge": "19->20"
+    },
+    {
+      "stage": "Assign AIV1",
+      "worker": 1,
+      "cycles": 32091.0,
+      "edge": "19->20"
+    }
+  ],
+  "phase_evidence": "agent-team-20261117/compute-stage/phase-summary.json",
+  "new_hypothesis": "Publish UB broadcast confirmed by full-call paired timing; new compute-only DSL gap unmeasured",
+  "publish_full_confirmation": {
+    "balanced": [
+      {
+        "rank": 0,
+        "device": "0",
+        "workers": {
+          "A": 32,
+          "B": 32
+        },
+        "old_us": 108.9575,
+        "new_us": 87.449,
+        "paired_ratio": 0.8488175472130244,
+        "range": [
+          0.05680904661158368,
+          8.25993848756973
+        ],
+        "win_fraction": 0.8,
+        "tasks": 46
+      },
+      {
+        "rank": 3,
+        "device": "3",
+        "workers": {
+          "A": 32,
+          "B": 32
+        },
+        "old_us": 107.6825,
+        "new_us": 93.186,
+        "paired_ratio": 0.8800050469532248,
+        "range": [
+          0.06583019801410606,
+          8.260846639892435
+        ],
+        "win_fraction": 0.75,
+        "tasks": 46
+      },
+      {
+        "rank": 2,
+        "device": "2",
+        "workers": {
+          "A": 32,
+          "B": 32
+        },
+        "old_us": 100.9165,
+        "new_us": 87.443,
+        "paired_ratio": 0.8210867410310755,
+        "range": [
+          0.07308033630566162,
+          11.135163254689555
+        ],
+        "win_fraction": 0.75,
+        "tasks": 46
+      },
+      {
+        "rank": 1,
+        "device": "1",
+        "workers": {
+          "A": 32,
+          "B": 32
+        },
+        "old_us": 121.52250000000001,
+        "new_us": 101.84700000000001,
+        "paired_ratio": 0.8624323567303029,
+        "range": [
+          0.3590389723809177,
+          1.3268729811399396
+        ],
+        "win_fraction": 0.7,
+        "tasks": 46
+      }
+    ],
+    "large-balanced": [
+      {
+        "rank": 1,
+        "device": "1",
+        "workers": {
+          "A": 32,
+          "B": 32
+        },
+        "old_us": 319.0395,
+        "new_us": 310.7785,
+        "paired_ratio": 0.9629140685714894,
+        "range": [
+          0.887607168820557,
+          4.175428713904459
+        ],
+        "win_fraction": 0.7,
+        "tasks": 46
+      },
+      {
+        "rank": 2,
+        "device": "2",
+        "workers": {
+          "A": 32,
+          "B": 32
+        },
+        "old_us": 311.6785,
+        "new_us": 288.1835,
+        "paired_ratio": 0.9384481878035742,
+        "range": [
+          0.8783362704505681,
+          1.5918542027312945
+        ],
+        "win_fraction": 0.75,
+        "tasks": 46
+      },
+      {
+        "rank": 3,
+        "device": "3",
+        "workers": {
+          "A": 32,
+          "B": 32
+        },
+        "old_us": 298.86800000000005,
+        "new_us": 283.31,
+        "paired_ratio": 0.9441982551303123,
+        "range": [
+          0.8802229555825741,
+          4.519694787298995
+        ],
+        "win_fraction": 0.7,
+        "tasks": 46
+      },
+      {
+        "rank": 0,
+        "device": "0",
+        "workers": {
+          "A": 32,
+          "B": 32
+        },
+        "old_us": 299.1415,
+        "new_us": 288.089,
+        "paired_ratio": 0.9661272240816211,
+        "range": [
+          0.8809658829902836,
+          4.246919494854646
+        ],
+        "win_fraction": 0.65,
+        "tasks": 46
+      }
+    ],
+    "large-skewed": [
+      {
+        "rank": 3,
+        "device": "3",
+        "workers": {
+          "A": 32,
+          "B": 32
+        },
+        "old_us": 370.491,
+        "new_us": 354.3445,
+        "paired_ratio": 0.9561409303130072,
+        "range": [
+          0.9534087726479523,
+          0.958818125320868
+        ],
+        "win_fraction": 1.0,
+        "tasks": 46
+      },
+      {
+        "rank": 1,
+        "device": "1",
+        "workers": {
+          "A": 32,
+          "B": 32
+        },
+        "old_us": 392.754,
+        "new_us": 376.07500000000005,
+        "paired_ratio": 0.9550589922812454,
+        "range": [
+          0.255609163555962,
+          1.0172087455622514
+        ],
+        "win_fraction": 0.9,
+        "tasks": 46
+      },
+      {
+        "rank": 0,
+        "device": "0",
+        "workers": {
+          "A": 32,
+          "B": 32
+        },
+        "old_us": 430.313,
+        "new_us": 415.807,
+        "paired_ratio": 0.9621414857743444,
+        "range": [
+          0.26916433699518316,
+          1.0707758949237305
+        ],
+        "win_fraction": 0.8,
+        "tasks": 46
+      },
+      {
+        "rank": 2,
+        "device": "2",
+        "workers": {
+          "A": 32,
+          "B": 32
+        },
+        "old_us": 386.3805,
+        "new_us": 377.1775,
+        "paired_ratio": 0.9659179185850914,
+        "range": [
+          0.2693731108579855,
+          1.020288627035615
+        ],
+        "win_fraction": 0.9,
+        "tasks": 46
+      }
+    ],
+    "skewed": [
+      {
+        "rank": 0,
+        "device": "0",
+        "workers": {
+          "A": 32,
+          "B": 32
+        },
+        "old_us": 71.56,
+        "new_us": 48.21,
+        "paired_ratio": 0.7339229519633235,
+        "range": [
+          0.08112382234185733,
+          1.1236613591459266
+        ],
+        "win_fraction": 0.9,
+        "tasks": 46
+      },
+      {
+        "rank": 2,
+        "device": "2",
+        "workers": {
+          "A": 32,
+          "B": 32
+        },
+        "old_us": 60.3535,
+        "new_us": 42.644,
+        "paired_ratio": 0.7568191676800191,
+        "range": [
+          0.05751531412949931,
+          1.4502658666276405
+        ],
+        "win_fraction": 0.85,
+        "tasks": 46
+      },
+      {
+        "rank": 3,
+        "device": "3",
+        "workers": {
+          "A": 32,
+          "B": 32
+        },
+        "old_us": 56.2385,
+        "new_us": 39.061499999999995,
+        "paired_ratio": 0.7728839712193767,
+        "range": [
+          0.378900497253842,
+          1.2680726119291028
+        ],
+        "win_fraction": 0.8,
+        "tasks": 46
+      },
+      {
+        "rank": 1,
+        "device": "1",
+        "workers": {
+          "A": 32,
+          "B": 32
+        },
+        "old_us": 40.1215,
+        "new_us": 22.2165,
+        "paired_ratio": 0.5542335530017257,
+        "range": [
+          0.03858745967901826,
+          1.1188325051448076
+        ],
+        "win_fraction": 0.9,
+        "tasks": 46
+      }
+    ]
+  },
+  "publish_commit": "ca3b8f6",
+  "production_validation": {
+    "CPU_tests": 18,
+    "diff_check": "pass",
+    "functions_AST": "equal to hardware candidate"
+  }
+}
