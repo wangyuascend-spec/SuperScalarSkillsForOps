@@ -1,0 +1,298 @@
+{
+  "commit": "ca3b8f6",
+  "baseline": "bef6929",
+  "scope": "full fused communication and compute",
+  "workers": 32,
+  "seed": 42,
+  "policy": "trusted default",
+  "source": "/home/wangyu/Code/MOON/agent-team-20261117/publish-broadcast/confirm/formal-results/task-summary.json",
+  "source_sha256": "dffbc13dd8f1770317f0a33955e8fc3bee87bca96372fdba59f59d41eab0759c",
+  "data": {
+    "balanced": [
+      {
+        "rank": 0,
+        "device": "0",
+        "workers": {
+          "A": 32,
+          "B": 32
+        },
+        "old_us": 108.9575,
+        "new_us": 87.449,
+        "paired_ratio": 0.8488175472130244,
+        "range": [
+          0.05680904661158368,
+          8.25993848756973
+        ],
+        "win_fraction": 0.8,
+        "tasks": 46
+      },
+      {
+        "rank": 3,
+        "device": "3",
+        "workers": {
+          "A": 32,
+          "B": 32
+        },
+        "old_us": 107.6825,
+        "new_us": 93.186,
+        "paired_ratio": 0.8800050469532248,
+        "range": [
+          0.06583019801410606,
+          8.260846639892435
+        ],
+        "win_fraction": 0.75,
+        "tasks": 46
+      },
+      {
+        "rank": 2,
+        "device": "2",
+        "workers": {
+          "A": 32,
+          "B": 32
+        },
+        "old_us": 100.9165,
+        "new_us": 87.443,
+        "paired_ratio": 0.8210867410310755,
+        "range": [
+          0.07308033630566162,
+          11.135163254689555
+        ],
+        "win_fraction": 0.75,
+        "tasks": 46
+      },
+      {
+        "rank": 1,
+        "device": "1",
+        "workers": {
+          "A": 32,
+          "B": 32
+        },
+        "old_us": 121.52250000000001,
+        "new_us": 101.84700000000001,
+        "paired_ratio": 0.8624323567303029,
+        "range": [
+          0.3590389723809177,
+          1.3268729811399396
+        ],
+        "win_fraction": 0.7,
+        "tasks": 46
+      }
+    ],
+    "large-balanced": [
+      {
+        "rank": 1,
+        "device": "1",
+        "workers": {
+          "A": 32,
+          "B": 32
+        },
+        "old_us": 319.0395,
+        "new_us": 310.7785,
+        "paired_ratio": 0.9629140685714894,
+        "range": [
+          0.887607168820557,
+          4.175428713904459
+        ],
+        "win_fraction": 0.7,
+        "tasks": 46
+      },
+      {
+        "rank": 2,
+        "device": "2",
+        "workers": {
+          "A": 32,
+          "B": 32
+        },
+        "old_us": 311.6785,
+        "new_us": 288.1835,
+        "paired_ratio": 0.9384481878035742,
+        "range": [
+          0.8783362704505681,
+          1.5918542027312945
+        ],
+        "win_fraction": 0.75,
+        "tasks": 46
+      },
+      {
+        "rank": 3,
+        "device": "3",
+        "workers": {
+          "A": 32,
+          "B": 32
+        },
+        "old_us": 298.86800000000005,
+        "new_us": 283.31,
+        "paired_ratio": 0.9441982551303123,
+        "range": [
+          0.8802229555825741,
+          4.519694787298995
+        ],
+        "win_fraction": 0.7,
+        "tasks": 46
+      },
+      {
+        "rank": 0,
+        "device": "0",
+        "workers": {
+          "A": 32,
+          "B": 32
+        },
+        "old_us": 299.1415,
+        "new_us": 288.089,
+        "paired_ratio": 0.9661272240816211,
+        "range": [
+          0.8809658829902836,
+          4.246919494854646
+        ],
+        "win_fraction": 0.65,
+        "tasks": 46
+      }
+    ],
+    "large-skewed": [
+      {
+        "rank": 3,
+        "device": "3",
+        "workers": {
+          "A": 32,
+          "B": 32
+        },
+        "old_us": 370.491,
+        "new_us": 354.3445,
+        "paired_ratio": 0.9561409303130072,
+        "range": [
+          0.9534087726479523,
+          0.958818125320868
+        ],
+        "win_fraction": 1.0,
+        "tasks": 46
+      },
+      {
+        "rank": 1,
+        "device": "1",
+        "workers": {
+          "A": 32,
+          "B": 32
+        },
+        "old_us": 392.754,
+        "new_us": 376.07500000000005,
+        "paired_ratio": 0.9550589922812454,
+        "range": [
+          0.255609163555962,
+          1.0172087455622514
+        ],
+        "win_fraction": 0.9,
+        "tasks": 46
+      },
+      {
+        "rank": 0,
+        "device": "0",
+        "workers": {
+          "A": 32,
+          "B": 32
+        },
+        "old_us": 430.313,
+        "new_us": 415.807,
+        "paired_ratio": 0.9621414857743444,
+        "range": [
+          0.26916433699518316,
+          1.0707758949237305
+        ],
+        "win_fraction": 0.8,
+        "tasks": 46
+      },
+      {
+        "rank": 2,
+        "device": "2",
+        "workers": {
+          "A": 32,
+          "B": 32
+        },
+        "old_us": 386.3805,
+        "new_us": 377.1775,
+        "paired_ratio": 0.9659179185850914,
+        "range": [
+          0.2693731108579855,
+          1.020288627035615
+        ],
+        "win_fraction": 0.9,
+        "tasks": 46
+      }
+    ],
+    "skewed": [
+      {
+        "rank": 0,
+        "device": "0",
+        "workers": {
+          "A": 32,
+          "B": 32
+        },
+        "old_us": 71.56,
+        "new_us": 48.21,
+        "paired_ratio": 0.7339229519633235,
+        "range": [
+          0.08112382234185733,
+          1.1236613591459266
+        ],
+        "win_fraction": 0.9,
+        "tasks": 46
+      },
+      {
+        "rank": 2,
+        "device": "2",
+        "workers": {
+          "A": 32,
+          "B": 32
+        },
+        "old_us": 60.3535,
+        "new_us": 42.644,
+        "paired_ratio": 0.7568191676800191,
+        "range": [
+          0.05751531412949931,
+          1.4502658666276405
+        ],
+        "win_fraction": 0.85,
+        "tasks": 46
+      },
+      {
+        "rank": 3,
+        "device": "3",
+        "workers": {
+          "A": 32,
+          "B": 32
+        },
+        "old_us": 56.2385,
+        "new_us": 39.061499999999995,
+        "paired_ratio": 0.7728839712193767,
+        "range": [
+          0.378900497253842,
+          1.2680726119291028
+        ],
+        "win_fraction": 0.8,
+        "tasks": 46
+      },
+      {
+        "rank": 1,
+        "device": "1",
+        "workers": {
+          "A": 32,
+          "B": 32
+        },
+        "old_us": 40.1215,
+        "new_us": 22.2165,
+        "paired_ratio": 0.5542335530017257,
+        "range": [
+          0.03858745967901826,
+          1.1188325051448076
+        ],
+        "win_fraction": 0.9,
+        "tasks": 46
+      }
+    ]
+  },
+  "aggregation": "median of rank medians; paired improvements are range of per-rank median ratios",
+  "limitations": [
+    "Latest compute-only and communication-only not remeasured",
+    "No same-batch DSL comparison",
+    "Ranges are observed sample ranges, not confidence intervals"
+  ]
+}
