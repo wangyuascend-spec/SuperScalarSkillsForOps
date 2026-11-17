@@ -1,0 +1,5817 @@
+{
+  "dsl_latest": {
+    "commit": "ca3b8f6",
+    "metric": "device Task Duration(us)",
+    "cases": {
+      "s1024-k4-epn4-balanced-comm": {
+        "shape": [
+          4,
+          1024,
+          4,
+          16
+        ],
+        "routing": "balanced",
+        "workers": 32,
+        "scope": "comm",
+        "ranks": [
+          {
+            "rank": 0,
+            "pid": 1034642,
+            "device": "0",
+            "task_count": 46,
+            "measured_per_side": 20,
+            "dsl_median_us": 14.246,
+            "pypto_median_us": 10.451,
+            "paired_ratio_median": 0.7684065612417186,
+            "paired_ratio_range": [
+              0.01907532433509259,
+              35.327416173570015
+            ],
+            "pypto_win_fraction": 0.65,
+            "times_us": {
+              "DSL": [
+                434.725,
+                13.851,
+                13.676,
+                640.252,
+                598.713,
+                218.879,
+                205.037,
+                12.675,
+                13.209,
+                13.764,
+                14.115,
+                549.663,
+                14.384,
+                12.799,
+                12.728,
+                12.581,
+                12.846,
+                23.375,
+                14.377,
+                14.518
+              ],
+              "PTO": [
+                309.613,
+                9.615,
+                10.304,
+                12.647,
+                1026.206,
+                442.01,
+                467.671,
+                447.775,
+                10.118,
+                10.222,
+                9.818,
+                10.485,
+                41.201,
+                13.249,
+                9.811,
+                9.745,
+                10.417,
+                10.124,
+                19.336,
+                10.123
+              ]
+            },
+            "binding": {
+              "pro_so_sha256": "ea3c88c5c64d99006b8fe202116023d15e0ce2ea9d4b320f1fb5dc89e39125f2",
+              "dsl_so_sha256": "1404e9235c33fdc22e33cd986e6f5b917e6bf6374d5b0b8e4ea98a95b280cda9",
+              "symbols": {
+                "PTO": [
+                  "_Z20moonep_latest_kernelPhPiS0_S0_S0_S0_S0_S0_S0_S0_S0_S0_S0_S0_S0_S0_S0_S0_S0_S0_S0_S0_S0_S0_S0_lll",
+                  "moonep_latest_kernel(unsigned char*, int*, int*, int*, int*, int*, int*, int*, int*, int*, int*, int*, int*, int*, int*, int*, int*, int*, int*, int*, int*, int*, int*, int*, int*, long, long, long)"
+                ],
+                "DSL": [
+                  "_Z29kernel__PlanKernel___call___037KernelArgTensor_int32_t_1d_Device_s_sS_S_S_S_Ph",
+                  "kernel__PlanKernel___call___0(KernelArgTensor_int32_t_1d_Device_s_s, KernelArgTensor_int32_t_1d_Device_s_s, KernelArgTensor_int32_t_1d_Device_s_s, KernelArgTensor_int32_t_1d_Device_s_s, KernelArgTensor_int32_t_1d_Device_s_s, unsigned char*)"
+                ]
+              },
+              "source_sha256": "9a8e4d17cd8479ae4ab4b56644011e8b38eefbb9ba7995fd8c8548efaec3d72c"
+            },
+            "csv": "results/s1024-k4-epn4-balanced-comm/profile/PROF_000001_20261117215017346_01034642LNDAJLOO/mindstudio_profiler_output/op_summary_20261117215043.csv",
+            "distribution": {
+              "DSL": {
+                "p10_us": 12.7227,
+                "p90_us": 554.5680000000001,
+                "min_us": 12.581,
+                "max_us": 640.252
+              },
+              "PTO": {
+                "p10_us": 9.8044,
+                "p90_us": 449.76460000000003,
+                "min_us": 9.615,
+                "max_us": 1026.206
+              }
+            },
+            "paired_ratio_p10_p90": [
+              0.3917763854880537,
+              2.3392555653890694
+            ]
+          },
+          {
+            "rank": 1,
+            "pid": 1034643,
+            "device": "1",
+            "task_count": 46,
+            "measured_per_side": 20,
+            "dsl_median_us": 14.219000000000001,
+            "pypto_median_us": 21.852,
+            "paired_ratio_median": 1.3141094259689279,
+            "paired_ratio_range": [
+              0.041105827725581606,
+              4.992565608504944
+            ],
+            "pypto_win_fraction": 0.4,
+            "times_us": {
+              "DSL": [
+                13.014,
+                12.934,
+                12.99,
+                653.411,
+                13.493,
+                12.85,
+                13.121,
+                18.876,
+                13.534,
+                23.228,
+                14.493,
+                13.451,
+                13.945,
+                14.919,
+                16.475,
+                19.414,
+                13.722,
+                37.368,
+                29.435,
+                16.38
+              ],
+              "PTO": [
+                10.522,
+                27.291,
+                55.913,
+                26.859,
+                16.374,
+                10.377,
+                10.197,
+                10.33,
+                21.79,
+                58.554,
+                21.914,
+                67.155,
+                10.131,
+                15.856,
+                24.567,
+                27.465,
+                24.547,
+                21.615,
+                10.485,
+                24.537
+              ]
+            },
+            "binding": {
+              "pro_so_sha256": "ea3c88c5c64d99006b8fe202116023d15e0ce2ea9d4b320f1fb5dc89e39125f2",
+              "dsl_so_sha256": "547c295e3f35fb2cd350c30fb3c54feec383a45edae23962c8a68194a2724d69",
+              "symbols": {
+                "PTO": [
+                  "_Z20moonep_latest_kernelPhPiS0_S0_S0_S0_S0_S0_S0_S0_S0_S0_S0_S0_S0_S0_S0_S0_S0_S0_S0_S0_S0_S0_S0_lll",
+                  "moonep_latest_kernel(unsigned char*, int*, int*, int*, int*, int*, int*, int*, int*, int*, int*, int*, int*, int*, int*, int*, int*, int*, int*, int*, int*, int*, int*, int*, int*, long, long, long)"
+                ],
+                "DSL": [
+                  "_Z29kernel__PlanKernel___call___037KernelArgTensor_int32_t_1d_Device_s_sS_S_S_S_Ph",
+                  "kernel__PlanKernel___call___0(KernelArgTensor_int32_t_1d_Device_s_s, KernelArgTensor_int32_t_1d_Device_s_s, KernelArgTensor_int32_t_1d_Device_s_s, KernelArgTensor_int32_t_1d_Device_s_s, KernelArgTensor_int32_t_1d_Device_s_s, unsigned char*)"
+                ]
+              },
+              "source_sha256": "9a8e4d17cd8479ae4ab4b56644011e8b38eefbb9ba7995fd8c8548efaec3d72c"
+            },
+            "csv": "results/s1024-k4-epn4-balanced-comm/profile/PROF_000001_20261117215017330_01034643KHGLHNFJ/mindstudio_profiler_output/op_summary_20261117215034.csv",
+            "distribution": {
+              "DSL": {
+                "p10_us": 12.9844,
+                "p90_us": 30.22830000000001,
+                "min_us": 12.85,
+                "max_us": 653.411
+              },
+              "PTO": {
+                "p10_us": 10.3167,
+                "p90_us": 56.1771,
+                "min_us": 10.131,
+                "max_us": 67.155
+              }
+            },
+            "paired_ratio_p10_p90": [
+              0.52815105659663,
+              2.699184329708526
+            ]
+          },
+          {
+            "rank": 2,
+            "pid": 1034644,
+            "device": "2",
+            "task_count": 46,
+            "measured_per_side": 20,
+            "dsl_median_us": 26.945,
+            "pypto_median_us": 30.994500000000002,
+            "paired_ratio_median": 1.0890659036944874,
+            "paired_ratio_range": [
+              0.1100346770697876,
+              15.59343125254998
+            ],
+            "pypto_win_fraction": 0.4,
+            "times_us": {
+              "DSL": [
+                516.098,
+                33.118,
+                23.231,
+                13.651,
+                92.28,
+                238.759,
+                228.716,
+                29.412,
+                16.34,
+                25.225,
+                21.024,
+                557.691,
+                26.538,
+                27.085,
+                26.805,
+                26.462,
+                23.905,
+                43.603,
+                30.571,
+                13.975
+              ],
+              "PTO": [
+                356.778,
+                38.099,
+                52.578,
+                32.292,
+                10.154,
+                458.286,
+                469.854,
+                458.634,
+                21.694,
+                58.2,
+                21.607,
+                69.334,
+                52.457,
+                15.798,
+                18.656,
+                26.996,
+                21.307,
+                29.697,
+                27.825,
+                18.912
+              ]
+            },
+            "binding": {
+              "pro_so_sha256": "ea3c88c5c64d99006b8fe202116023d15e0ce2ea9d4b320f1fb5dc89e39125f2",
+              "dsl_so_sha256": "b57fe6892babca10adee4683cf3a6074d390c25ffa9dea05b76ee97986832acb",
+              "symbols": {
+                "PTO": [
+                  "_Z20moonep_latest_kernelPhPiS0_S0_S0_S0_S0_S0_S0_S0_S0_S0_S0_S0_S0_S0_S0_S0_S0_S0_S0_S0_S0_S0_S0_lll",
+                  "moonep_latest_kernel(unsigned char*, int*, int*, int*, int*, int*, int*, int*, int*, int*, int*, int*, int*, int*, int*, int*, int*, int*, int*, int*, int*, int*, int*, int*, int*, long, long, long)"
+                ],
+                "DSL": [
+                  "_Z29kernel__PlanKernel___call___037KernelArgTensor_int32_t_1d_Device_s_sS_S_S_S_Ph",
+                  "kernel__PlanKernel___call___0(KernelArgTensor_int32_t_1d_Device_s_s, KernelArgTensor_int32_t_1d_Device_s_s, KernelArgTensor_int32_t_1d_Device_s_s, KernelArgTensor_int32_t_1d_Device_s_s, KernelArgTensor_int32_t_1d_Device_s_s, unsigned char*)"
+                ]
+              },
+              "source_sha256": "9a8e4d17cd8479ae4ab4b56644011e8b38eefbb9ba7995fd8c8548efaec3d72c"
+            },
+            "csv": "results/s1024-k4-epn4-balanced-comm/profile/PROF_000001_20261117215017335_01034644ICKRFRQD/mindstudio_profiler_output/op_summary_20261117215038.csv",
+            "distribution": {
+              "DSL": {
+                "p10_us": 16.1035,
+                "p90_us": 266.49290000000036,
+                "min_us": 13.651,
+                "max_us": 557.691
+              },
+              "PTO": {
+                "p10_us": 18.3702,
+                "p90_us": 458.3208,
+                "min_us": 10.154,
+                "max_us": 469.854
+              }
+            },
+            "paired_ratio_p10_p90": [
+              0.5373797204530075,
+              2.3130654960240267
+            ]
+          },
+          {
+            "rank": 3,
+            "pid": 1034645,
+            "device": "3",
+            "task_count": 46,
+            "measured_per_side": 20,
+            "dsl_median_us": 16.698500000000003,
+            "pypto_median_us": 15.8265,
+            "paired_ratio_median": 0.9464829408677823,
+            "paired_ratio_range": [
+              0.01477804683659105,
+              25.574585324711837
+            ],
+            "pypto_win_fraction": 0.5,
+            "times_us": {
+              "DSL": [
+                473.856,
+                21.766,
+                13.965,
+                654.958,
+                609.423,
+                227.044,
+                220.18,
+                17.785,
+                13.781,
+                13.476,
+                13.804,
+                542.207,
+                16.885,
+                13.384,
+                13.052,
+                13.142,
+                16.512,
+                13.568,
+                22.702,
+                14.132
+              ],
+              "PTO": [
+                330.94,
+                15.648,
+                38.282,
+                9.679,
+                1031.301,
+                451.616,
+                468.815,
+                454.844,
+                9.945,
+                49.668,
+                15.878,
+                13.126,
+                12.945,
+                10.172,
+                15.264,
+                21.341,
+                10.039,
+                10.261,
+                15.775,
+                15.917
+              ]
+            },
+            "binding": {
+              "pro_so_sha256": "ea3c88c5c64d99006b8fe202116023d15e0ce2ea9d4b320f1fb5dc89e39125f2",
+              "dsl_so_sha256": "5b33c4a58a695419c1d16fcca24ccd422120f516b4e6793b550d49dfb4f46016",
+              "symbols": {
+                "PTO": [
+                  "_Z20moonep_latest_kernelPhPiS0_S0_S0_S0_S0_S0_S0_S0_S0_S0_S0_S0_S0_S0_S0_S0_S0_S0_S0_S0_S0_S0_S0_lll",
+                  "moonep_latest_kernel(unsigned char*, int*, int*, int*, int*, int*, int*, int*, int*, int*, int*, int*, int*, int*, int*, int*, int*, int*, int*, int*, int*, int*, int*, int*, int*, long, long, long)"
+                ],
+                "DSL": [
+                  "_Z29kernel__PlanKernel___call___037KernelArgTensor_int32_t_1d_Device_s_sS_S_S_S_Ph",
+                  "kernel__PlanKernel___call___0(KernelArgTensor_int32_t_1d_Device_s_s, KernelArgTensor_int32_t_1d_Device_s_s, KernelArgTensor_int32_t_1d_Device_s_s, KernelArgTensor_int32_t_1d_Device_s_s, KernelArgTensor_int32_t_1d_Device_s_s, unsigned char*)"
+                ]
+              },
+              "source_sha256": "9a8e4d17cd8479ae4ab4b56644011e8b38eefbb9ba7995fd8c8548efaec3d72c"
+            },
+            "csv": "results/s1024-k4-epn4-balanced-comm/profile/PROF_000001_20261117215017361_01034645FLHNQEFA/mindstudio_profiler_output/op_summary_20261117215048.csv",
+            "distribution": {
+              "DSL": {
+                "p10_us": 13.3598,
+                "p90_us": 548.9286000000001,
+                "min_us": 13.052,
+                "max_us": 654.958
+              },
+              "PTO": {
+                "p10_us": 10.0296,
+                "p90_us": 456.2411,
+                "min_us": 9.679,
+                "max_us": 1031.301
+              }
+            },
+            "paired_ratio_p10_p90": [
+              0.5496047129298877,
+              2.835719938441704
+            ]
+          }
+        ],
+        "aggregate": {
+          "dsl_median_of_rank_medians_us": 15.472250000000003,
+          "pypto_median_of_rank_medians_us": 18.83925,
+          "paired_ratio_median_across_ranks": 1.017774422281135,
+          "ratio_of_rank_median_summaries": 1.2176154082308648
+        }
+      },
+      "s1024-k4-epn4-balanced-compute": {
+        "shape": [
+          4,
+          1024,
+          4,
+          16
+        ],
+        "routing": "balanced",
+        "workers": 32,
+        "scope": "compute",
+        "ranks": [
+          {
+            "rank": 0,
+            "pid": 1040963,
+            "device": "0",
+            "task_count": 46,
+            "measured_per_side": 20,
+            "dsl_median_us": 27.206000000000003,
+            "pypto_median_us": 69.346,
+            "paired_ratio_median": 2.5475013629091823,
+            "paired_ratio_range": [
+              2.5172051198375573,
+              2.6044196031981053
+            ],
+            "pypto_win_fraction": 0.0,
+            "times_us": {
+              "DSL": [
+                27.226,
+                26.851,
+                27.016,
+                27.312,
+                27.296,
+                27.031,
+                27.202,
+                27.133,
+                27.154,
+                26.999,
+                27.183,
+                27.376,
+                27.361,
+                27.37,
+                27.101,
+                27.294,
+                27.21,
+                27.579,
+                27.292,
+                27.124
+              ],
+              "PTO": [
+                70.122,
+                69.226,
+                70.361,
+                69.067,
+                69.82,
+                69.119,
+                69.613,
+                68.628,
+                69.795,
+                69.366,
+                69.492,
+                69.17,
+                69.374,
+                69.47,
+                69.326,
+                69.025,
+                69.074,
+                69.422,
+                68.804,
+                68.771
+              ]
+            },
+            "binding": {
+              "pro_so_sha256": "bedb6c321c90b86fc66c86406edabf7e7a35b8aa377a55115595f66867a4d0f4",
+              "dsl_so_sha256": "0c6676525d1759edbf03968cfeb6b54a3b9ba76f5863b6556e892aae7abb7405",
+              "symbols": {
+                "PTO": [
+                  "_Z26moonep_local_latest_kernellPiS_S_S_S_S_S_S_S_S_S_S_S_S_S_S_S_S_S_S_S_S_S_S_lll",
+                  "moonep_local_latest_kernel(long, int*, int*, int*, int*, int*, int*, int*, int*, int*, int*, int*, int*, int*, int*, int*, int*, int*, int*, int*, int*, int*, int*, int*, int*, long, long, long)"
+                ],
+                "DSL": [
+                  "_Z29kernel__PlanKernel___call___037KernelArgTensor_int32_t_1d_Device_s_sS_S_S_S_Ph",
+                  "kernel__PlanKernel___call___0(KernelArgTensor_int32_t_1d_Device_s_s, KernelArgTensor_int32_t_1d_Device_s_s, KernelArgTensor_int32_t_1d_Device_s_s, KernelArgTensor_int32_t_1d_Device_s_s, KernelArgTensor_int32_t_1d_Device_s_s, unsigned char*)"
+                ]
+              },
+              "source_sha256": "27d8812167e61fa78f046f2bbfa0d12c2380888402f6ff6a796dd29751305ab7"
+            },
+            "csv": "results/s1024-k4-epn4-balanced-compute/profile/PROF_000001_20261117215056307_01040963MBDIRIHH/mindstudio_profiler_output/op_summary_20261117215118.csv",
+            "distribution": {
+              "DSL": {
+                "p10_us": 27.0143,
+                "p90_us": 27.3706,
+                "min_us": 26.851,
+                "max_us": 27.579
+              },
+              "PTO": {
+                "p10_us": 68.8007,
+                "p90_us": 69.8502,
+                "min_us": 68.628,
+                "max_us": 70.361
+              }
+            },
+            "paired_ratio_p10_p90": [
+              2.526102303738867,
+              2.575812853770985
+            ]
+          },
+          {
+            "rank": 1,
+            "pid": 1040964,
+            "device": "1",
+            "task_count": 46,
+            "measured_per_side": 20,
+            "dsl_median_us": 27.289,
+            "pypto_median_us": 68.71549999999999,
+            "paired_ratio_median": 2.5130524538730286,
+            "paired_ratio_range": [
+              2.468581818181818,
+              2.6013938848920866
+            ],
+            "pypto_win_fraction": 0.0,
+            "times_us": {
+              "DSL": [
+                27.503,
+                27.08,
+                26.688,
+                27.621,
+                27.012,
+                27.538,
+                26.915,
+                27.339,
+                27.029,
+                27.239,
+                27.042,
+                27.348,
+                27.554,
+                27.518,
+                26.916,
+                27.5,
+                27.114,
+                27.548,
+                26.863,
+                27.586
+              ],
+              "PTO": [
+                69.342,
+                69.15,
+                69.426,
+                68.624,
+                69.518,
+                68.373,
+                69.534,
+                68.228,
+                68.889,
+                67.717,
+                69.144,
+                68.743,
+                68.5,
+                68.351,
+                68.735,
+                67.886,
+                68.123,
+                68.696,
+                67.986,
+                68.942
+              ]
+            },
+            "binding": {
+              "pro_so_sha256": "bedb6c321c90b86fc66c86406edabf7e7a35b8aa377a55115595f66867a4d0f4",
+              "dsl_so_sha256": "65a992b3538594f96770c270053c07388d789a49e988423f91ddbd6f75bd1899",
+              "symbols": {
+                "PTO": [
+                  "_Z26moonep_local_latest_kernellPiS_S_S_S_S_S_S_S_S_S_S_S_S_S_S_S_S_S_S_S_S_S_S_lll",
+                  "moonep_local_latest_kernel(long, int*, int*, int*, int*, int*, int*, int*, int*, int*, int*, int*, int*, int*, int*, int*, int*, int*, int*, int*, int*, int*, int*, int*, int*, long, long, long)"
+                ],
+                "DSL": [
+                  "_Z29kernel__PlanKernel___call___037KernelArgTensor_int32_t_1d_Device_s_sS_S_S_S_Ph",
+                  "kernel__PlanKernel___call___0(KernelArgTensor_int32_t_1d_Device_s_s, KernelArgTensor_int32_t_1d_Device_s_s, KernelArgTensor_int32_t_1d_Device_s_s, KernelArgTensor_int32_t_1d_Device_s_s, KernelArgTensor_int32_t_1d_Device_s_s, unsigned char*)"
+                ]
+              },
+              "source_sha256": "27d8812167e61fa78f046f2bbfa0d12c2380888402f6ff6a796dd29751305ab7"
+            },
+            "csv": "results/s1024-k4-epn4-balanced-compute/profile/PROF_000001_20261117215056385_01040964CDKHEQOF/mindstudio_profiler_output/op_summary_20261117215122.csv",
+            "distribution": {
+              "DSL": {
+                "p10_us": 26.9098,
+                "p90_us": 27.557199999999998,
+                "min_us": 26.688,
+                "max_us": 27.621
+              },
+              "PTO": {
+                "p10_us": 67.976,
+                "p90_us": 69.43520000000001,
+                "min_us": 67.717,
+                "max_us": 69.534
+              }
+            },
+            "paired_ratio_p10_p90": [
+              2.4837646006215617,
+              2.57458387474991
+            ]
+          },
+          {
+            "rank": 2,
+            "pid": 1040965,
+            "device": "2",
+            "task_count": 46,
+            "measured_per_side": 20,
+            "dsl_median_us": 27.514000000000003,
+            "pypto_median_us": 69.179,
+            "paired_ratio_median": 2.517963158558614,
+            "paired_ratio_range": [
+              2.478696292042069,
+              2.55182113761736
+            ],
+            "pypto_win_fraction": 0.0,
+            "times_us": {
+              "DSL": [
+                27.713,
+                27.771,
+                27.755,
+                27.191,
+                27.512,
+                27.649,
+                27.564,
+                27.513,
+                27.373,
+                27.204,
+                27.217,
+                27.676,
+                27.859,
+                27.68,
+                27.411,
+                27.53,
+                27.418,
+                27.515,
+                27.426,
+                27.494
+              ],
+              "PTO": [
+                70.149,
+                69.295,
+                70.051,
+                68.61,
+                69.689,
+                68.771,
+                69.399,
+                68.751,
+                69.851,
+                68.69,
+                69.409,
+                68.628,
+                69.054,
+                69.123,
+                69.345,
+                68.413,
+                68.83,
+                68.693,
+                69.377,
+                69.235
+              ]
+            },
+            "binding": {
+              "pro_so_sha256": "bedb6c321c90b86fc66c86406edabf7e7a35b8aa377a55115595f66867a4d0f4",
+              "dsl_so_sha256": "ff238b742ca05a5589fc42ef294e7668ac24cbd2d23b51877a75dfa51c638e95",
+              "symbols": {
+                "PTO": [
+                  "_Z26moonep_local_latest_kernellPiS_S_S_S_S_S_S_S_S_S_S_S_S_S_S_S_S_S_S_S_S_S_S_lll",
+                  "moonep_local_latest_kernel(long, int*, int*, int*, int*, int*, int*, int*, int*, int*, int*, int*, int*, int*, int*, int*, int*, int*, int*, int*, int*, int*, int*, int*, int*, long, long, long)"
+                ],
+                "DSL": [
+                  "_Z29kernel__PlanKernel___call___037KernelArgTensor_int32_t_1d_Device_s_sS_S_S_S_Ph",
+                  "kernel__PlanKernel___call___0(KernelArgTensor_int32_t_1d_Device_s_s, KernelArgTensor_int32_t_1d_Device_s_s, KernelArgTensor_int32_t_1d_Device_s_s, KernelArgTensor_int32_t_1d_Device_s_s, KernelArgTensor_int32_t_1d_Device_s_s, unsigned char*)"
+                ]
+              },
+              "source_sha256": "27d8812167e61fa78f046f2bbfa0d12c2380888402f6ff6a796dd29751305ab7"
+            },
+            "csv": "results/s1024-k4-epn4-balanced-compute/profile/PROF_000001_20261117215056218_01040965GMRPCCHF/mindstudio_profiler_output/op_summary_20261117215114.csv",
+            "distribution": {
+              "DSL": {
+                "p10_us": 27.2157,
+                "p90_us": 27.7566,
+                "min_us": 27.191,
+                "max_us": 27.859
+              },
+              "PTO": {
+                "p10_us": 68.6262,
+                "p90_us": 69.871,
+                "min_us": 68.413,
+                "max_us": 70.149
+              }
+            },
+            "paired_ratio_p10_p90": [
+              2.4845004167627613,
+              2.5347568742341484
+            ]
+          },
+          {
+            "rank": 3,
+            "pid": 1040966,
+            "device": "3",
+            "task_count": 46,
+            "measured_per_side": 20,
+            "dsl_median_us": 27.433999999999997,
+            "pypto_median_us": 71.569,
+            "paired_ratio_median": 2.6079252687562104,
+            "paired_ratio_range": [
+              2.534575037465211,
+              2.690070581279332
+            ],
+            "pypto_win_fraction": 0.0,
+            "times_us": {
+              "DSL": [
+                27.275,
+                27.667,
+                27.061,
+                27.414,
+                27.458,
+                27.445,
+                27.298,
+                27.484,
+                27.288,
+                27.254,
+                27.608,
+                27.423,
+                27.784,
+                28.026,
+                27.109,
+                27.315,
+                27.302,
+                27.81,
+                27.552,
+                27.469
+              ],
+              "PTO": [
+                72.41,
+                71.152,
+                72.796,
+                71.044,
+                72.432,
+                71.593,
+                72.297,
+                71.545,
+                72.107,
+                71.329,
+                71.981,
+                71.074,
+                72.205,
+                71.034,
+                71.473,
+                71.367,
+                71.397,
+                71.71,
+                71.632,
+                71.298
+              ]
+            },
+            "binding": {
+              "pro_so_sha256": "bedb6c321c90b86fc66c86406edabf7e7a35b8aa377a55115595f66867a4d0f4",
+              "dsl_so_sha256": "6daf3d811286a07549c57f4574544a1a381bd7d1b00bae9f2d22ceb5b26dc073",
+              "symbols": {
+                "PTO": [
+                  "_Z26moonep_local_latest_kernellPiS_S_S_S_S_S_S_S_S_S_S_S_S_S_S_S_S_S_S_S_S_S_S_lll",
+                  "moonep_local_latest_kernel(long, int*, int*, int*, int*, int*, int*, int*, int*, int*, int*, int*, int*, int*, int*, int*, int*, int*, int*, int*, int*, int*, int*, int*, int*, long, long, long)"
+                ],
+                "DSL": [
+                  "_Z29kernel__PlanKernel___call___037KernelArgTensor_int32_t_1d_Device_s_sS_S_S_S_Ph",
+                  "kernel__PlanKernel___call___0(KernelArgTensor_int32_t_1d_Device_s_s, KernelArgTensor_int32_t_1d_Device_s_s, KernelArgTensor_int32_t_1d_Device_s_s, KernelArgTensor_int32_t_1d_Device_s_s, KernelArgTensor_int32_t_1d_Device_s_s, unsigned char*)"
+                ]
+              },
+              "source_sha256": "27d8812167e61fa78f046f2bbfa0d12c2380888402f6ff6a796dd29751305ab7"
+            },
+            "csv": "results/s1024-k4-epn4-balanced-compute/profile/PROF_000001_20261117215056406_01040966FKHODIAC/mindstudio_profiler_output/op_summary_20261117215126.csv",
+            "distribution": {
+              "DSL": {
+                "p10_us": 27.239500000000003,
+                "p90_us": 27.7866,
+                "min_us": 27.061,
+                "max_us": 28.026
+              },
+              "PTO": {
+                "p10_us": 71.071,
+                "p90_us": 72.4122,
+                "min_us": 71.034,
+                "max_us": 72.796
+              }
+            },
+            "paired_ratio_p10_p90": [
+              2.577884779256958,
+              2.6490734144562853
+            ]
+          }
+        ],
+        "aggregate": {
+          "dsl_median_of_rank_medians_us": 27.3615,
+          "pypto_median_of_rank_medians_us": 69.2625,
+          "paired_ratio_median_across_ranks": 2.5327322607338982,
+          "ratio_of_rank_median_summaries": 2.53138534071597
+        }
+      },
+      "s1024-k4-epn4-balanced-full": {
+        "shape": [
+          4,
+          1024,
+          4,
+          16
+        ],
+        "routing": "balanced",
+        "workers": 32,
+        "scope": "full",
+        "ranks": [
+          {
+            "rank": 0,
+            "pid": 1029532,
+            "device": "0",
+            "task_count": 46,
+            "measured_per_side": 20,
+            "dsl_median_us": 44.900999999999996,
+            "pypto_median_us": 84.9,
+            "paired_ratio_median": 2.00896217057816,
+            "paired_ratio_range": [
+              0.8264745970414276,
+              2.3641185258964144
+            ],
+            "pypto_win_fraction": 0.1,
+            "times_us": {
+              "DSL": [
+                40.438,
+                45.159,
+                38.809,
+                38.797,
+                52.289,
+                37.507,
+                44.643,
+                38.091,
+                104.842,
+                38.847,
+                38.774,
+                515.687,
+                479.826,
+                75.317,
+                49.857,
+                38.7,
+                40.16,
+                56.243,
+                686.774,
+                236.6
+              ],
+              "PTO": [
+                86.636,
+                86.41,
+                78.343,
+                78.143,
+                78.799,
+                86.752,
+                80.834,
+                78.426,
+                92.115,
+                78.227,
+                77.711,
+                1093.735,
+                396.564,
+                89.571,
+                77.679,
+                83.39,
+                94.943,
+                83.299,
+                738.3,
+                509.202
+              ]
+            },
+            "binding": {
+              "pro_so_sha256": "2cc6574caa4f0ca06cfc8b77f96daf79e18b3ec5d786c1de44f646b6b84eead4",
+              "dsl_so_sha256": "fdf1c43117d62d42f734a3bad93785f8eeae8698a147a48f78d29b44ddf439f0",
+              "symbols": {
+                "PTO": [
+                  "_Z20moonep_latest_kernelPhPiS0_S0_S0_S0_S0_S0_S0_S0_S0_S0_S0_S0_S0_S0_S0_S0_S0_S0_S0_S0_S0_S0_S0_lll",
+                  "moonep_latest_kernel(unsigned char*, int*, int*, int*, int*, int*, int*, int*, int*, int*, int*, int*, int*, int*, int*, int*, int*, int*, int*, int*, int*, int*, int*, int*, int*, long, long, long)"
+                ],
+                "DSL": [
+                  "_Z29kernel__PlanKernel___call___037KernelArgTensor_int32_t_1d_Device_s_sS_S_S_S_Ph",
+                  "kernel__PlanKernel___call___0(KernelArgTensor_int32_t_1d_Device_s_s, KernelArgTensor_int32_t_1d_Device_s_s, KernelArgTensor_int32_t_1d_Device_s_s, KernelArgTensor_int32_t_1d_Device_s_s, KernelArgTensor_int32_t_1d_Device_s_s, unsigned char*)"
+                ]
+              },
+              "source_sha256": "46d2e6f9c70df1a5c48d0c8c0484b1f8ded5146750e90f731e103a443d8613d3"
+            },
+            "csv": "results/s1024-k4-epn4-balanced-full/profile/PROF_000001_20261117214939340_01029532MJDIBBMG/mindstudio_profiler_output/op_summary_20261117215010.csv",
+            "distribution": {
+              "DSL": {
+                "p10_us": 38.639100000000006,
+                "p90_us": 483.41210000000007,
+                "min_us": 37.507,
+                "max_us": 686.774
+              },
+              "PTO": {
+                "p10_us": 78.0998,
+                "p90_us": 532.1118000000004,
+                "min_us": 77.679,
+                "max_us": 1093.735
+              }
+            },
+            "paired_ratio_p10_p90": [
+              1.0553843040068493,
+              2.1705978170896474
+            ]
+          },
+          {
+            "rank": 1,
+            "pid": 1029533,
+            "device": "1",
+            "task_count": 46,
+            "measured_per_side": 20,
+            "dsl_median_us": 38.344,
+            "pypto_median_us": 85.13550000000001,
+            "paired_ratio_median": 2.0400859134785376,
+            "paired_ratio_range": [
+              0.9883171815602076,
+              2.855688450365097
+            ],
+            "pypto_win_fraction": 0.05,
+            "times_us": {
+              "DSL": [
+                37.704,
+                37.858,
+                38.209,
+                62.49,
+                37.789,
+                37.982,
+                37.513,
+                37.758,
+                93.385,
+                49.139,
+                44.955,
+                38.09,
+                38.295,
+                38.393,
+                48.36,
+                44.476,
+                37.979,
+                51.125,
+                692.565,
+                250.691
+              ],
+              "PTO": [
+                78.289,
+                77.143,
+                109.113,
+                102.684,
+                86.352,
+                80.696,
+                95.033,
+                89.013,
+                92.294,
+                140.067,
+                83.663,
+                77.798,
+                77.084,
+                80.541,
+                86.39,
+                77.679,
+                83.919,
+                77.729,
+                748.951,
+                508.918
+              ]
+            },
+            "binding": {
+              "pro_so_sha256": "2cc6574caa4f0ca06cfc8b77f96daf79e18b3ec5d786c1de44f646b6b84eead4",
+              "dsl_so_sha256": "dc191a474b6c10fd2a9f5ac3acb9bb2f8617a6c68210d9af00e4afa120cbcdf8",
+              "symbols": {
+                "PTO": [
+                  "_Z20moonep_latest_kernelPhPiS0_S0_S0_S0_S0_S0_S0_S0_S0_S0_S0_S0_S0_S0_S0_S0_S0_S0_S0_S0_S0_S0_S0_lll",
+                  "moonep_latest_kernel(unsigned char*, int*, int*, int*, int*, int*, int*, int*, int*, int*, int*, int*, int*, int*, int*, int*, int*, int*, int*, int*, int*, int*, int*, int*, int*, long, long, long)"
+                ],
+                "DSL": [
+                  "_Z29kernel__PlanKernel___call___037KernelArgTensor_int32_t_1d_Device_s_sS_S_S_S_Ph",
+                  "kernel__PlanKernel___call___0(KernelArgTensor_int32_t_1d_Device_s_s, KernelArgTensor_int32_t_1d_Device_s_s, KernelArgTensor_int32_t_1d_Device_s_s, KernelArgTensor_int32_t_1d_Device_s_s, KernelArgTensor_int32_t_1d_Device_s_s, unsigned char*)"
+                ]
+              },
+              "source_sha256": "46d2e6f9c70df1a5c48d0c8c0484b1f8ded5146750e90f731e103a443d8613d3"
+            },
+            "csv": "results/s1024-k4-epn4-balanced-full/profile/PROF_000001_20261117214939303_01029533IOIQIHKB/mindstudio_profiler_output/op_summary_20261117215002.csv",
+            "distribution": {
+              "DSL": {
+                "p10_us": 37.7526,
+                "p90_us": 109.11560000000023,
+                "min_us": 37.513,
+                "max_us": 692.565
+              },
+              "PTO": {
+                "p10_us": 77.6254,
+                "p90_us": 176.95210000000054,
+                "min_us": 77.084,
+                "max_us": 748.951
+              }
+            },
+            "paired_ratio_p10_p90": [
+              1.4764760928038725,
+              2.5650440301014203
+            ]
+          },
+          {
+            "rank": 2,
+            "pid": 1029534,
+            "device": "2",
+            "task_count": 46,
+            "measured_per_side": 20,
+            "dsl_median_us": 48.352500000000006,
+            "pypto_median_us": 90.509,
+            "paired_ratio_median": 2.037149372243955,
+            "paired_ratio_range": [
+              0.7639527577697443,
+              2.5368208038704876
+            ],
+            "pypto_win_fraction": 0.1,
+            "times_us": {
+              "DSL": [
+                77.265,
+                58.593,
+                42.992,
+                83.701,
+                60.359,
+                43.48,
+                39.585,
+                44.752,
+                109.817,
+                51.953,
+                43.533,
+                491.952,
+                481.237,
+                82.612,
+                38.909,
+                39.717,
+                38.737,
+                62.579,
+                37.324,
+                37.866
+              ],
+              "PTO": [
+                137.515,
+                85.842,
+                109.063,
+                106.557,
+                109.598,
+                91.916,
+                98.403,
+                92.241,
+                83.895,
+                106.276,
+                81.059,
+                1092.61,
+                404.211,
+                87.333,
+                89.102,
+                86.326,
+                78.585,
+                80.527,
+                78.99,
+                77.678
+              ]
+            },
+            "binding": {
+              "pro_so_sha256": "2cc6574caa4f0ca06cfc8b77f96daf79e18b3ec5d786c1de44f646b6b84eead4",
+              "dsl_so_sha256": "6e8bcdae87a19ffb37a11681994323802bc9de667d4b7a9d4d9e71091314e613",
+              "symbols": {
+                "PTO": [
+                  "_Z20moonep_latest_kernelPhPiS0_S0_S0_S0_S0_S0_S0_S0_S0_S0_S0_S0_S0_S0_S0_S0_S0_S0_S0_S0_S0_S0_S0_lll",
+                  "moonep_latest_kernel(unsigned char*, int*, int*, int*, int*, int*, int*, int*, int*, int*, int*, int*, int*, int*, int*, int*, int*, int*, int*, int*, int*, int*, int*, int*, int*, long, long, long)"
+                ],
+                "DSL": [
+                  "_Z29kernel__PlanKernel___call___037KernelArgTensor_int32_t_1d_Device_s_sS_S_S_S_Ph",
+                  "kernel__PlanKernel___call___0(KernelArgTensor_int32_t_1d_Device_s_s, KernelArgTensor_int32_t_1d_Device_s_s, KernelArgTensor_int32_t_1d_Device_s_s, KernelArgTensor_int32_t_1d_Device_s_s, KernelArgTensor_int32_t_1d_Device_s_s, unsigned char*)"
+                ]
+              },
+              "source_sha256": "46d2e6f9c70df1a5c48d0c8c0484b1f8ded5146750e90f731e103a443d8613d3"
+            },
+            "csv": "results/s1024-k4-epn4-balanced-full/profile/PROF_000001_20261117214939308_01029534IMINDCHK/mindstudio_profiler_output/op_summary_20261117215006.csv",
+            "distribution": {
+              "DSL": {
+                "p10_us": 38.6499,
+                "p90_us": 146.95900000000051,
+                "min_us": 37.324,
+                "max_us": 491.952
+              },
+              "PTO": {
+                "p10_us": 78.9495,
+                "p90_us": 164.18460000000036,
+                "min_us": 77.678,
+                "max_us": 1092.61
+              }
+            },
+            "paired_ratio_p10_p90": [
+              1.0354261603889505,
+              2.3095956068770804
+            ]
+          },
+          {
+            "rank": 3,
+            "pid": 1029535,
+            "device": "3",
+            "task_count": 46,
+            "measured_per_side": 20,
+            "dsl_median_us": 46.817,
+            "pypto_median_us": 84.6435,
+            "paired_ratio_median": 1.8420753318875591,
+            "paired_ratio_range": [
+              0.6896979718230453,
+              2.49843438656419
+            ],
+            "pypto_win_fraction": 0.15,
+            "times_us": {
+              "DSL": [
+                74.915,
+                68.284,
+                46.887,
+                37.555,
+                51.985,
+                43.353,
+                45.725,
+                39.16,
+                38.007,
+                46.747,
+                45.596,
+                513.89,
+                475.353,
+                80.517,
+                39.35,
+                56.169,
+                48.074,
+                38.61,
+                114.566,
+                42.156
+              ],
+              "PTO": [
+                112.584,
+                94.476,
+                111.622,
+                82.774,
+                81.246,
+                80.454,
+                81.017,
+                80.593,
+                80.43,
+                83.015,
+                83.366,
+                1095.465,
+                327.85,
+                80.206,
+                88.86,
+                85.921,
+                89.547,
+                80.078,
+                89.844,
+                105.324
+              ]
+            },
+            "binding": {
+              "pro_so_sha256": "2cc6574caa4f0ca06cfc8b77f96daf79e18b3ec5d786c1de44f646b6b84eead4",
+              "dsl_so_sha256": "b4b19098e85df068b6d6c3491ae661ad8ed21936898ba68e6b59f8a736a05fb8",
+              "symbols": {
+                "PTO": [
+                  "_Z20moonep_latest_kernelPhPiS0_S0_S0_S0_S0_S0_S0_S0_S0_S0_S0_S0_S0_S0_S0_S0_S0_S0_S0_S0_S0_S0_S0_lll",
+                  "moonep_latest_kernel(unsigned char*, int*, int*, int*, int*, int*, int*, int*, int*, int*, int*, int*, int*, int*, int*, int*, int*, int*, int*, int*, int*, int*, int*, int*, int*, long, long, long)"
+                ],
+                "DSL": [
+                  "_Z29kernel__PlanKernel___call___037KernelArgTensor_int32_t_1d_Device_s_sS_S_S_S_Ph",
+                  "kernel__PlanKernel___call___0(KernelArgTensor_int32_t_1d_Device_s_s, KernelArgTensor_int32_t_1d_Device_s_s, KernelArgTensor_int32_t_1d_Device_s_s, KernelArgTensor_int32_t_1d_Device_s_s, KernelArgTensor_int32_t_1d_Device_s_s, unsigned char*)"
+                ]
+              },
+              "source_sha256": "46d2e6f9c70df1a5c48d0c8c0484b1f8ded5146750e90f731e103a443d8613d3"
+            },
+            "csv": "results/s1024-k4-epn4-balanced-full/profile/PROF_000001_20261117214939275_01029535INPAGHJC/mindstudio_profiler_output/op_summary_20261117214958.csv",
+            "distribution": {
+              "DSL": {
+                "p10_us": 38.5497,
+                "p90_us": 150.6447000000005,
+                "min_us": 37.555,
+                "max_us": 513.89
+              },
+              "PTO": {
+                "p10_us": 80.4076,
+                "p90_us": 134.11060000000032,
+                "min_us": 80.078,
+                "max_us": 1095.465
+              }
+            },
+            "paired_ratio_p10_p90": [
+              0.9749448875641396,
+              2.270442100257319
+            ]
+          }
+        ],
+        "aggregate": {
+          "dsl_median_of_rank_medians_us": 45.858999999999995,
+          "pypto_median_of_rank_medians_us": 85.01775,
+          "paired_ratio_median_across_ranks": 2.0230557714110575,
+          "ratio_of_rank_median_summaries": 1.8538945463267846
+        }
+      },
+      "s1024-k4-epn4-skewed-comm": {
+        "shape": [
+          4,
+          1024,
+          4,
+          16
+        ],
+        "routing": "skewed",
+        "workers": 32,
+        "scope": "comm",
+        "ranks": [
+          {
+            "rank": 0,
+            "pid": 1052402,
+            "device": "0",
+            "task_count": 46,
+            "measured_per_side": 20,
+            "dsl_median_us": 58.329499999999996,
+            "pypto_median_us": 340.462,
+            "paired_ratio_median": 1.9714394345755109,
+            "paired_ratio_range": [
+              0.1951421937869667,
+              69.32669611179494
+            ],
+            "pypto_win_fraction": 0.2,
+            "times_us": {
+              "DSL": [
+                281.337,
+                13.567,
+                266.396,
+                224.19,
+                230.43,
+                21.472,
+                12.768,
+                12.667,
+                13.035,
+                271.265,
+                216.651,
+                13.701,
+                13.811,
+                233.985,
+                213.719,
+                232.312,
+                95.187,
+                14.372,
+                13.894,
+                14.794
+              ],
+              "PTO": [
+                492.702,
+                512.114,
+                484.493,
+                435.929,
+                481.537,
+                244.995,
+                38.547,
+                15.82,
+                10.385,
+                554.486,
+                207.61,
+                10.073,
+                957.471,
+                887.947,
+                503.567,
+                447.895,
+                18.575,
+                21.766,
+                27.766,
+                52.406
+              ]
+            },
+            "binding": {
+              "pro_so_sha256": "ea3c88c5c64d99006b8fe202116023d15e0ce2ea9d4b320f1fb5dc89e39125f2",
+              "dsl_so_sha256": "0b3622d7d6ef2736a11504c973774959e1547494d466c2c794566756bfb12c36",
+              "symbols": {
+                "PTO": [
+                  "_Z20moonep_latest_kernelPhPiS0_S0_S0_S0_S0_S0_S0_S0_S0_S0_S0_S0_S0_S0_S0_S0_S0_S0_S0_S0_S0_S0_S0_lll",
+                  "moonep_latest_kernel(unsigned char*, int*, int*, int*, int*, int*, int*, int*, int*, int*, int*, int*, int*, int*, int*, int*, int*, int*, int*, int*, int*, int*, int*, int*, int*, long, long, long)"
+                ],
+                "DSL": [
+                  "_Z29kernel__PlanKernel___call___037KernelArgTensor_int32_t_1d_Device_s_sS_S_S_S_Ph",
+                  "kernel__PlanKernel___call___0(KernelArgTensor_int32_t_1d_Device_s_s, KernelArgTensor_int32_t_1d_Device_s_s, KernelArgTensor_int32_t_1d_Device_s_s, KernelArgTensor_int32_t_1d_Device_s_s, KernelArgTensor_int32_t_1d_Device_s_s, unsigned char*)"
+                ]
+              },
+              "source_sha256": "9a8e4d17cd8479ae4ab4b56644011e8b38eefbb9ba7995fd8c8548efaec3d72c"
+            },
+            "csv": "results/s1024-k4-epn4-skewed-comm/profile/PROF_000001_20261117215211691_01052402CAFMELRE/mindstudio_profiler_output/op_summary_20261117215240.csv",
+            "distribution": {
+              "DSL": {
+                "p10_us": 13.0083,
+                "p90_us": 266.8829,
+                "min_us": 12.667,
+                "max_us": 281.337
+              },
+              "PTO": {
+                "p10_us": 15.276500000000002,
+                "p90_us": 587.8321000000004,
+                "min_us": 10.073,
+                "max_us": 957.471
+              }
+            },
+            "paired_ratio_p10_p90": [
+              0.7905512512043127,
+              14.043681528415561
+            ]
+          },
+          {
+            "rank": 1,
+            "pid": 1052403,
+            "device": "1",
+            "task_count": 46,
+            "measured_per_side": 20,
+            "dsl_median_us": 62.311,
+            "pypto_median_us": 89.4,
+            "paired_ratio_median": 1.906013073503991,
+            "paired_ratio_range": [
+              0.24623745819397994,
+              39.96121455613073
+            ],
+            "pypto_win_fraction": 0.3,
+            "times_us": {
+              "DSL": [
+                288.527,
+                12.943,
+                12.942,
+                13.327,
+                13.16,
+                24.158,
+                14.244,
+                16.439,
+                578.332,
+                494.622,
+                502.668,
+                266.502,
+                460.377,
+                239.295,
+                210.576,
+                240.574,
+                100.464,
+                18.801,
+                15.956,
+                17.669
+              ],
+              "PTO": [
+                495.305,
+                517.218,
+                10.548,
+                9.763,
+                10.315,
+                10.508,
+                30.645,
+                19.261,
+                1151.474,
+                1016.628,
+                131.667,
+                562.753,
+                1148.676,
+                895.394,
+                506.129,
+                455.738,
+                24.738,
+                24.346,
+                30.598,
+                47.133
+              ]
+            },
+            "binding": {
+              "pro_so_sha256": "ea3c88c5c64d99006b8fe202116023d15e0ce2ea9d4b320f1fb5dc89e39125f2",
+              "dsl_so_sha256": "61ae6e5995e317a67d7e2315f44a1e9967f538f040c22f7eb2172adf563c37d4",
+              "symbols": {
+                "PTO": [
+                  "_Z20moonep_latest_kernelPhPiS0_S0_S0_S0_S0_S0_S0_S0_S0_S0_S0_S0_S0_S0_S0_S0_S0_S0_S0_S0_S0_S0_S0_lll",
+                  "moonep_latest_kernel(unsigned char*, int*, int*, int*, int*, int*, int*, int*, int*, int*, int*, int*, int*, int*, int*, int*, int*, int*, int*, int*, int*, int*, int*, int*, int*, long, long, long)"
+                ],
+                "DSL": [
+                  "_Z29kernel__PlanKernel___call___037KernelArgTensor_int32_t_1d_Device_s_sS_S_S_S_Ph",
+                  "kernel__PlanKernel___call___0(KernelArgTensor_int32_t_1d_Device_s_s, KernelArgTensor_int32_t_1d_Device_s_s, KernelArgTensor_int32_t_1d_Device_s_s, KernelArgTensor_int32_t_1d_Device_s_s, KernelArgTensor_int32_t_1d_Device_s_s, unsigned char*)"
+                ]
+              },
+              "source_sha256": "9a8e4d17cd8479ae4ab4b56644011e8b38eefbb9ba7995fd8c8548efaec3d72c"
+            },
+            "csv": "results/s1024-k4-epn4-skewed-comm/profile/PROF_000001_20261117215211616_01052403GOJPLNQH/mindstudio_profiler_output/op_summary_20261117215228.csv",
+            "distribution": {
+              "DSL": {
+                "p10_us": 13.138300000000001,
+                "p90_us": 495.4266,
+                "min_us": 12.942,
+                "max_us": 578.332
+              },
+              "PTO": {
+                "p10_us": 10.4887,
+                "p90_us": 1029.8328000000001,
+                "min_us": 9.763,
+                "max_us": 1151.474
+              }
+            },
+            "paired_ratio_p10_p90": [
+              0.41766643482619475,
+              2.7749779948555697
+            ]
+          },
+          {
+            "rank": 2,
+            "pid": 1052404,
+            "device": "2",
+            "task_count": 46,
+            "measured_per_side": 20,
+            "dsl_median_us": 14.211500000000001,
+            "pypto_median_us": 24.814500000000002,
+            "paired_ratio_median": 1.5415969922361743,
+            "paired_ratio_range": [
+              0.02119232223696492,
+              32.69898964224439
+            ],
+            "pypto_win_fraction": 0.35,
+            "times_us": {
+              "DSL": [
+                297.978,
+                15.737,
+                272.67,
+                235.73,
+                219.904,
+                23.024,
+                13.5,
+                14.191,
+                574.114,
+                12.528,
+                12.922,
+                494.667,
+                457.477,
+                14.232,
+                13.982,
+                13.942,
+                14.065,
+                13.938,
+                13.016,
+                13.629
+              ],
+              "PTO": [
+                489.545,
+                514.584,
+                455.579,
+                438.486,
+                484.086,
+                244.04,
+                30.233,
+                19.396,
+                1160.266,
+                10.339,
+                9.907,
+                996.851,
+                9.695,
+                10.265,
+                9.57,
+                10.33,
+                10.168,
+                18.632,
+                18.747,
+                52.739
+              ]
+            },
+            "binding": {
+              "pro_so_sha256": "ea3c88c5c64d99006b8fe202116023d15e0ce2ea9d4b320f1fb5dc89e39125f2",
+              "dsl_so_sha256": "c6e8c4aae657434272fbec7fc0495b5597039bfad330c14b954b36314b08d278",
+              "symbols": {
+                "PTO": [
+                  "_Z20moonep_latest_kernelPhPiS0_S0_S0_S0_S0_S0_S0_S0_S0_S0_S0_S0_S0_S0_S0_S0_S0_S0_S0_S0_S0_S0_S0_lll",
+                  "moonep_latest_kernel(unsigned char*, int*, int*, int*, int*, int*, int*, int*, int*, int*, int*, int*, int*, int*, int*, int*, int*, int*, int*, int*, int*, int*, int*, int*, int*, long, long, long)"
+                ],
+                "DSL": [
+                  "_Z29kernel__PlanKernel___call___037KernelArgTensor_int32_t_1d_Device_s_sS_S_S_S_Ph",
+                  "kernel__PlanKernel___call___0(KernelArgTensor_int32_t_1d_Device_s_s, KernelArgTensor_int32_t_1d_Device_s_s, KernelArgTensor_int32_t_1d_Device_s_s, KernelArgTensor_int32_t_1d_Device_s_s, KernelArgTensor_int32_t_1d_Device_s_s, unsigned char*)"
+                ]
+              },
+              "source_sha256": "9a8e4d17cd8479ae4ab4b56644011e8b38eefbb9ba7995fd8c8548efaec3d72c"
+            },
+            "csv": "results/s1024-k4-epn4-skewed-comm/profile/PROF_000001_20261117215211672_01052404RLDBIBON/mindstudio_profiler_output/op_summary_20261117215236.csv",
+            "distribution": {
+              "DSL": {
+                "p10_us": 13.0066,
+                "p90_us": 461.196,
+                "min_us": 12.528,
+                "max_us": 574.114
+              },
+              "PTO": {
+                "p10_us": 9.8858,
+                "p90_us": 562.8107000000007,
+                "min_us": 9.57,
+                "max_us": 1160.266
+              }
+            },
+            "paired_ratio_p10_p90": [
+              0.7175808941778432,
+              4.542592090069161
+            ]
+          },
+          {
+            "rank": 3,
+            "pid": 1052405,
+            "device": "3",
+            "task_count": 46,
+            "measured_per_side": 20,
+            "dsl_median_us": 221.90449999999998,
+            "pypto_median_us": 431.807,
+            "paired_ratio_median": 1.8026447565930566,
+            "paired_ratio_range": [
+              0.1685628434947866,
+              18.7502691065662
+            ],
+            "pypto_win_fraction": 0.4,
+            "times_us": {
+              "DSL": [
+                12.805,
+                19.263,
+                262.45,
+                229.726,
+                223.507,
+                13.006,
+                16.316,
+                13.767,
+                568.473,
+                499.246,
+                500.444,
+                451.46,
+                446.486,
+                247.207,
+                220.302,
+                244.797,
+                77.876,
+                13.503,
+                13.257,
+                13.269
+              ],
+              "PTO": [
+                10.454,
+                9.982,
+                474.217,
+                423.37,
+                474.275,
+                243.866,
+                10.538,
+                10.239,
+                1140.859,
+                1008.959,
+                645.986,
+                1000.354,
+                1140.243,
+                887.844,
+                490.518,
+                440.244,
+                13.127,
+                10.25,
+                10.402,
+                10.098
+              ]
+            },
+            "binding": {
+              "pro_so_sha256": "ea3c88c5c64d99006b8fe202116023d15e0ce2ea9d4b320f1fb5dc89e39125f2",
+              "dsl_so_sha256": "1ee06301d6302132729d1e3b9fe80a64ffd42c93f9e40027607c83c5089b3518",
+              "symbols": {
+                "PTO": [
+                  "_Z20moonep_latest_kernelPhPiS0_S0_S0_S0_S0_S0_S0_S0_S0_S0_S0_S0_S0_S0_S0_S0_S0_S0_S0_S0_S0_S0_S0_lll",
+                  "moonep_latest_kernel(unsigned char*, int*, int*, int*, int*, int*, int*, int*, int*, int*, int*, int*, int*, int*, int*, int*, int*, int*, int*, int*, int*, int*, int*, int*, int*, long, long, long)"
+                ],
+                "DSL": [
+                  "_Z29kernel__PlanKernel___call___037KernelArgTensor_int32_t_1d_Device_s_sS_S_S_S_Ph",
+                  "kernel__PlanKernel___call___0(KernelArgTensor_int32_t_1d_Device_s_s, KernelArgTensor_int32_t_1d_Device_s_s, KernelArgTensor_int32_t_1d_Device_s_s, KernelArgTensor_int32_t_1d_Device_s_s, KernelArgTensor_int32_t_1d_Device_s_s, unsigned char*)"
+                ]
+              },
+              "source_sha256": "9a8e4d17cd8479ae4ab4b56644011e8b38eefbb9ba7995fd8c8548efaec3d72c"
+            },
+            "csv": "results/s1024-k4-epn4-skewed-comm/profile/PROF_000001_20261117215211657_01052405OCRPENAI/mindstudio_profiler_output/op_summary_20261117215232.csv",
+            "distribution": {
+              "DSL": {
+                "p10_us": 13.2319,
+                "p90_us": 499.3658,
+                "min_us": 12.805,
+                "max_us": 568.473
+              },
+              "PTO": {
+                "p10_us": 10.224900000000002,
+                "p90_us": 1022.0874000000001,
+                "min_us": 9.982,
+                "max_us": 1140.859
+              }
+            },
+            "paired_ratio_p10_p90": [
+              0.6331017274376413,
+              2.6575842414911697
+            ]
+          }
+        ],
+        "aggregate": {
+          "dsl_median_of_rank_medians_us": 60.32025,
+          "pypto_median_of_rank_medians_us": 214.93099999999998,
+          "paired_ratio_median_across_ranks": 1.8543289150485238,
+          "ratio_of_rank_median_summaries": 3.5631649404636083
+        }
+      },
+      "s1024-k4-epn4-skewed-compute": {
+        "shape": [
+          4,
+          1024,
+          4,
+          16
+        ],
+        "routing": "skewed",
+        "workers": 32,
+        "scope": "compute",
+        "ranks": [
+          {
+            "rank": 0,
+            "pid": 1057431,
+            "device": "0",
+            "task_count": 46,
+            "measured_per_side": 20,
+            "dsl_median_us": 35.713,
+            "pypto_median_us": 13.6165,
+            "paired_ratio_median": 0.37956972340789386,
+            "paired_ratio_range": [
+              0.3638044544053789,
+              0.40445428136671735
+            ],
+            "pypto_win_fraction": 1.0,
+            "times_us": {
+              "DSL": [
+                35.709,
+                35.617,
+                36.145,
+                35.793,
+                35.796,
+                35.47,
+                35.472,
+                35.625,
+                35.659,
+                35.788,
+                35.572,
+                35.695,
+                35.989,
+                35.823,
+                35.842,
+                35.664,
+                35.471,
+                36.042,
+                35.772,
+                35.717
+              ],
+              "PTO": [
+                14.409,
+                13.278,
+                14.619,
+                13.29,
+                14.149,
+                13.041,
+                14.29,
+                13.41,
+                14.209,
+                13.563,
+                14.236,
+                12.986,
+                13.942,
+                13.502,
+                13.778,
+                13.346,
+                13.846,
+                13.634,
+                13.599,
+                13.506
+              ]
+            },
+            "binding": {
+              "pro_so_sha256": "bedb6c321c90b86fc66c86406edabf7e7a35b8aa377a55115595f66867a4d0f4",
+              "dsl_so_sha256": "d39b5da0e2a9f766a2689d2a3364f798f16c29ea608a3f046f592de59901e93a",
+              "symbols": {
+                "PTO": [
+                  "_Z26moonep_local_latest_kernellPiS_S_S_S_S_S_S_S_S_S_S_S_S_S_S_S_S_S_S_S_S_S_S_lll",
+                  "moonep_local_latest_kernel(long, int*, int*, int*, int*, int*, int*, int*, int*, int*, int*, int*, int*, int*, int*, int*, int*, int*, int*, int*, int*, int*, int*, int*, int*, long, long, long)"
+                ],
+                "DSL": [
+                  "_Z29kernel__PlanKernel___call___037KernelArgTensor_int32_t_1d_Device_s_sS_S_S_S_Ph",
+                  "kernel__PlanKernel___call___0(KernelArgTensor_int32_t_1d_Device_s_s, KernelArgTensor_int32_t_1d_Device_s_s, KernelArgTensor_int32_t_1d_Device_s_s, KernelArgTensor_int32_t_1d_Device_s_s, KernelArgTensor_int32_t_1d_Device_s_s, unsigned char*)"
+                ]
+              },
+              "source_sha256": "27d8812167e61fa78f046f2bbfa0d12c2380888402f6ff6a796dd29751305ab7"
+            },
+            "csv": "results/s1024-k4-epn4-skewed-compute/profile/PROF_000001_20261117215247725_01057431KRCENNMA/mindstudio_profiler_output/op_summary_20261117215322.csv",
+            "distribution": {
+              "DSL": {
+                "p10_us": 35.4719,
+                "p90_us": 35.994299999999996,
+                "min_us": 35.47,
+                "max_us": 36.145
+              },
+              "PTO": {
+                "p10_us": 13.2543,
+                "p90_us": 14.3019,
+                "min_us": 12.986,
+                "max_us": 14.619
+              }
+            },
+            "paired_ratio_p10_p90": [
+              0.37093776740929074,
+              0.40291883097209885
+            ]
+          },
+          {
+            "rank": 1,
+            "pid": 1057432,
+            "device": "1",
+            "task_count": 46,
+            "measured_per_side": 20,
+            "dsl_median_us": 35.781000000000006,
+            "pypto_median_us": 13.831,
+            "paired_ratio_median": 0.3866966674329253,
+            "paired_ratio_range": [
+              0.36651037425948285,
+              0.40867279894875164
+            ],
+            "pypto_win_fraction": 1.0,
+            "times_us": {
+              "DSL": [
+                35.698,
+                35.869,
+                35.47,
+                35.978,
+                35.767,
+                35.75,
+                35.738,
+                35.792,
+                35.77,
+                35.863,
+                35.728,
+                35.919,
+                36.21,
+                35.927,
+                35.526,
+                35.617,
+                35.712,
+                36.029,
+                35.802,
+                36.095
+              ],
+              "PTO": [
+                14.439,
+                13.706,
+                14.463,
+                13.269,
+                14.617,
+                13.191,
+                14.537,
+                13.319,
+                14.316,
+                13.276,
+                13.969,
+                13.435,
+                13.97,
+                13.398,
+                13.798,
+                13.054,
+                13.864,
+                13.564,
+                13.889,
+                13.99
+              ]
+            },
+            "binding": {
+              "pro_so_sha256": "bedb6c321c90b86fc66c86406edabf7e7a35b8aa377a55115595f66867a4d0f4",
+              "dsl_so_sha256": "3a56a23f371770dc1c8f4d1c342edb2b4305e964553a64df028e159f6864a4b9",
+              "symbols": {
+                "PTO": [
+                  "_Z26moonep_local_latest_kernellPiS_S_S_S_S_S_S_S_S_S_S_S_S_S_S_S_S_S_S_S_S_S_S_lll",
+                  "moonep_local_latest_kernel(long, int*, int*, int*, int*, int*, int*, int*, int*, int*, int*, int*, int*, int*, int*, int*, int*, int*, int*, int*, int*, int*, int*, int*, int*, long, long, long)"
+                ],
+                "DSL": [
+                  "_Z29kernel__PlanKernel___call___037KernelArgTensor_int32_t_1d_Device_s_sS_S_S_S_Ph",
+                  "kernel__PlanKernel___call___0(KernelArgTensor_int32_t_1d_Device_s_s, KernelArgTensor_int32_t_1d_Device_s_s, KernelArgTensor_int32_t_1d_Device_s_s, KernelArgTensor_int32_t_1d_Device_s_s, KernelArgTensor_int32_t_1d_Device_s_s, unsigned char*)"
+                ]
+              },
+              "source_sha256": "27d8812167e61fa78f046f2bbfa0d12c2380888402f6ff6a796dd29751305ab7"
+            },
+            "csv": "results/s1024-k4-epn4-skewed-compute/profile/PROF_000001_20261117215247721_01057432COLNBFLA/mindstudio_profiler_output/op_summary_20261117215317.csv",
+            "distribution": {
+              "DSL": {
+                "p10_us": 35.6079,
+                "p90_us": 36.0356,
+                "min_us": 35.47,
+                "max_us": 36.21
+              },
+              "PTO": {
+                "p10_us": 13.2612,
+                "p90_us": 14.4704,
+                "min_us": 13.054,
+                "max_us": 14.617
+              }
+            },
+            "paired_ratio_p10_p90": [
+              0.36896199052490125,
+              0.4068646197667348
+            ]
+          },
+          {
+            "rank": 2,
+            "pid": 1057433,
+            "device": "2",
+            "task_count": 46,
+            "measured_per_side": 20,
+            "dsl_median_us": 36.874,
+            "pypto_median_us": 13.6375,
+            "paired_ratio_median": 0.3697303493813342,
+            "paired_ratio_range": [
+              0.3526852481305235,
+              0.39374880884314845
+            ],
+            "pypto_win_fraction": 1.0,
+            "times_us": {
+              "DSL": [
+                36.953,
+                37.214,
+                36.729,
+                36.775,
+                37.075,
+                36.674,
+                36.72,
+                36.775,
+                36.934,
+                36.591,
+                36.88,
+                36.911,
+                37.287,
+                36.868,
+                36.965,
+                36.862,
+                36.703,
+                37.092,
+                36.647,
+                37.081
+              ],
+              "PTO": [
+                14.423,
+                13.482,
+                14.462,
+                13.288,
+                14.339,
+                13.236,
+                14.331,
+                12.97,
+                13.998,
+                13.167,
+                14.108,
+                13.214,
+                13.826,
+                13.019,
+                13.519,
+                13.211,
+                13.659,
+                13.683,
+                13.616,
+                13.741
+              ]
+            },
+            "binding": {
+              "pro_so_sha256": "bedb6c321c90b86fc66c86406edabf7e7a35b8aa377a55115595f66867a4d0f4",
+              "dsl_so_sha256": "f470d33f6c502decaed7d8b350a959cddd5b4966c31e59ca9e6f9f42bf6721ed",
+              "symbols": {
+                "PTO": [
+                  "_Z26moonep_local_latest_kernellPiS_S_S_S_S_S_S_S_S_S_S_S_S_S_S_S_S_S_S_S_S_S_S_lll",
+                  "moonep_local_latest_kernel(long, int*, int*, int*, int*, int*, int*, int*, int*, int*, int*, int*, int*, int*, int*, int*, int*, int*, int*, int*, int*, int*, int*, int*, int*, long, long, long)"
+                ],
+                "DSL": [
+                  "_Z29kernel__PlanKernel___call___037KernelArgTensor_int32_t_1d_Device_s_sS_S_S_S_Ph",
+                  "kernel__PlanKernel___call___0(KernelArgTensor_int32_t_1d_Device_s_s, KernelArgTensor_int32_t_1d_Device_s_s, KernelArgTensor_int32_t_1d_Device_s_s, KernelArgTensor_int32_t_1d_Device_s_s, KernelArgTensor_int32_t_1d_Device_s_s, unsigned char*)"
+                ]
+              },
+              "source_sha256": "27d8812167e61fa78f046f2bbfa0d12c2380888402f6ff6a796dd29751305ab7"
+            },
+            "csv": "results/s1024-k4-epn4-skewed-compute/profile/PROF_000001_20261117215247709_01057433MIFFODAK/mindstudio_profiler_output/op_summary_20261117215312.csv",
+            "distribution": {
+              "DSL": {
+                "p10_us": 36.6713,
+                "p90_us": 37.1042,
+                "min_us": 36.591,
+                "max_us": 37.287
+              },
+              "PTO": {
+                "p10_us": 13.1522,
+                "p90_us": 14.3474,
+                "min_us": 12.97,
+                "max_us": 14.462
+              }
+            },
+            "paired_ratio_p10_p90": [
+              0.3575091012446722,
+              0.39028066056883065
+            ]
+          },
+          {
+            "rank": 3,
+            "pid": 1057434,
+            "device": "3",
+            "task_count": 46,
+            "measured_per_side": 20,
+            "dsl_median_us": 36.381,
+            "pypto_median_us": 13.5235,
+            "paired_ratio_median": 0.37247720071878365,
+            "paired_ratio_range": [
+              0.3573205741626794,
+              0.4002109002109002
+            ],
+            "pypto_win_fraction": 1.0,
+            "times_us": {
+              "DSL": [
+                36.169,
+                36.033,
+                35.803,
+                36.135,
+                36.566,
+                36.134,
+                36.036,
+                36.309,
+                36.474,
+                36.282,
+                36.494,
+                36.575,
+                36.971,
+                36.42,
+                36.415,
+                36.188,
+                36.378,
+                36.708,
+                36.384,
+                36.75
+              ],
+              "PTO": [
+                14.196,
+                13.443,
+                14.186,
+                13.135,
+                14.16,
+                13.037,
+                14.422,
+                13.194,
+                14.27,
+                13.047,
+                14.269,
+                13.069,
+                13.928,
+                13.125,
+                13.542,
+                13.106,
+                13.841,
+                13.267,
+                13.704,
+                13.505
+              ]
+            },
+            "binding": {
+              "pro_so_sha256": "bedb6c321c90b86fc66c86406edabf7e7a35b8aa377a55115595f66867a4d0f4",
+              "dsl_so_sha256": "b4b26fd4ef11399862ab0c731a5e97e8e673c9022ba3ef96622f089b8e188919",
+              "symbols": {
+                "PTO": [
+                  "_Z26moonep_local_latest_kernellPiS_S_S_S_S_S_S_S_S_S_S_S_S_S_S_S_S_S_S_S_S_S_S_lll",
+                  "moonep_local_latest_kernel(long, int*, int*, int*, int*, int*, int*, int*, int*, int*, int*, int*, int*, int*, int*, int*, int*, int*, int*, int*, int*, int*, int*, int*, int*, long, long, long)"
+                ],
+                "DSL": [
+                  "_Z29kernel__PlanKernel___call___037KernelArgTensor_int32_t_1d_Device_s_sS_S_S_S_Ph",
+                  "kernel__PlanKernel___call___0(KernelArgTensor_int32_t_1d_Device_s_s, KernelArgTensor_int32_t_1d_Device_s_s, KernelArgTensor_int32_t_1d_Device_s_s, KernelArgTensor_int32_t_1d_Device_s_s, KernelArgTensor_int32_t_1d_Device_s_s, unsigned char*)"
+                ]
+              },
+              "source_sha256": "27d8812167e61fa78f046f2bbfa0d12c2380888402f6ff6a796dd29751305ab7"
+            },
+            "csv": "results/s1024-k4-epn4-skewed-compute/profile/PROF_000001_20261117215247662_01057434HGJEFAEF/mindstudio_profiler_output/op_summary_20261117215307.csv",
+            "distribution": {
+              "DSL": {
+                "p10_us": 36.0357,
+                "p90_us": 36.712199999999996,
+                "min_us": 35.803,
+                "max_us": 36.971
+              },
+              "PTO": {
+                "p10_us": 13.0668,
+                "p90_us": 14.2691,
+                "min_us": 13.037,
+                "max_us": 14.422
+              }
+            },
+            "paired_ratio_p10_p90": [
+              0.3603010015722529,
+              0.39286410435325186
+            ]
+          }
+        ],
+        "aggregate": {
+          "dsl_median_of_rank_medians_us": 36.081,
+          "pypto_median_of_rank_medians_us": 13.626999999999999,
+          "paired_ratio_median_across_ranks": 0.37602346206333875,
+          "ratio_of_rank_median_summaries": 0.37767800227266424
+        }
+      },
+      "s1024-k4-epn4-skewed-full": {
+        "shape": [
+          4,
+          1024,
+          4,
+          16
+        ],
+        "routing": "skewed",
+        "workers": 32,
+        "scope": "full",
+        "ranks": [
+          {
+            "rank": 0,
+            "pid": 1046423,
+            "device": "0",
+            "task_count": 46,
+            "measured_per_side": 20,
+            "dsl_median_us": 46.815,
+            "pypto_median_us": 23.819499999999998,
+            "paired_ratio_median": 0.5103063537939467,
+            "paired_ratio_range": [
+              0.040630700643634936,
+              15.739831338643043
+            ],
+            "pypto_win_fraction": 0.8,
+            "times_us": {
+              "DSL": [
+                46.554,
+                47.45,
+                46.592,
+                47.554,
+                46.657,
+                46.333,
+                46.526,
+                46.672,
+                46.595,
+                46.958,
+                46.524,
+                47.461,
+                46.994,
+                69.698,
+                46.671,
+                47.138,
+                46.638,
+                552.021,
+                567.344,
+                47.171
+              ],
+              "PTO": [
+                33.92,
+                22.486,
+                28.257,
+                67.668,
+                22.475,
+                22.688,
+                22.224,
+                25.778,
+                21.994,
+                739.111,
+                22.128,
+                25.247,
+                24.951,
+                22.466,
+                28.393,
+                22.195,
+                22.183,
+                22.429,
+                1060.436,
+                61.87
+              ]
+            },
+            "binding": {
+              "pro_so_sha256": "2cc6574caa4f0ca06cfc8b77f96daf79e18b3ec5d786c1de44f646b6b84eead4",
+              "dsl_so_sha256": "57b6d9e05c30ea43a11782143f0189d9ad4920b4555ca484f886ba0d0839ccb7",
+              "symbols": {
+                "PTO": [
+                  "_Z20moonep_latest_kernelPhPiS0_S0_S0_S0_S0_S0_S0_S0_S0_S0_S0_S0_S0_S0_S0_S0_S0_S0_S0_S0_S0_S0_S0_lll",
+                  "moonep_latest_kernel(unsigned char*, int*, int*, int*, int*, int*, int*, int*, int*, int*, int*, int*, int*, int*, int*, int*, int*, int*, int*, int*, int*, int*, int*, int*, int*, long, long, long)"
+                ],
+                "DSL": [
+                  "_Z29kernel__PlanKernel___call___037KernelArgTensor_int32_t_1d_Device_s_sS_S_S_S_Ph",
+                  "kernel__PlanKernel___call___0(KernelArgTensor_int32_t_1d_Device_s_s, KernelArgTensor_int32_t_1d_Device_s_s, KernelArgTensor_int32_t_1d_Device_s_s, KernelArgTensor_int32_t_1d_Device_s_s, KernelArgTensor_int32_t_1d_Device_s_s, unsigned char*)"
+                ]
+              },
+              "source_sha256": "46d2e6f9c70df1a5c48d0c8c0484b1f8ded5146750e90f731e103a443d8613d3"
+            },
+            "csv": "results/s1024-k4-epn4-skewed-full/profile/PROF_000001_20261117215134662_01046423EJHLKFCD/mindstudio_profiler_output/op_summary_20261117215204.csv",
+            "distribution": {
+              "DSL": {
+                "p10_us": 46.525800000000004,
+                "p90_us": 117.93030000000067,
+                "min_us": 46.333,
+                "max_us": 567.344
+              },
+              "PTO": {
+                "p10_us": 22.1775,
+                "p90_us": 134.81230000000096,
+                "min_us": 21.994,
+                "max_us": 1060.436
+              }
+            },
+            "paired_ratio_p10_p90": [
+              0.45599973764606494,
+              1.4675869509796977
+            ]
+          },
+          {
+            "rank": 1,
+            "pid": 1046424,
+            "device": "1",
+            "task_count": 46,
+            "measured_per_side": 20,
+            "dsl_median_us": 52.57,
+            "pypto_median_us": 43.966,
+            "paired_ratio_median": 0.8355872004222509,
+            "paired_ratio_range": [
+              0.06961119587520387,
+              15.759190781270155
+            ],
+            "pypto_win_fraction": 0.7,
+            "times_us": {
+              "DSL": [
+                47.041,
+                46.005,
+                54.053,
+                50.133,
+                45.603,
+                60.789,
+                46.834,
+                50.389,
+                46.898,
+                46.514,
+                51.827,
+                50.729,
+                64.56,
+                242.067,
+                53.313,
+                58.844,
+                59.015,
+                570.21,
+                599.341,
+                55.063
+              ],
+              "PTO": [
+                53.848,
+                67.709,
+                47.888,
+                78.755,
+                42.563,
+                42.411,
+                36.812,
+                22.662,
+                39.665,
+                733.023,
+                39.46,
+                34.782,
+                53.288,
+                45.369,
+                39.521,
+                40.005,
+                51.135,
+                39.693,
+                1082.528,
+                79.429
+              ]
+            },
+            "binding": {
+              "pro_so_sha256": "2cc6574caa4f0ca06cfc8b77f96daf79e18b3ec5d786c1de44f646b6b84eead4",
+              "dsl_so_sha256": "0e84481624d62a019ab60461874bfee86ffce73d234cdd2b24d8fefe99a3e65b",
+              "symbols": {
+                "PTO": [
+                  "_Z20moonep_latest_kernelPhPiS0_S0_S0_S0_S0_S0_S0_S0_S0_S0_S0_S0_S0_S0_S0_S0_S0_S0_S0_S0_S0_S0_S0_lll",
+                  "moonep_latest_kernel(unsigned char*, int*, int*, int*, int*, int*, int*, int*, int*, int*, int*, int*, int*, int*, int*, int*, int*, int*, int*, int*, int*, int*, int*, int*, int*, long, long, long)"
+                ],
+                "DSL": [
+                  "_Z29kernel__PlanKernel___call___037KernelArgTensor_int32_t_1d_Device_s_sS_S_S_S_Ph",
+                  "kernel__PlanKernel___call___0(KernelArgTensor_int32_t_1d_Device_s_s, KernelArgTensor_int32_t_1d_Device_s_s, KernelArgTensor_int32_t_1d_Device_s_s, KernelArgTensor_int32_t_1d_Device_s_s, KernelArgTensor_int32_t_1d_Device_s_s, unsigned char*)"
+                ]
+              },
+              "source_sha256": "46d2e6f9c70df1a5c48d0c8c0484b1f8ded5146750e90f731e103a443d8613d3"
+            },
+            "csv": "results/s1024-k4-epn4-skewed-full/profile/PROF_000001_20261117215134576_01046424DKAMODQN/mindstudio_profiler_output/op_summary_20261117215153.csv",
+            "distribution": {
+              "DSL": {
+                "p10_us": 46.463100000000004,
+                "p90_us": 274.88130000000046,
+                "min_us": 45.603,
+                "max_us": 599.341
+              },
+              "PTO": {
+                "p10_us": 36.608999999999995,
+                "p90_us": 144.78840000000093,
+                "min_us": 22.662,
+                "max_us": 1082.528
+              }
+            },
+            "paired_ratio_p10_p90": [
+              0.42350924508214693,
+              1.5944489282758498
+            ]
+          },
+          {
+            "rank": 2,
+            "pid": 1046425,
+            "device": "2",
+            "task_count": 46,
+            "measured_per_side": 20,
+            "dsl_median_us": 52.3985,
+            "pypto_median_us": 30.9185,
+            "paired_ratio_median": 0.5789180749695783,
+            "paired_ratio_range": [
+              0.05459199067763986,
+              1.1161883579265357
+            ],
+            "pypto_win_fraction": 0.9,
+            "times_us": {
+              "DSL": [
+                48.177,
+                48.246,
+                52.46,
+                60.247,
+                53.512,
+                62.677,
+                48.682,
+                53.822,
+                51.786,
+                51.383,
+                51.879,
+                49.138,
+                60.924,
+                576.678,
+                62.171,
+                52.337,
+                57.803,
+                48.101,
+                47.158,
+                56.899
+              ],
+              "PTO": [
+                22.843,
+                50.775,
+                29.059,
+                67.247,
+                31.179,
+                33.949,
+                28.001,
+                34.267,
+                28.41,
+                22.401,
+                31.084,
+                28.737,
+                45.364,
+                31.482,
+                27.978,
+                30.753,
+                45.393,
+                33.65,
+                22.434,
+                22.438
+              ]
+            },
+            "binding": {
+              "pro_so_sha256": "2cc6574caa4f0ca06cfc8b77f96daf79e18b3ec5d786c1de44f646b6b84eead4",
+              "dsl_so_sha256": "ecc9a3c33783d2a5e058733c94b10610dcaa825d437dd0a81e27d0d387e15cdf",
+              "symbols": {
+                "PTO": [
+                  "_Z20moonep_latest_kernelPhPiS0_S0_S0_S0_S0_S0_S0_S0_S0_S0_S0_S0_S0_S0_S0_S0_S0_S0_S0_S0_S0_S0_S0_lll",
+                  "moonep_latest_kernel(unsigned char*, int*, int*, int*, int*, int*, int*, int*, int*, int*, int*, int*, int*, int*, int*, int*, int*, int*, int*, int*, int*, int*, int*, int*, int*, long, long, long)"
+                ],
+                "DSL": [
+                  "_Z29kernel__PlanKernel___call___037KernelArgTensor_int32_t_1d_Device_s_sS_S_S_S_Ph",
+                  "kernel__PlanKernel___call___0(KernelArgTensor_int32_t_1d_Device_s_s, KernelArgTensor_int32_t_1d_Device_s_s, KernelArgTensor_int32_t_1d_Device_s_s, KernelArgTensor_int32_t_1d_Device_s_s, KernelArgTensor_int32_t_1d_Device_s_s, unsigned char*)"
+                ]
+              },
+              "source_sha256": "46d2e6f9c70df1a5c48d0c8c0484b1f8ded5146750e90f731e103a443d8613d3"
+            },
+            "csv": "results/s1024-k4-epn4-skewed-full/profile/PROF_000001_20261117215134607_01046425BHMBLRJN/mindstudio_profiler_output/op_summary_20261117215156.csv",
+            "distribution": {
+              "DSL": {
+                "p10_us": 48.1694,
+                "p90_us": 62.2216,
+                "min_us": 47.158,
+                "max_us": 576.678
+              },
+              "PTO": {
+                "p10_us": 22.4376,
+                "p90_us": 45.93120000000001,
+                "min_us": 22.401,
+                "max_us": 67.247
+              }
+            },
+            "paired_ratio_p10_p90": [
+              0.43179996710246243,
+              0.8120166202129975
+            ]
+          },
+          {
+            "rank": 3,
+            "pid": 1046426,
+            "device": "3",
+            "task_count": 46,
+            "measured_per_side": 20,
+            "dsl_median_us": 49.317499999999995,
+            "pypto_median_us": 29.945500000000003,
+            "paired_ratio_median": 0.5518842586462975,
+            "paired_ratio_range": [
+              0.07301698346307844,
+              14.081554097614625
+            ],
+            "pypto_win_fraction": 0.8,
+            "times_us": {
+              "DSL": [
+                59.237,
+                48.219,
+                46.704,
+                47.364,
+                49.958,
+                52.003,
+                47.524,
+                52.249,
+                47.404,
+                52.738,
+                53.157,
+                46.803,
+                47.218,
+                48.002,
+                53.115,
+                48.677,
+                47.366,
+                537.464,
+                608.025,
+                57.034
+              ],
+              "PTO": [
+                45.589,
+                58.998,
+                22.528,
+                22.083,
+                28.376,
+                25.353,
+                25.462,
+                25.614,
+                39.265,
+                742.633,
+                22.883,
+                22.658,
+                22.723,
+                31.515,
+                22.632,
+                36.803,
+                42.687,
+                39.244,
+                1074.626,
+                64.874
+              ]
+            },
+            "binding": {
+              "pro_so_sha256": "2cc6574caa4f0ca06cfc8b77f96daf79e18b3ec5d786c1de44f646b6b84eead4",
+              "dsl_so_sha256": "71129ec0d706e0314584b2fe53070632850444b8a77416714b2e0766de094b59",
+              "symbols": {
+                "PTO": [
+                  "_Z20moonep_latest_kernelPhPiS0_S0_S0_S0_S0_S0_S0_S0_S0_S0_S0_S0_S0_S0_S0_S0_S0_S0_S0_S0_S0_S0_S0_lll",
+                  "moonep_latest_kernel(unsigned char*, int*, int*, int*, int*, int*, int*, int*, int*, int*, int*, int*, int*, int*, int*, int*, int*, int*, int*, int*, int*, int*, int*, int*, int*, long, long, long)"
+                ],
+                "DSL": [
+                  "_Z29kernel__PlanKernel___call___037KernelArgTensor_int32_t_1d_Device_s_sS_S_S_S_Ph",
+                  "kernel__PlanKernel___call___0(KernelArgTensor_int32_t_1d_Device_s_s, KernelArgTensor_int32_t_1d_Device_s_s, KernelArgTensor_int32_t_1d_Device_s_s, KernelArgTensor_int32_t_1d_Device_s_s, KernelArgTensor_int32_t_1d_Device_s_s, unsigned char*)"
+                ]
+              },
+              "source_sha256": "46d2e6f9c70df1a5c48d0c8c0484b1f8ded5146750e90f731e103a443d8613d3"
+            },
+            "csv": "results/s1024-k4-epn4-skewed-full/profile/PROF_000001_20261117215134624_01046426KOCHQIPJ/mindstudio_profiler_output/op_summary_20261117215200.csv",
+            "distribution": {
+              "DSL": {
+                "p10_us": 47.176500000000004,
+                "p90_us": 107.05970000000067,
+                "min_us": 46.704,
+                "max_us": 608.025
+              },
+              "PTO": {
+                "p10_us": 22.6216,
+                "p90_us": 132.64990000000097,
+                "min_us": 22.083,
+                "max_us": 1074.626
+              }
+            },
+            "paired_ratio_p10_p90": [
+              0.43004100299413583,
+              1.2779287583333494
+            ]
+          }
+        ],
+        "aggregate": {
+          "dsl_median_of_rank_medians_us": 50.858,
+          "pypto_median_of_rank_medians_us": 30.432000000000002,
+          "paired_ratio_median_across_ranks": 0.565401166807938,
+          "ratio_of_rank_median_summaries": 0.5983719375516143
+        }
+      },
+      "s8192-k16-epn28-balanced-comm": {
+        "shape": [
+          4,
+          8192,
+          16,
+          112
+        ],
+        "routing": "balanced",
+        "workers": 32,
+        "scope": "comm",
+        "ranks": [
+          {
+            "rank": 0,
+            "pid": 1070743,
+            "device": "0",
+            "task_count": 46,
+            "measured_per_side": 20,
+            "dsl_median_us": 33.123000000000005,
+            "pypto_median_us": 54.7575,
+            "paired_ratio_median": 1.545560707850119,
+            "paired_ratio_range": [
+              0.4392809844798595,
+              44.618104244117866
+            ],
+            "pypto_win_fraction": 0.15,
+            "times_us": {
+              "DSL": [
+                91.198,
+                61.35,
+                31.681,
+                39.725,
+                32.786,
+                67.203,
+                33.46,
+                539.28,
+                40.079,
+                38.646,
+                34.591,
+                26.204,
+                31.297,
+                13.173,
+                13.095,
+                26.335,
+                23.778,
+                24.605,
+                32.375,
+                198.861
+              ],
+              "PTO": [
+                119.425,
+                60.032,
+                52.302,
+                57.213,
+                38.26,
+                29.521,
+                46.675,
+                1066.005,
+                1788.249,
+                43.795,
+                57.944,
+                77.69,
+                51.997,
+                9.758,
+                62.905,
+                29.959,
+                88.875,
+                49.632,
+                43.991,
+                1015.14
+              ]
+            },
+            "binding": {
+              "pro_so_sha256": "d4db65db149d95223e168085d34ebc4b66eb4bba4ab3013646dc8111dcbd7505",
+              "dsl_so_sha256": "c54a9f380c32f8ac1ab4e654257601a8745c645f47f7fa68cd826ad3d4b15b6f",
+              "symbols": {
+                "PTO": [
+                  "_Z20moonep_latest_kernelPhPiS0_S0_S0_S0_S0_S0_S0_S0_S0_S0_S0_S0_S0_S0_S0_S0_S0_S0_S0_S0_S0_S0_S0_lll",
+                  "moonep_latest_kernel(unsigned char*, int*, int*, int*, int*, int*, int*, int*, int*, int*, int*, int*, int*, int*, int*, int*, int*, int*, int*, int*, int*, int*, int*, int*, int*, long, long, long)"
+                ],
+                "DSL": [
+                  "_Z29kernel__PlanKernel___call___037KernelArgTensor_int32_t_1d_Device_s_sS_S_S_S_Ph",
+                  "kernel__PlanKernel___call___0(KernelArgTensor_int32_t_1d_Device_s_s, KernelArgTensor_int32_t_1d_Device_s_s, KernelArgTensor_int32_t_1d_Device_s_s, KernelArgTensor_int32_t_1d_Device_s_s, KernelArgTensor_int32_t_1d_Device_s_s, unsigned char*)"
+                ]
+              },
+              "source_sha256": "9a8e4d17cd8479ae4ab4b56644011e8b38eefbb9ba7995fd8c8548efaec3d72c"
+            },
+            "csv": "results/s8192-k16-epn28-balanced-comm/profile/PROF_000001_20261117215408565_01070743HEDJGQCH/mindstudio_profiler_output/op_summary_20261117215428.csv",
+            "distribution": {
+              "DSL": {
+                "p10_us": 22.7175,
+                "p90_us": 101.96430000000015,
+                "min_us": 13.095,
+                "max_us": 539.28
+              },
+              "PTO": {
+                "p10_us": 29.9152,
+                "p90_us": 1020.2265000000001,
+                "min_us": 9.758,
+                "max_us": 1788.249
+              }
+            },
+            "paired_ratio_p10_p90": [
+              0.9547407977011583,
+              4.833844865063236
+            ]
+          },
+          {
+            "rank": 1,
+            "pid": 1070744,
+            "device": "1",
+            "task_count": 46,
+            "measured_per_side": 20,
+            "dsl_median_us": 19.5465,
+            "pypto_median_us": 23.6175,
+            "paired_ratio_median": 1.132062154574831,
+            "paired_ratio_range": [
+              0.10710851935456901,
+              120.10772516909933
+            ],
+            "pypto_win_fraction": 0.4,
+            "times_us": {
+              "DSL": [
+                14.056,
+                19.576,
+                13.968,
+                16.152,
+                12.658,
+                53.689,
+                20.46,
+                13.63,
+                14.045,
+                33.776,
+                29.951,
+                13.174,
+                23.645,
+                479.473,
+                95.688,
+                19.517,
+                23.423,
+                18.579,
+                19.439,
+                183.268
+              ],
+              "PTO": [
+                10.691,
+                10.484,
+                11.127,
+                13.235,
+                16.652,
+                24.938,
+                22.297,
+                10.81,
+                1686.913,
+                30.93,
+                38.93,
+                67.411,
+                41.555,
+                1017.581,
+                10.249,
+                21.941,
+                72.777,
+                38.976,
+                22.159,
+                997.865
+              ]
+            },
+            "binding": {
+              "pro_so_sha256": "d4db65db149d95223e168085d34ebc4b66eb4bba4ab3013646dc8111dcbd7505",
+              "dsl_so_sha256": "b7312dab847f5e6dfecc2eed4fb39ee214405667d562210cbfc97e6cc9451ed5",
+              "symbols": {
+                "PTO": [
+                  "_Z20moonep_latest_kernelPhPiS0_S0_S0_S0_S0_S0_S0_S0_S0_S0_S0_S0_S0_S0_S0_S0_S0_S0_S0_S0_S0_S0_S0_lll",
+                  "moonep_latest_kernel(unsigned char*, int*, int*, int*, int*, int*, int*, int*, int*, int*, int*, int*, int*, int*, int*, int*, int*, int*, int*, int*, int*, int*, int*, int*, int*, long, long, long)"
+                ],
+                "DSL": [
+                  "_Z29kernel__PlanKernel___call___037KernelArgTensor_int32_t_1d_Device_s_sS_S_S_S_Ph",
+                  "kernel__PlanKernel___call___0(KernelArgTensor_int32_t_1d_Device_s_s, KernelArgTensor_int32_t_1d_Device_s_s, KernelArgTensor_int32_t_1d_Device_s_s, KernelArgTensor_int32_t_1d_Device_s_s, KernelArgTensor_int32_t_1d_Device_s_s, unsigned char*)"
+                ]
+              },
+              "source_sha256": "9a8e4d17cd8479ae4ab4b56644011e8b38eefbb9ba7995fd8c8548efaec3d72c"
+            },
+            "csv": "results/s8192-k16-epn28-balanced-comm/profile/PROF_000001_20261117215408517_01070744DIDBANDE/mindstudio_profiler_output/op_summary_20261117215424.csv",
+            "distribution": {
+              "DSL": {
+                "p10_us": 13.5844,
+                "p90_us": 104.44600000000013,
+                "min_us": 12.658,
+                "max_us": 479.473
+              },
+              "PTO": {
+                "p10_us": 10.670300000000001,
+                "p90_us": 999.8366000000001,
+                "min_us": 10.249,
+                "max_us": 1686.913
+              }
+            },
+            "paired_ratio_p10_p90": [
+              0.5284473586214109,
+              5.149759577046101
+            ]
+          },
+          {
+            "rank": 2,
+            "pid": 1070746,
+            "device": "2",
+            "task_count": 46,
+            "measured_per_side": 20,
+            "dsl_median_us": 33.670500000000004,
+            "pypto_median_us": 47.052499999999995,
+            "paired_ratio_median": 1.5604008626545447,
+            "paired_ratio_range": [
+              0.4105974150454539,
+              39.11142103279306
+            ],
+            "pypto_win_fraction": 0.2,
+            "times_us": {
+              "DSL": [
+                71.322,
+                58.682,
+                27.034,
+                32.685,
+                16.35,
+                66.771,
+                29.639,
+                537.074,
+                53.06,
+                40.637,
+                34.656,
+                27.267,
+                25.963,
+                493.303,
+                105.29,
+                24.915,
+                30.236,
+                19.037,
+                22.144,
+                186.727
+              ],
+              "PTO": [
+                106.395,
+                55.357,
+                41.791,
+                52.495,
+                27.916,
+                27.416,
+                35.943,
+                1054.389,
+                2075.252,
+                30.039,
+                35.595,
+                61.213,
+                40.89,
+                1014.978,
+                52.314,
+                27.275,
+                66.777,
+                35.439,
+                27.978,
+                997.775
+              ]
+            },
+            "binding": {
+              "pro_so_sha256": "d4db65db149d95223e168085d34ebc4b66eb4bba4ab3013646dc8111dcbd7505",
+              "dsl_so_sha256": "f51df8967d53d1b51a6d0552f07dff8e71585f294eceec7fcd8c9ab0d91bb033",
+              "symbols": {
+                "PTO": [
+                  "_Z20moonep_latest_kernelPhPiS0_S0_S0_S0_S0_S0_S0_S0_S0_S0_S0_S0_S0_S0_S0_S0_S0_S0_S0_S0_S0_S0_S0_lll",
+                  "moonep_latest_kernel(unsigned char*, int*, int*, int*, int*, int*, int*, int*, int*, int*, int*, int*, int*, int*, int*, int*, int*, int*, int*, int*, int*, int*, int*, int*, int*, long, long, long)"
+                ],
+                "DSL": [
+                  "_Z29kernel__PlanKernel___call___037KernelArgTensor_int32_t_1d_Device_s_sS_S_S_S_Ph",
+                  "kernel__PlanKernel___call___0(KernelArgTensor_int32_t_1d_Device_s_s, KernelArgTensor_int32_t_1d_Device_s_s, KernelArgTensor_int32_t_1d_Device_s_s, KernelArgTensor_int32_t_1d_Device_s_s, KernelArgTensor_int32_t_1d_Device_s_s, unsigned char*)"
+                ]
+              },
+              "source_sha256": "9a8e4d17cd8479ae4ab4b56644011e8b38eefbb9ba7995fd8c8548efaec3d72c"
+            },
+            "csv": "results/s8192-k16-epn28-balanced-comm/profile/PROF_000001_20261117215408566_01070746QPACDKHJ/mindstudio_profiler_output/op_summary_20261117215432.csv",
+            "distribution": {
+              "DSL": {
+                "p10_us": 21.833299999999998,
+                "p90_us": 217.38460000000043,
+                "min_us": 16.35,
+                "max_us": 537.074
+              },
+              "PTO": {
+                "p10_us": 27.866,
+                "p90_us": 1018.9191,
+                "min_us": 27.275,
+                "max_us": 2075.252
+              }
+            },
+            "paired_ratio_p10_p90": [
+              0.71496850045493,
+              2.5548029071924017
+            ]
+          },
+          {
+            "rank": 3,
+            "pid": 1070747,
+            "device": "3",
+            "task_count": 46,
+            "measured_per_side": 20,
+            "dsl_median_us": 13.362,
+            "pypto_median_us": 10.615,
+            "paired_ratio_median": 0.8094594501821433,
+            "paired_ratio_range": [
+              0.30300203527815467,
+              2.103779790195546
+            ],
+            "pypto_win_fraction": 0.8,
+            "times_us": {
+              "DSL": [
+                35.45,
+                12.473,
+                12.485,
+                12.458,
+                13.535,
+                13.468,
+                13.567,
+                526.182,
+                35.376,
+                12.449,
+                12.577,
+                12.744,
+                13.256,
+                471.296,
+                84.52,
+                14.023,
+                13.971,
+                12.651,
+                12.929,
+                12.972
+              ],
+              "PTO": [
+                69.685,
+                10.311,
+                19.36,
+                10.066,
+                10.662,
+                10.514,
+                10.841,
+                1039.546,
+                10.719,
+                10.699,
+                10.44,
+                10.568,
+                10.18,
+                991.503,
+                38.438,
+                10.344,
+                10.445,
+                10.259,
+                11.102,
+                10.374
+              ]
+            },
+            "binding": {
+              "pro_so_sha256": "d4db65db149d95223e168085d34ebc4b66eb4bba4ab3013646dc8111dcbd7505",
+              "dsl_so_sha256": "cc7e656063c8cf65f2985fd5f1a3f72b84872083cc3ccf398f29a8893ee7fe5a",
+              "symbols": {
+                "PTO": [
+                  "_Z20moonep_latest_kernelPhPiS0_S0_S0_S0_S0_S0_S0_S0_S0_S0_S0_S0_S0_S0_S0_S0_S0_S0_S0_S0_S0_S0_S0_lll",
+                  "moonep_latest_kernel(unsigned char*, int*, int*, int*, int*, int*, int*, int*, int*, int*, int*, int*, int*, int*, int*, int*, int*, int*, int*, int*, int*, int*, int*, int*, int*, long, long, long)"
+                ],
+                "DSL": [
+                  "_Z29kernel__PlanKernel___call___037KernelArgTensor_int32_t_1d_Device_s_sS_S_S_S_Ph",
+                  "kernel__PlanKernel___call___0(KernelArgTensor_int32_t_1d_Device_s_s, KernelArgTensor_int32_t_1d_Device_s_s, KernelArgTensor_int32_t_1d_Device_s_s, KernelArgTensor_int32_t_1d_Device_s_s, KernelArgTensor_int32_t_1d_Device_s_s, unsigned char*)"
+                ]
+              },
+              "source_sha256": "9a8e4d17cd8479ae4ab4b56644011e8b38eefbb9ba7995fd8c8548efaec3d72c"
+            },
+            "csv": "results/s8192-k16-epn28-balanced-comm/profile/PROF_000001_20261117215408584_01070747LLCAAOMM/mindstudio_profiler_output/op_summary_20261117215436.csv",
+            "distribution": {
+              "DSL": {
+                "p10_us": 12.4715,
+                "p90_us": 123.19760000000055,
+                "min_us": 12.449,
+                "max_us": 526.182
+              },
+              "PTO": {
+                "p10_us": 10.251100000000001,
+                "p90_us": 161.86680000000132,
+                "min_us": 10.066,
+                "max_us": 1039.546
+              }
+            },
+            "paired_ratio_p10_p90": [
+              0.7093587606851958,
+              1.966717698417499
+            ]
+          }
+        ],
+        "aggregate": {
+          "dsl_median_of_rank_medians_us": 26.334750000000003,
+          "pypto_median_of_rank_medians_us": 35.334999999999994,
+          "paired_ratio_median_across_ranks": 1.338811431212475,
+          "ratio_of_rank_median_summaries": 1.3417632595714784
+        }
+      },
+      "s8192-k16-epn28-balanced-compute": {
+        "shape": [
+          4,
+          8192,
+          16,
+          112
+        ],
+        "routing": "balanced",
+        "workers": 32,
+        "scope": "compute",
+        "ranks": [
+          {
+            "rank": 0,
+            "pid": 1075730,
+            "device": "0",
+            "task_count": 46,
+            "measured_per_side": 20,
+            "dsl_median_us": 313.738,
+            "pypto_median_us": 268.967,
+            "paired_ratio_median": 0.8573028884147198,
+            "paired_ratio_range": [
+              0.8546143598841442,
+              0.8601804308768483
+            ],
+            "pypto_win_fraction": 1.0,
+            "times_us": {
+              "DSL": [
+                313.31,
+                313.55,
+                313.361,
+                313.537,
+                313.697,
+                313.724,
+                313.941,
+                313.876,
+                314.001,
+                313.632,
+                313.735,
+                313.593,
+                314.529,
+                313.741,
+                314.017,
+                313.916,
+                313.799,
+                314.106,
+                313.594,
+                313.794
+              ],
+              "PTO": [
+                269.074,
+                268.97,
+                269.547,
+                268.587,
+                269.781,
+                268.885,
+                269.409,
+                268.626,
+                269.158,
+                268.93,
+                269.122,
+                268.312,
+                268.801,
+                269.007,
+                269.119,
+                268.775,
+                269.301,
+                268.9,
+                268.964,
+                268.6
+              ]
+            },
+            "binding": {
+              "pro_so_sha256": "d87e151a78ae963566f6d6dc1bf01f916bff5a01e26faf3255dc0bc06551c546",
+              "dsl_so_sha256": "4966292b0230115547d7ecf659d9891f70b38dffade619691c37b29c65eaafef",
+              "symbols": {
+                "PTO": [
+                  "_Z26moonep_local_latest_kernellPiS_S_S_S_S_S_S_S_S_S_S_S_S_S_S_S_S_S_S_S_S_S_S_lll",
+                  "moonep_local_latest_kernel(long, int*, int*, int*, int*, int*, int*, int*, int*, int*, int*, int*, int*, int*, int*, int*, int*, int*, int*, int*, int*, int*, int*, int*, int*, long, long, long)"
+                ],
+                "DSL": [
+                  "_Z29kernel__PlanKernel___call___037KernelArgTensor_int32_t_1d_Device_s_sS_S_S_S_Ph",
+                  "kernel__PlanKernel___call___0(KernelArgTensor_int32_t_1d_Device_s_s, KernelArgTensor_int32_t_1d_Device_s_s, KernelArgTensor_int32_t_1d_Device_s_s, KernelArgTensor_int32_t_1d_Device_s_s, KernelArgTensor_int32_t_1d_Device_s_s, unsigned char*)"
+                ]
+              },
+              "source_sha256": "27d8812167e61fa78f046f2bbfa0d12c2380888402f6ff6a796dd29751305ab7"
+            },
+            "csv": "results/s8192-k16-epn28-balanced-compute/profile/PROF_000001_20261117215443741_01075730LAFFLRHI/mindstudio_profiler_output/op_summary_20261117215503.csv",
+            "distribution": {
+              "DSL": {
+                "p10_us": 313.51939999999996,
+                "p90_us": 314.0259,
+                "min_us": 313.31,
+                "max_us": 314.529
+              },
+              "PTO": {
+                "p10_us": 268.5987,
+                "p90_us": 269.4228,
+                "min_us": 268.312,
+                "max_us": 269.781
+              }
+            },
+            "paired_ratio_p10_p90": [
+              0.8558118927381354,
+              0.8589301899239712
+            ]
+          },
+          {
+            "rank": 1,
+            "pid": 1075731,
+            "device": "1",
+            "task_count": 46,
+            "measured_per_side": 20,
+            "dsl_median_us": 314.419,
+            "pypto_median_us": 268.2625,
+            "paired_ratio_median": 0.8526907965670139,
+            "paired_ratio_range": [
+              0.8494807267916992,
+              0.8563138399013915
+            ],
+            "pypto_win_fraction": 1.0,
+            "times_us": {
+              "DSL": [
+                314.16,
+                313.897,
+                314.124,
+                314.056,
+                314.478,
+                314.11,
+                313.969,
+                314.08,
+                314.678,
+                314.095,
+                314.663,
+                314.63,
+                314.915,
+                314.573,
+                314.693,
+                314.478,
+                314.326,
+                314.842,
+                314.711,
+                314.36
+              ],
+              "PTO": [
+                268.803,
+                268.192,
+                268.892,
+                267.888,
+                269.14,
+                267.609,
+                268.856,
+                267.424,
+                268.575,
+                267.49,
+                268.418,
+                268.03,
+                268.393,
+                268.411,
+                268.303,
+                267.143,
+                267.783,
+                268.222,
+                268.384,
+                267.777
+              ]
+            },
+            "binding": {
+              "pro_so_sha256": "d87e151a78ae963566f6d6dc1bf01f916bff5a01e26faf3255dc0bc06551c546",
+              "dsl_so_sha256": "39a6c8e5393223b10fae5504a2f90d8f9fb8cac2f3444380e8c106ebf8b73bce",
+              "symbols": {
+                "PTO": [
+                  "_Z26moonep_local_latest_kernellPiS_S_S_S_S_S_S_S_S_S_S_S_S_S_S_S_S_S_S_S_S_S_S_lll",
+                  "moonep_local_latest_kernel(long, int*, int*, int*, int*, int*, int*, int*, int*, int*, int*, int*, int*, int*, int*, int*, int*, int*, int*, int*, int*, int*, int*, int*, int*, long, long, long)"
+                ],
+                "DSL": [
+                  "_Z29kernel__PlanKernel___call___037KernelArgTensor_int32_t_1d_Device_s_sS_S_S_S_Ph",
+                  "kernel__PlanKernel___call___0(KernelArgTensor_int32_t_1d_Device_s_s, KernelArgTensor_int32_t_1d_Device_s_s, KernelArgTensor_int32_t_1d_Device_s_s, KernelArgTensor_int32_t_1d_Device_s_s, KernelArgTensor_int32_t_1d_Device_s_s, unsigned char*)"
+                ]
+              },
+              "source_sha256": "27d8812167e61fa78f046f2bbfa0d12c2380888402f6ff6a796dd29751305ab7"
+            },
+            "csv": "results/s8192-k16-epn28-balanced-compute/profile/PROF_000001_20261117215443846_01075731NGIAOEAR/mindstudio_profiler_output/op_summary_20261117215511.csv",
+            "distribution": {
+              "DSL": {
+                "p10_us": 314.0473,
+                "p90_us": 314.7241,
+                "min_us": 313.897,
+                "max_us": 314.915
+              },
+              "PTO": {
+                "p10_us": 267.4834,
+                "p90_us": 268.8596,
+                "min_us": 267.143,
+                "max_us": 269.14
+              }
+            },
+            "paired_ratio_p10_p90": [
+              0.8516043782224775,
+              0.8558484301259888
+            ]
+          },
+          {
+            "rank": 2,
+            "pid": 1075732,
+            "device": "2",
+            "task_count": 46,
+            "measured_per_side": 20,
+            "dsl_median_us": 313.45050000000003,
+            "pypto_median_us": 268.948,
+            "paired_ratio_median": 0.8581394589770399,
+            "paired_ratio_range": [
+              0.855740913089486,
+              0.86051925656256
+            ],
+            "pypto_win_fraction": 1.0,
+            "times_us": {
+              "DSL": [
+                313.476,
+                313.314,
+                313.14,
+                313.27,
+                313.951,
+                313.242,
+                313.171,
+                313.445,
+                313.456,
+                313.437,
+                313.39,
+                313.366,
+                313.782,
+                313.748,
+                313.465,
+                314.018,
+                313.543,
+                313.707,
+                313.347,
+                313.609
+              ],
+              "PTO": [
+                269.499,
+                268.961,
+                269.463,
+                268.638,
+                269.648,
+                268.77,
+                268.935,
+                268.715,
+                269.646,
+                269.008,
+                269.381,
+                268.635,
+                268.855,
+                268.487,
+                269.071,
+                268.756,
+                268.419,
+                268.962,
+                268.742,
+                269.212
+              ]
+            },
+            "binding": {
+              "pro_so_sha256": "d87e151a78ae963566f6d6dc1bf01f916bff5a01e26faf3255dc0bc06551c546",
+              "dsl_so_sha256": "65ee38a575a926bdf2aa1e2ce5e100b916b12a030e9a7d9ac6d3c77c7506af97",
+              "symbols": {
+                "PTO": [
+                  "_Z26moonep_local_latest_kernellPiS_S_S_S_S_S_S_S_S_S_S_S_S_S_S_S_S_S_S_S_S_S_S_lll",
+                  "moonep_local_latest_kernel(long, int*, int*, int*, int*, int*, int*, int*, int*, int*, int*, int*, int*, int*, int*, int*, int*, int*, int*, int*, int*, int*, int*, int*, int*, long, long, long)"
+                ],
+                "DSL": [
+                  "_Z29kernel__PlanKernel___call___037KernelArgTensor_int32_t_1d_Device_s_sS_S_S_S_Ph",
+                  "kernel__PlanKernel___call___0(KernelArgTensor_int32_t_1d_Device_s_s, KernelArgTensor_int32_t_1d_Device_s_s, KernelArgTensor_int32_t_1d_Device_s_s, KernelArgTensor_int32_t_1d_Device_s_s, KernelArgTensor_int32_t_1d_Device_s_s, unsigned char*)"
+                ]
+              },
+              "source_sha256": "27d8812167e61fa78f046f2bbfa0d12c2380888402f6ff6a796dd29751305ab7"
+            },
+            "csv": "results/s8192-k16-epn28-balanced-compute/profile/PROF_000001_20261117215443825_01075732PDINLHQL/mindstudio_profiler_output/op_summary_20261117215507.csv",
+            "distribution": {
+              "DSL": {
+                "p10_us": 313.23490000000004,
+                "p90_us": 313.7989,
+                "min_us": 313.14,
+                "max_us": 314.018
+              },
+              "PTO": {
+                "p10_us": 268.6202,
+                "p90_us": 269.51370000000003,
+                "min_us": 268.419,
+                "max_us": 269.648
+              }
+            },
+            "paired_ratio_p10_p90": [
+              0.8560613586210516,
+              0.8597641301762646
+            ]
+          },
+          {
+            "rank": 3,
+            "pid": 1075733,
+            "device": "3",
+            "task_count": 46,
+            "measured_per_side": 20,
+            "dsl_median_us": 312.87800000000004,
+            "pypto_median_us": 268.2235,
+            "paired_ratio_median": 0.8568387136945841,
+            "paired_ratio_range": [
+              0.855716823416476,
+              0.8603114420258118
+            ],
+            "pypto_win_fraction": 1.0,
+            "times_us": {
+              "DSL": [
+                312.857,
+                312.759,
+                312.218,
+                312.376,
+                312.803,
+                312.814,
+                312.957,
+                312.945,
+                313.172,
+                312.849,
+                313.225,
+                312.908,
+                313.557,
+                312.784,
+                312.851,
+                313.395,
+                313.137,
+                312.849,
+                313.216,
+                312.899
+              ],
+              "PTO": [
+                268.533,
+                267.917,
+                268.596,
+                267.596,
+                269.108,
+                268.003,
+                268.616,
+                268.127,
+                268.594,
+                267.8,
+                268.727,
+                268.282,
+                268.316,
+                267.968,
+                267.859,
+                268.212,
+                268.058,
+                268.207,
+                268.392,
+                268.235
+              ]
+            },
+            "binding": {
+              "pro_so_sha256": "d87e151a78ae963566f6d6dc1bf01f916bff5a01e26faf3255dc0bc06551c546",
+              "dsl_so_sha256": "1c8ad6b42429127e3d9fccc52b56cf6b38cae185cedfa50a591e08fccb7b88a9",
+              "symbols": {
+                "PTO": [
+                  "_Z26moonep_local_latest_kernellPiS_S_S_S_S_S_S_S_S_S_S_S_S_S_S_S_S_S_S_S_S_S_S_lll",
+                  "moonep_local_latest_kernel(long, int*, int*, int*, int*, int*, int*, int*, int*, int*, int*, int*, int*, int*, int*, int*, int*, int*, int*, int*, int*, int*, int*, int*, int*, long, long, long)"
+                ],
+                "DSL": [
+                  "_Z29kernel__PlanKernel___call___037KernelArgTensor_int32_t_1d_Device_s_sS_S_S_S_Ph",
+                  "kernel__PlanKernel___call___0(KernelArgTensor_int32_t_1d_Device_s_s, KernelArgTensor_int32_t_1d_Device_s_s, KernelArgTensor_int32_t_1d_Device_s_s, KernelArgTensor_int32_t_1d_Device_s_s, KernelArgTensor_int32_t_1d_Device_s_s, unsigned char*)"
+                ]
+              },
+              "source_sha256": "27d8812167e61fa78f046f2bbfa0d12c2380888402f6ff6a796dd29751305ab7"
+            },
+            "csv": "results/s8192-k16-epn28-balanced-compute/profile/PROF_000001_20261117215443870_01075733CAMAOIDG/mindstudio_profiler_output/op_summary_20261117215515.csv",
+            "distribution": {
+              "DSL": {
+                "p10_us": 312.7207,
+                "p90_us": 313.242,
+                "min_us": 312.218,
+                "max_us": 313.557
+              },
+              "PTO": {
+                "p10_us": 267.8531,
+                "p90_us": 268.6271,
+                "min_us": 267.596,
+                "max_us": 269.108
+              }
+            },
+            "paired_ratio_p10_p90": [
+              0.8559863443029775,
+              0.8585208965019747
+            ]
+          }
+        ],
+        "aggregate": {
+          "dsl_median_of_rank_medians_us": 313.59425,
+          "pypto_median_of_rank_medians_us": 268.60524999999996,
+          "paired_ratio_median_across_ranks": 0.8570708010546519,
+          "ratio_of_rank_median_summaries": 0.8565375481214976
+        }
+      },
+      "s8192-k16-epn28-balanced-full": {
+        "shape": [
+          4,
+          8192,
+          16,
+          112
+        ],
+        "routing": "balanced",
+        "workers": 32,
+        "scope": "full",
+        "ranks": [
+          {
+            "rank": 0,
+            "pid": 1063957,
+            "device": "0",
+            "task_count": 46,
+            "measured_per_side": 20,
+            "dsl_median_us": 337.98299999999995,
+            "pypto_median_us": 305.62800000000004,
+            "paired_ratio_median": 0.8996097516668229,
+            "paired_ratio_range": [
+              0.7377825404945413,
+              1.1705677043702651
+            ],
+            "pypto_win_fraction": 0.85,
+            "times_us": {
+              "DSL": [
+                362.724,
+                391.815,
+                334.845,
+                336.148,
+                412.463,
+                343.176,
+                325.004,
+                354.574,
+                356.357,
+                348.122,
+                326.445,
+                336.573,
+                348.547,
+                344.872,
+                326.242,
+                325.566,
+                333.305,
+                330.221,
+                331.062,
+                339.393
+              ],
+              "PTO": [
+                424.593,
+                331.446,
+                304.579,
+                292.544,
+                304.308,
+                303.981,
+                334.748,
+                343.402,
+                301.134,
+                301.502,
+                306.732,
+                307.066,
+                301.28,
+                287.649,
+                343.419,
+                315.042,
+                298.513,
+                295.48,
+                323.705,
+                306.677
+              ]
+            },
+            "binding": {
+              "pro_so_sha256": "eddb5e0c6bd6a21664d1cdffc57d8f66e045f46f70f4046174a740d45fa3739e",
+              "dsl_so_sha256": "ebabaa2551759892b525aa5df0c34bbc7eab716df9aeaa926e3ed61be70b10e6",
+              "symbols": {
+                "PTO": [
+                  "_Z20moonep_latest_kernelPhPiS0_S0_S0_S0_S0_S0_S0_S0_S0_S0_S0_S0_S0_S0_S0_S0_S0_S0_S0_S0_S0_S0_S0_lll",
+                  "moonep_latest_kernel(unsigned char*, int*, int*, int*, int*, int*, int*, int*, int*, int*, int*, int*, int*, int*, int*, int*, int*, int*, int*, int*, int*, int*, int*, int*, int*, long, long, long)"
+                ],
+                "DSL": [
+                  "_Z29kernel__PlanKernel___call___037KernelArgTensor_int32_t_1d_Device_s_sS_S_S_S_Ph",
+                  "kernel__PlanKernel___call___0(KernelArgTensor_int32_t_1d_Device_s_s, KernelArgTensor_int32_t_1d_Device_s_s, KernelArgTensor_int32_t_1d_Device_s_s, KernelArgTensor_int32_t_1d_Device_s_s, KernelArgTensor_int32_t_1d_Device_s_s, unsigned char*)"
+                ]
+              },
+              "source_sha256": "46d2e6f9c70df1a5c48d0c8c0484b1f8ded5146750e90f731e103a443d8613d3"
+            },
+            "csv": "results/s8192-k16-epn28-balanced-full/profile/PROF_000001_20261117215329594_01063957OQBQGNHI/mindstudio_profiler_output/op_summary_20261117215353.csv",
+            "distribution": {
+              "DSL": {
+                "p10_us": 326.1744,
+                "p90_us": 365.6331,
+                "min_us": 325.004,
+                "max_us": 412.463
+              },
+              "PTO": {
+                "p10_us": 295.1864,
+                "p90_us": 343.4037,
+                "min_us": 287.649,
+                "max_us": 424.593
+              }
+            },
+            "paired_ratio_p10_p90": [
+              0.843938619866743,
+              1.0322481624653328
+            ]
+          },
+          {
+            "rank": 1,
+            "pid": 1063958,
+            "device": "1",
+            "task_count": 46,
+            "measured_per_side": 20,
+            "dsl_median_us": 338.432,
+            "pypto_median_us": 293.4705,
+            "paired_ratio_median": 0.8738122926495475,
+            "paired_ratio_range": [
+              0.70480078529068,
+              1.010810777925815
+            ],
+            "pypto_win_fraction": 0.95,
+            "times_us": {
+              "DSL": [
+                347.603,
+                325.577,
+                338.95,
+                339.481,
+                416.661,
+                339.79,
+                326.607,
+                349.839,
+                359.916,
+                352.519,
+                331.048,
+                337.392,
+                350.606,
+                326.121,
+                328.746,
+                337.914,
+                335.083,
+                334.089,
+                332.819,
+                342.331
+              ],
+              "PTO": [
+                279.257,
+                278.811,
+                281.876,
+                292.791,
+                293.663,
+                298.775,
+                301.53,
+                324.257,
+                292.965,
+                293.278,
+                298.282,
+                298.714,
+                278.495,
+                292.977,
+                332.3,
+                307.014,
+                295.677,
+                290.1,
+                313.538,
+                281.819
+              ]
+            },
+            "binding": {
+              "pro_so_sha256": "eddb5e0c6bd6a21664d1cdffc57d8f66e045f46f70f4046174a740d45fa3739e",
+              "dsl_so_sha256": "26f0dd43c8a6170b109803f84d2a39eeefb96eb8d13efa8a008b0b3870296a5d",
+              "symbols": {
+                "PTO": [
+                  "_Z20moonep_latest_kernelPhPiS0_S0_S0_S0_S0_S0_S0_S0_S0_S0_S0_S0_S0_S0_S0_S0_S0_S0_S0_S0_S0_S0_S0_lll",
+                  "moonep_latest_kernel(unsigned char*, int*, int*, int*, int*, int*, int*, int*, int*, int*, int*, int*, int*, int*, int*, int*, int*, int*, int*, int*, int*, int*, int*, int*, int*, long, long, long)"
+                ],
+                "DSL": [
+                  "_Z29kernel__PlanKernel___call___037KernelArgTensor_int32_t_1d_Device_s_sS_S_S_S_Ph",
+                  "kernel__PlanKernel___call___0(KernelArgTensor_int32_t_1d_Device_s_s, KernelArgTensor_int32_t_1d_Device_s_s, KernelArgTensor_int32_t_1d_Device_s_s, KernelArgTensor_int32_t_1d_Device_s_s, KernelArgTensor_int32_t_1d_Device_s_s, unsigned char*)"
+                ]
+              },
+              "source_sha256": "46d2e6f9c70df1a5c48d0c8c0484b1f8ded5146750e90f731e103a443d8613d3"
+            },
+            "csv": "results/s8192-k16-epn28-balanced-full/profile/PROF_000001_20261117215329578_01063958BJCKQPID/mindstudio_profiler_output/op_summary_20261117215349.csv",
+            "distribution": {
+              "DSL": {
+                "p10_us": 326.5584,
+                "p90_us": 353.25870000000003,
+                "min_us": 325.577,
+                "max_us": 416.661
+              },
+              "PTO": {
+                "p10_us": 279.2124,
+                "p90_us": 314.60990000000004,
+                "min_us": 278.495,
+                "max_us": 332.3
+              }
+            },
+            "paired_ratio_p10_p90": [
+              0.8024736964224433,
+              0.9283942015406209
+            ]
+          },
+          {
+            "rank": 2,
+            "pid": 1063959,
+            "device": "2",
+            "task_count": 46,
+            "measured_per_side": 20,
+            "dsl_median_us": 327.404,
+            "pypto_median_us": 278.91099999999994,
+            "paired_ratio_median": 0.8525234728672619,
+            "paired_ratio_range": [
+              0.6714803092458947,
+              1.3225698924067433
+            ],
+            "pypto_win_fraction": 0.95,
+            "times_us": {
+              "DSL": [
+                323.998,
+                376.521,
+                324.685,
+                333.453,
+                405.74,
+                324.539,
+                324.151,
+                324.605,
+                353.744,
+                325.284,
+                325.172,
+                325.715,
+                348.867,
+                416.109,
+                324.336,
+                331.79,
+                329.558,
+                328.854,
+                329.19,
+                325.954
+              ],
+              "PTO": [
+                428.51,
+                315.157,
+                279.273,
+                278.737,
+                281.542,
+                290.174,
+                278.746,
+                279.041,
+                278.636,
+                279.105,
+                278.267,
+                279.018,
+                278.272,
+                279.409,
+                278.781,
+                278.557,
+                278.633,
+                279.427,
+                278.764,
+                278.804
+              ]
+            },
+            "binding": {
+              "pro_so_sha256": "eddb5e0c6bd6a21664d1cdffc57d8f66e045f46f70f4046174a740d45fa3739e",
+              "dsl_so_sha256": "788738499d51a920bb72f37ab4d40fe40a2c0535b8f89fadb76374698a8df0b9",
+              "symbols": {
+                "PTO": [
+                  "_Z20moonep_latest_kernelPhPiS0_S0_S0_S0_S0_S0_S0_S0_S0_S0_S0_S0_S0_S0_S0_S0_S0_S0_S0_S0_S0_S0_S0_lll",
+                  "moonep_latest_kernel(unsigned char*, int*, int*, int*, int*, int*, int*, int*, int*, int*, int*, int*, int*, int*, int*, int*, int*, int*, int*, int*, int*, int*, int*, int*, int*, long, long, long)"
+                ],
+                "DSL": [
+                  "_Z29kernel__PlanKernel___call___037KernelArgTensor_int32_t_1d_Device_s_sS_S_S_S_Ph",
+                  "kernel__PlanKernel___call___0(KernelArgTensor_int32_t_1d_Device_s_s, KernelArgTensor_int32_t_1d_Device_s_s, KernelArgTensor_int32_t_1d_Device_s_s, KernelArgTensor_int32_t_1d_Device_s_s, KernelArgTensor_int32_t_1d_Device_s_s, unsigned char*)"
+                ]
+              },
+              "source_sha256": "46d2e6f9c70df1a5c48d0c8c0484b1f8ded5146750e90f731e103a443d8613d3"
+            },
+            "csv": "results/s8192-k16-epn28-balanced-full/profile/PROF_000001_20261117215329643_01063959OFBFLERH/mindstudio_profiler_output/op_summary_20261117215357.csv",
+            "distribution": {
+              "DSL": {
+                "p10_us": 324.3175,
+                "p90_us": 379.44290000000007,
+                "min_us": 323.998,
+                "max_us": 416.109
+              },
+              "PTO": {
+                "p10_us": 278.5285,
+                "p90_us": 292.6723,
+                "min_us": 278.267,
+                "max_us": 428.51
+              }
+            },
+            "paired_ratio_p10_p90": [
+              0.7782990247062617,
+              0.863532821120644
+            ]
+          },
+          {
+            "rank": 3,
+            "pid": 1063960,
+            "device": "3",
+            "task_count": 46,
+            "measured_per_side": 20,
+            "dsl_median_us": 325.4705,
+            "pypto_median_us": 291.692,
+            "paired_ratio_median": 0.8848500989405997,
+            "paired_ratio_range": [
+              0.7114906406641603,
+              1.0938601959673928
+            ],
+            "pypto_win_fraction": 0.9,
+            "times_us": {
+              "DSL": [
+                420.274,
+                413.985,
+                328.362,
+                323.931,
+                324.478,
+                333.942,
+                324.363,
+                341.021,
+                324.36,
+                339.219,
+                324.567,
+                334.981,
+                325.114,
+                408.576,
+                326.374,
+                325.092,
+                324.359,
+                324.495,
+                323.7,
+                325.827
+              ],
+              "PTO": [
+                459.721,
+                331.912,
+                296.718,
+                287.05,
+                281.883,
+                278.847,
+                318.757,
+                324.24,
+                293.014,
+                281.35,
+                289.628,
+                293.276,
+                287.256,
+                290.698,
+                326.7,
+                292.686,
+                282.106,
+                278.874,
+                307.418,
+                284.724
+              ]
+            },
+            "binding": {
+              "pro_so_sha256": "eddb5e0c6bd6a21664d1cdffc57d8f66e045f46f70f4046174a740d45fa3739e",
+              "dsl_so_sha256": "f5053043e2de3da8f3b20c834a744a5c69749e91ea4ddc25983f28ff22aa7a6f",
+              "symbols": {
+                "PTO": [
+                  "_Z20moonep_latest_kernelPhPiS0_S0_S0_S0_S0_S0_S0_S0_S0_S0_S0_S0_S0_S0_S0_S0_S0_S0_S0_S0_S0_S0_S0_lll",
+                  "moonep_latest_kernel(unsigned char*, int*, int*, int*, int*, int*, int*, int*, int*, int*, int*, int*, int*, int*, int*, int*, int*, int*, int*, int*, int*, int*, int*, int*, int*, long, long, long)"
+                ],
+                "DSL": [
+                  "_Z29kernel__PlanKernel___call___037KernelArgTensor_int32_t_1d_Device_s_sS_S_S_S_Ph",
+                  "kernel__PlanKernel___call___0(KernelArgTensor_int32_t_1d_Device_s_s, KernelArgTensor_int32_t_1d_Device_s_s, KernelArgTensor_int32_t_1d_Device_s_s, KernelArgTensor_int32_t_1d_Device_s_s, KernelArgTensor_int32_t_1d_Device_s_s, unsigned char*)"
+                ]
+              },
+              "source_sha256": "46d2e6f9c70df1a5c48d0c8c0484b1f8ded5146750e90f731e103a443d8613d3"
+            },
+            "csv": "results/s8192-k16-epn28-balanced-full/profile/PROF_000001_20261117215329648_01063960RMHLIBAC/mindstudio_profiler_output/op_summary_20261117215401.csv",
+            "distribution": {
+              "DSL": {
+                "p10_us": 324.3162,
+                "p90_us": 409.11690000000004,
+                "min_us": 323.7,
+                "max_us": 420.274
+              },
+              "PTO": {
+                "p10_us": 281.10240000000005,
+                "p90_us": 327.2212,
+                "min_us": 278.847,
+                "max_us": 459.721
+              }
+            },
+            "paired_ratio_p10_p90": [
+              0.8266395588276612,
+              0.9845450903168531
+            ]
+          }
+        ],
+        "aggregate": {
+          "dsl_median_of_rank_medians_us": 332.6935,
+          "pypto_median_of_rank_medians_us": 292.58125,
+          "paired_ratio_median_across_ranks": 0.8793311957950736,
+          "ratio_of_rank_median_summaries": 0.8794318193772949
+        }
+      },
+      "s8192-k16-epn28-skewed-comm": {
+        "shape": [
+          4,
+          8192,
+          16,
+          112
+        ],
+        "routing": "skewed",
+        "workers": 32,
+        "scope": "comm",
+        "ranks": [
+          {
+            "rank": 0,
+            "pid": 1087733,
+            "device": "0",
+            "task_count": 46,
+            "measured_per_side": 20,
+            "dsl_median_us": 17.714,
+            "pypto_median_us": 15.48,
+            "paired_ratio_median": 0.9069348982580226,
+            "paired_ratio_range": [
+              0.0883464849016225,
+              18.859729151817533
+            ],
+            "pypto_win_fraction": 0.5,
+            "times_us": {
+              "DSL": [
+                16.457,
+                13.629,
+                14.27,
+                232.311,
+                212.142,
+                12.651,
+                23.063,
+                18.971,
+                163.382,
+                14.651,
+                13.555,
+                14.629,
+                14.03,
+                21.035,
+                13.002,
+                323.67,
+                31.568,
+                19.987,
+                25.918,
+                14.064
+              ],
+              "PTO": [
+                13.21,
+                9.397,
+                10.108,
+                1034.666,
+                18.742,
+                9.876,
+                12.803,
+                10.521,
+                18.265,
+                15.658,
+                15.286,
+                26.916,
+                264.602,
+                21.27,
+                15.302,
+                1580.898,
+                85.452,
+                110.475,
+                13.068,
+                10.028
+              ]
+            },
+            "binding": {
+              "pro_so_sha256": "d4db65db149d95223e168085d34ebc4b66eb4bba4ab3013646dc8111dcbd7505",
+              "dsl_so_sha256": "0ffc43e67b46e2aefe127b6ed4b6f392876246c408c323a27438b3d4ccce4a8b",
+              "symbols": {
+                "PTO": [
+                  "_Z20moonep_latest_kernelPhPiS0_S0_S0_S0_S0_S0_S0_S0_S0_S0_S0_S0_S0_S0_S0_S0_S0_S0_S0_S0_S0_S0_S0_lll",
+                  "moonep_latest_kernel(unsigned char*, int*, int*, int*, int*, int*, int*, int*, int*, int*, int*, int*, int*, int*, int*, int*, int*, int*, int*, int*, int*, int*, int*, int*, int*, long, long, long)"
+                ],
+                "DSL": [
+                  "_Z29kernel__PlanKernel___call___037KernelArgTensor_int32_t_1d_Device_s_sS_S_S_S_Ph",
+                  "kernel__PlanKernel___call___0(KernelArgTensor_int32_t_1d_Device_s_s, KernelArgTensor_int32_t_1d_Device_s_s, KernelArgTensor_int32_t_1d_Device_s_s, KernelArgTensor_int32_t_1d_Device_s_s, KernelArgTensor_int32_t_1d_Device_s_s, unsigned char*)"
+                ]
+              },
+              "source_sha256": "9a8e4d17cd8479ae4ab4b56644011e8b38eefbb9ba7995fd8c8548efaec3d72c"
+            },
+            "csv": "results/s8192-k16-epn28-skewed-comm/profile/PROF_000001_20261117215603785_01087733KCELCCAE/mindstudio_profiler_output/op_summary_20261117215620.csv",
+            "distribution": {
+              "DSL": {
+                "p10_us": 13.4997,
+                "p90_us": 214.15890000000002,
+                "min_us": 12.651,
+                "max_us": 323.67
+              },
+              "PTO": {
+                "p10_us": 10.0128,
+                "p90_us": 341.6084000000011,
+                "min_us": 9.397,
+                "max_us": 1580.898
+              }
+            },
+            "paired_ratio_p10_p90": [
+              0.46496433635533657,
+              4.948594876038227
+            ]
+          },
+          {
+            "rank": 1,
+            "pid": 1087734,
+            "device": "1",
+            "task_count": 46,
+            "measured_per_side": 20,
+            "dsl_median_us": 22.1995,
+            "pypto_median_us": 26.55,
+            "paired_ratio_median": 1.2449597508694084,
+            "paired_ratio_range": [
+              0.06634313500268015,
+              23.554263798166236
+            ],
+            "pypto_win_fraction": 0.4,
+            "times_us": {
+              "DSL": [
+                47.157,
+                24.972,
+                14.194,
+                198.585,
+                208.944,
+                15.734,
+                13.505,
+                26.164,
+                161.297,
+                13.73,
+                13.032,
+                19.427,
+                16.687,
+                14.398,
+                13.877,
+                338.872,
+                41.583,
+                29.735,
+                33.309,
+                13.52
+              ],
+              "PTO": [
+                36.659,
+                30.352,
+                27.89,
+                58.185,
+                13.862,
+                13.693,
+                13.841,
+                22.139,
+                21.997,
+                19.523,
+                16.609,
+                33.543,
+                393.05,
+                25.21,
+                24.735,
+                1582.549,
+                87.033,
+                117.563,
+                28.214,
+                13.322
+              ]
+            },
+            "binding": {
+              "pro_so_sha256": "d4db65db149d95223e168085d34ebc4b66eb4bba4ab3013646dc8111dcbd7505",
+              "dsl_so_sha256": "fb3f85098d11dab325d3a28f1cb1b3fb20624475444a30e2bbd0782be3374488",
+              "symbols": {
+                "PTO": [
+                  "_Z20moonep_latest_kernelPhPiS0_S0_S0_S0_S0_S0_S0_S0_S0_S0_S0_S0_S0_S0_S0_S0_S0_S0_S0_S0_S0_S0_S0_lll",
+                  "moonep_latest_kernel(unsigned char*, int*, int*, int*, int*, int*, int*, int*, int*, int*, int*, int*, int*, int*, int*, int*, int*, int*, int*, int*, int*, int*, int*, int*, int*, long, long, long)"
+                ],
+                "DSL": [
+                  "_Z29kernel__PlanKernel___call___037KernelArgTensor_int32_t_1d_Device_s_sS_S_S_S_Ph",
+                  "kernel__PlanKernel___call___0(KernelArgTensor_int32_t_1d_Device_s_s, KernelArgTensor_int32_t_1d_Device_s_s, KernelArgTensor_int32_t_1d_Device_s_s, KernelArgTensor_int32_t_1d_Device_s_s, KernelArgTensor_int32_t_1d_Device_s_s, unsigned char*)"
+                ]
+              },
+              "source_sha256": "9a8e4d17cd8479ae4ab4b56644011e8b38eefbb9ba7995fd8c8548efaec3d72c"
+            },
+            "csv": "results/s8192-k16-epn28-skewed-comm/profile/PROF_000001_20261117215603908_01087734DFCGNEPN/mindstudio_profiler_output/op_summary_20261117215628.csv",
+            "distribution": {
+              "DSL": {
+                "p10_us": 13.5185,
+                "p90_us": 199.62090000000003,
+                "min_us": 13.032,
+                "max_us": 338.872
+              },
+              "PTO": {
+                "p10_us": 13.8262,
+                "p90_us": 145.11170000000038,
+                "min_us": 13.322,
+                "max_us": 1582.549
+              }
+            },
+            "paired_ratio_p10_p90": [
+              0.2773357399183144,
+              4.025326788766275
+            ]
+          },
+          {
+            "rank": 2,
+            "pid": 1087735,
+            "device": "2",
+            "task_count": 46,
+            "measured_per_side": 20,
+            "dsl_median_us": 22.643,
+            "pypto_median_us": 21.92,
+            "paired_ratio_median": 1.2986323602337704,
+            "paired_ratio_range": [
+              0.13375223871535682,
+              9.310749926312688
+            ],
+            "pypto_win_fraction": 0.35,
+            "times_us": {
+              "DSL": [
+                12.299,
+                13.443,
+                13.772,
+                13.352,
+                13.551,
+                16.552,
+                26.817,
+                24.021,
+                164.715,
+                19.768,
+                15.889,
+                25.529,
+                23.749,
+                23.336,
+                21.95,
+                344.088,
+                36.678,
+                30.896,
+                32.339,
+                17.557
+              ],
+              "PTO": [
+                10.502,
+                18.498,
+                21.809,
+                10.215,
+                30.727,
+                21.524,
+                18.974,
+                19.104,
+                22.031,
+                21.765,
+                24.427,
+                33.108,
+                221.121,
+                24.518,
+                29.694,
+                1582.873,
+                92.049,
+                117.62,
+                19.433,
+                13.018
+              ]
+            },
+            "binding": {
+              "pro_so_sha256": "d4db65db149d95223e168085d34ebc4b66eb4bba4ab3013646dc8111dcbd7505",
+              "dsl_so_sha256": "1aa6c383c207607885987bf34185543874d52d6ba66612f9fde1531fa3fd1a29",
+              "symbols": {
+                "PTO": [
+                  "_Z20moonep_latest_kernelPhPiS0_S0_S0_S0_S0_S0_S0_S0_S0_S0_S0_S0_S0_S0_S0_S0_S0_S0_S0_S0_S0_S0_S0_lll",
+                  "moonep_latest_kernel(unsigned char*, int*, int*, int*, int*, int*, int*, int*, int*, int*, int*, int*, int*, int*, int*, int*, int*, int*, int*, int*, int*, int*, int*, int*, int*, long, long, long)"
+                ],
+                "DSL": [
+                  "_Z29kernel__PlanKernel___call___037KernelArgTensor_int32_t_1d_Device_s_sS_S_S_S_Ph",
+                  "kernel__PlanKernel___call___0(KernelArgTensor_int32_t_1d_Device_s_s, KernelArgTensor_int32_t_1d_Device_s_s, KernelArgTensor_int32_t_1d_Device_s_s, KernelArgTensor_int32_t_1d_Device_s_s, KernelArgTensor_int32_t_1d_Device_s_s, unsigned char*)"
+                ]
+              },
+              "source_sha256": "9a8e4d17cd8479ae4ab4b56644011e8b38eefbb9ba7995fd8c8548efaec3d72c"
+            },
+            "csv": "results/s8192-k16-epn28-skewed-comm/profile/PROF_000001_20261117215603881_01087735AROOLEEG/mindstudio_profiler_output/op_summary_20261117215624.csv",
+            "distribution": {
+              "DSL": {
+                "p10_us": 13.4339,
+                "p90_us": 49.48170000000018,
+                "min_us": 12.299,
+                "max_us": 344.088
+              },
+              "PTO": {
+                "p10_us": 12.7664,
+                "p90_us": 127.97010000000014,
+                "min_us": 10.215,
+                "max_us": 1582.873
+              }
+            },
+            "paired_ratio_p10_p90": [
+              0.6968741682293084,
+              3.886288593167688
+            ]
+          },
+          {
+            "rank": 3,
+            "pid": 1087736,
+            "device": "3",
+            "task_count": 46,
+            "measured_per_side": 20,
+            "dsl_median_us": 13.447,
+            "pypto_median_us": 10.654,
+            "paired_ratio_median": 0.797819240166951,
+            "paired_ratio_range": [
+              0.04705982279363773,
+              4.502128413564801
+            ],
+            "pypto_win_fraction": 0.95,
+            "times_us": {
+              "DSL": [
+                40.6,
+                21.12,
+                12.938,
+                231.393,
+                223.694,
+                13.239,
+                18.333,
+                12.967,
+                13.141,
+                12.945,
+                14.177,
+                13.446,
+                14.414,
+                13.356,
+                13.145,
+                13.257,
+                12.976,
+                13.711,
+                13.448,
+                15.8
+              ],
+              "PTO": [
+                27.899,
+                13.202,
+                10.8,
+                1041.761,
+                10.527,
+                10.576,
+                10.767,
+                10.73,
+                10.578,
+                10.792,
+                10.395,
+                10.887,
+                10.175,
+                10.765,
+                10.137,
+                10.563,
+                10.56,
+                10.336,
+                10.509,
+                13.485
+              ]
+            },
+            "binding": {
+              "pro_so_sha256": "d4db65db149d95223e168085d34ebc4b66eb4bba4ab3013646dc8111dcbd7505",
+              "dsl_so_sha256": "88025fc7ef331261e036641271174ba6ee231dcb14ccc61ecaa246ec79451c98",
+              "symbols": {
+                "PTO": [
+                  "_Z20moonep_latest_kernelPhPiS0_S0_S0_S0_S0_S0_S0_S0_S0_S0_S0_S0_S0_S0_S0_S0_S0_S0_S0_S0_S0_S0_S0_lll",
+                  "moonep_latest_kernel(unsigned char*, int*, int*, int*, int*, int*, int*, int*, int*, int*, int*, int*, int*, int*, int*, int*, int*, int*, int*, int*, int*, int*, int*, int*, int*, long, long, long)"
+                ],
+                "DSL": [
+                  "_Z29kernel__PlanKernel___call___037KernelArgTensor_int32_t_1d_Device_s_sS_S_S_S_Ph",
+                  "kernel__PlanKernel___call___0(KernelArgTensor_int32_t_1d_Device_s_s, KernelArgTensor_int32_t_1d_Device_s_s, KernelArgTensor_int32_t_1d_Device_s_s, KernelArgTensor_int32_t_1d_Device_s_s, KernelArgTensor_int32_t_1d_Device_s_s, unsigned char*)"
+                ]
+              },
+              "source_sha256": "9a8e4d17cd8479ae4ab4b56644011e8b38eefbb9ba7995fd8c8548efaec3d72c"
+            },
+            "csv": "results/s8192-k16-epn28-skewed-comm/profile/PROF_000001_20261117215603946_01087736AGBPJEOA/mindstudio_profiler_output/op_summary_20261117215632.csv",
+            "distribution": {
+              "DSL": {
+                "p10_us": 12.9648,
+                "p90_us": 58.90940000000026,
+                "min_us": 12.938,
+                "max_us": 231.393
+              },
+              "PTO": {
+                "p10_us": 10.3199,
+                "p90_us": 14.92640000000002,
+                "min_us": 10.137,
+                "max_us": 1041.761
+              }
+            },
+            "paired_ratio_p10_p90": [
+              0.6213153860028859,
+              0.8366234142972032
+            ]
+          }
+        ],
+        "aggregate": {
+          "dsl_median_of_rank_medians_us": 19.95675,
+          "pypto_median_of_rank_medians_us": 18.700000000000003,
+          "paired_ratio_median_across_ranks": 1.0759473245637154,
+          "ratio_of_rank_median_summaries": 0.9370263194157367
+        }
+      },
+      "s8192-k16-epn28-skewed-compute": {
+        "shape": [
+          4,
+          8192,
+          16,
+          112
+        ],
+        "routing": "skewed",
+        "workers": 32,
+        "scope": "compute",
+        "ranks": [
+          {
+            "rank": 0,
+            "pid": 1093739,
+            "device": "0",
+            "task_count": 46,
+            "measured_per_side": 20,
+            "dsl_median_us": 715.546,
+            "pypto_median_us": 343.876,
+            "paired_ratio_median": 0.4806676859118164,
+            "paired_ratio_range": [
+              0.4793431973915729,
+              0.48273147073384254
+            ],
+            "pypto_win_fraction": 1.0,
+            "times_us": {
+              "DSL": [
+                715.812,
+                715.665,
+                715.058,
+                715.481,
+                715.194,
+                715.527,
+                715.555,
+                715.768,
+                715.413,
+                715.457,
+                715.744,
+                715.537,
+                715.915,
+                716.032,
+                715.53,
+                715.709,
+                715.25,
+                715.75,
+                715.317,
+                715.726
+              ],
+              "PTO": [
+                344.39,
+                343.371,
+                345.181,
+                343.464,
+                344.767,
+                342.983,
+                344.0,
+                344.108,
+                344.421,
+                343.845,
+                344.578,
+                343.484,
+                344.149,
+                343.868,
+                343.527,
+                343.85,
+                343.884,
+                344.898,
+                343.798,
+                343.465
+              ]
+            },
+            "binding": {
+              "pro_so_sha256": "d87e151a78ae963566f6d6dc1bf01f916bff5a01e26faf3255dc0bc06551c546",
+              "dsl_so_sha256": "d7488820214af8a2beb1a183b17ef69e896a12f7435cf8dd6d81bba37083f817",
+              "symbols": {
+                "PTO": [
+                  "_Z26moonep_local_latest_kernellPiS_S_S_S_S_S_S_S_S_S_S_S_S_S_S_S_S_S_S_S_S_S_S_lll",
+                  "moonep_local_latest_kernel(long, int*, int*, int*, int*, int*, int*, int*, int*, int*, int*, int*, int*, int*, int*, int*, int*, int*, int*, int*, int*, int*, int*, int*, int*, long, long, long)"
+                ],
+                "DSL": [
+                  "_Z29kernel__PlanKernel___call___037KernelArgTensor_int32_t_1d_Device_s_sS_S_S_S_Ph",
+                  "kernel__PlanKernel___call___0(KernelArgTensor_int32_t_1d_Device_s_s, KernelArgTensor_int32_t_1d_Device_s_s, KernelArgTensor_int32_t_1d_Device_s_s, KernelArgTensor_int32_t_1d_Device_s_s, KernelArgTensor_int32_t_1d_Device_s_s, unsigned char*)"
+                ]
+              },
+              "source_sha256": "27d8812167e61fa78f046f2bbfa0d12c2380888402f6ff6a796dd29751305ab7"
+            },
+            "csv": "results/s8192-k16-epn28-skewed-compute/profile/PROF_000001_20261117215640013_01093739FDGCLHOD/mindstudio_profiler_output/op_summary_20261117215708.csv",
+            "distribution": {
+              "DSL": {
+                "p10_us": 715.2444,
+                "p90_us": 715.8223,
+                "min_us": 715.058,
+                "max_us": 716.032
+              },
+              "PTO": {
+                "p10_us": 343.4547,
+                "p90_us": 344.7801,
+                "min_us": 342.983,
+                "max_us": 345.181
+              }
+            },
+            "paired_ratio_p10_p90": [
+              0.4798743188549965,
+              0.4818885121636296
+            ]
+          },
+          {
+            "rank": 1,
+            "pid": 1093740,
+            "device": "1",
+            "task_count": 46,
+            "measured_per_side": 20,
+            "dsl_median_us": 735.8575000000001,
+            "pypto_median_us": 343.486,
+            "paired_ratio_median": 0.4668926609136006,
+            "paired_ratio_range": [
+              0.4659370669275292,
+              0.46850988643890973
+            ],
+            "pypto_win_fraction": 1.0,
+            "times_us": {
+              "DSL": [
+                735.685,
+                735.861,
+                735.199,
+                736.02,
+                735.897,
+                735.503,
+                735.827,
+                735.616,
+                735.854,
+                735.736,
+                736.075,
+                736.477,
+                736.326,
+                736.214,
+                735.692,
+                735.948,
+                735.756,
+                736.173,
+                735.295,
+                736.027
+              ],
+              "PTO": [
+                343.526,
+                343.463,
+                344.448,
+                342.939,
+                344.085,
+                343.454,
+                343.752,
+                343.545,
+                343.977,
+                343.271,
+                343.893,
+                343.535,
+                343.493,
+                343.354,
+                342.896,
+                343.207,
+                343.479,
+                343.424,
+                343.414,
+                344.412
+              ]
+            },
+            "binding": {
+              "pro_so_sha256": "d87e151a78ae963566f6d6dc1bf01f916bff5a01e26faf3255dc0bc06551c546",
+              "dsl_so_sha256": "68e73972b49961406dd5febf82b511ff62fad9ea0bfdb680becd883b8c88321b",
+              "symbols": {
+                "PTO": [
+                  "_Z26moonep_local_latest_kernellPiS_S_S_S_S_S_S_S_S_S_S_S_S_S_S_S_S_S_S_S_S_S_S_lll",
+                  "moonep_local_latest_kernel(long, int*, int*, int*, int*, int*, int*, int*, int*, int*, int*, int*, int*, int*, int*, int*, int*, int*, int*, int*, int*, int*, int*, int*, int*, long, long, long)"
+                ],
+                "DSL": [
+                  "_Z29kernel__PlanKernel___call___037KernelArgTensor_int32_t_1d_Device_s_sS_S_S_S_Ph",
+                  "kernel__PlanKernel___call___0(KernelArgTensor_int32_t_1d_Device_s_s, KernelArgTensor_int32_t_1d_Device_s_s, KernelArgTensor_int32_t_1d_Device_s_s, KernelArgTensor_int32_t_1d_Device_s_s, KernelArgTensor_int32_t_1d_Device_s_s, unsigned char*)"
+                ]
+              },
+              "source_sha256": "27d8812167e61fa78f046f2bbfa0d12c2380888402f6ff6a796dd29751305ab7"
+            },
+            "csv": "results/s8192-k16-epn28-skewed-compute/profile/PROF_000001_20261117215639951_01093740PLADEOQO/mindstudio_profiler_output/op_summary_20261117215659.csv",
+            "distribution": {
+              "DSL": {
+                "p10_us": 735.4822,
+                "p90_us": 736.2252000000001,
+                "min_us": 735.199,
+                "max_us": 736.477
+              },
+              "PTO": {
+                "p10_us": 343.1802,
+                "p90_us": 344.11769999999996,
+                "min_us": 342.896,
+                "max_us": 344.448
+              }
+            },
+            "paired_ratio_p10_p90": [
+              0.4663207615355904,
+              0.4676083974510403
+            ]
+          },
+          {
+            "rank": 2,
+            "pid": 1093741,
+            "device": "2",
+            "task_count": 46,
+            "measured_per_side": 20,
+            "dsl_median_us": 718.861,
+            "pypto_median_us": 343.736,
+            "paired_ratio_median": 0.478141529888341,
+            "paired_ratio_range": [
+              0.4771145530287129,
+              0.47939422442749363
+            ],
+            "pypto_win_fraction": 1.0,
+            "times_us": {
+              "DSL": [
+                718.657,
+                718.876,
+                718.682,
+                719.064,
+                718.91,
+                718.822,
+                718.788,
+                718.672,
+                718.83,
+                718.955,
+                718.959,
+                718.846,
+                719.03,
+                719.102,
+                718.839,
+                719.431,
+                718.822,
+                719.396,
+                718.937,
+                718.727
+              ],
+              "PTO": [
+                344.44,
+                343.984,
+                344.532,
+                343.825,
+                344.072,
+                343.336,
+                343.952,
+                343.256,
+                343.729,
+                343.947,
+                344.011,
+                343.769,
+                343.68,
+                343.312,
+                343.453,
+                343.251,
+                343.678,
+                343.699,
+                343.743,
+                343.609
+              ]
+            },
+            "binding": {
+              "pro_so_sha256": "d87e151a78ae963566f6d6dc1bf01f916bff5a01e26faf3255dc0bc06551c546",
+              "dsl_so_sha256": "40cccde52590102870b78d6de558ad9d531e61338dcf3ebed1795911ea8d4609",
+              "symbols": {
+                "PTO": [
+                  "_Z26moonep_local_latest_kernellPiS_S_S_S_S_S_S_S_S_S_S_S_S_S_S_S_S_S_S_S_S_S_S_lll",
+                  "moonep_local_latest_kernel(long, int*, int*, int*, int*, int*, int*, int*, int*, int*, int*, int*, int*, int*, int*, int*, int*, int*, int*, int*, int*, int*, int*, int*, int*, long, long, long)"
+                ],
+                "DSL": [
+                  "_Z29kernel__PlanKernel___call___037KernelArgTensor_int32_t_1d_Device_s_sS_S_S_S_Ph",
+                  "kernel__PlanKernel___call___0(KernelArgTensor_int32_t_1d_Device_s_s, KernelArgTensor_int32_t_1d_Device_s_s, KernelArgTensor_int32_t_1d_Device_s_s, KernelArgTensor_int32_t_1d_Device_s_s, KernelArgTensor_int32_t_1d_Device_s_s, unsigned char*)"
+                ]
+              },
+              "source_sha256": "27d8812167e61fa78f046f2bbfa0d12c2380888402f6ff6a796dd29751305ab7"
+            },
+            "csv": "results/s8192-k16-epn28-skewed-compute/profile/PROF_000001_20261117215640063_01093741EGCPRGIO/mindstudio_profiler_output/op_summary_20261117215713.csv",
+            "distribution": {
+              "DSL": {
+                "p10_us": 718.681,
+                "p90_us": 719.1314,
+                "min_us": 718.657,
+                "max_us": 719.431
+              },
+              "PTO": {
+                "p10_us": 343.3064,
+                "p90_us": 344.10880000000003,
+                "min_us": 343.251,
+                "max_us": 344.532
+              }
+            },
+            "paired_ratio_p10_p90": [
+              0.477604624975329,
+              0.4786703841328963
+            ]
+          },
+          {
+            "rank": 3,
+            "pid": 1093742,
+            "device": "3",
+            "task_count": 46,
+            "measured_per_side": 20,
+            "dsl_median_us": 718.565,
+            "pypto_median_us": 342.78549999999996,
+            "paired_ratio_median": 0.47704361659248234,
+            "paired_ratio_range": [
+              0.47603724572947903,
+              0.47851586160034865
+            ],
+            "pypto_win_fraction": 1.0,
+            "times_us": {
+              "DSL": [
+                718.37,
+                718.5,
+                718.181,
+                718.362,
+                718.652,
+                718.29,
+                718.535,
+                718.45,
+                718.61,
+                718.44,
+                718.702,
+                718.923,
+                718.879,
+                719.116,
+                718.595,
+                718.739,
+                719.102,
+                718.741,
+                718.395,
+                718.421
+              ],
+              "PTO": [
+                342.741,
+                342.727,
+                343.661,
+                343.027,
+                342.735,
+                342.531,
+                343.019,
+                343.172,
+                342.899,
+                342.4,
+                342.949,
+                342.669,
+                342.421,
+                342.326,
+                342.83,
+                342.456,
+                342.983,
+                342.644,
+                342.899,
+                342.908
+              ]
+            },
+            "binding": {
+              "pro_so_sha256": "d87e151a78ae963566f6d6dc1bf01f916bff5a01e26faf3255dc0bc06551c546",
+              "dsl_so_sha256": "c5b0516a64e2b96da71c4e2d1fd2f3206c22f4f27ff302fefc2a1f15fe665d94",
+              "symbols": {
+                "PTO": [
+                  "_Z26moonep_local_latest_kernellPiS_S_S_S_S_S_S_S_S_S_S_S_S_S_S_S_S_S_S_S_S_S_S_lll",
+                  "moonep_local_latest_kernel(long, int*, int*, int*, int*, int*, int*, int*, int*, int*, int*, int*, int*, int*, int*, int*, int*, int*, int*, int*, int*, int*, int*, int*, int*, long, long, long)"
+                ],
+                "DSL": [
+                  "_Z29kernel__PlanKernel___call___037KernelArgTensor_int32_t_1d_Device_s_sS_S_S_S_Ph",
+                  "kernel__PlanKernel___call___0(KernelArgTensor_int32_t_1d_Device_s_s, KernelArgTensor_int32_t_1d_Device_s_s, KernelArgTensor_int32_t_1d_Device_s_s, KernelArgTensor_int32_t_1d_Device_s_s, KernelArgTensor_int32_t_1d_Device_s_s, unsigned char*)"
+                ]
+              },
+              "source_sha256": "27d8812167e61fa78f046f2bbfa0d12c2380888402f6ff6a796dd29751305ab7"
+            },
+            "csv": "results/s8192-k16-epn28-skewed-compute/profile/PROF_000001_20261117215639957_01093742LCIKMEOJ/mindstudio_profiler_output/op_summary_20261117215703.csv",
+            "distribution": {
+              "DSL": {
+                "p10_us": 718.3548,
+                "p90_us": 718.9409,
+                "min_us": 718.181,
+                "max_us": 719.116
+              },
+              "PTO": {
+                "p10_us": 342.4189,
+                "p90_us": 343.0415,
+                "min_us": 342.326,
+                "max_us": 343.661
+              }
+            },
+            "paired_ratio_p10_p90": [
+              0.47645366597791117,
+              0.47752706382941573
+            ]
+          }
+        ],
+        "aggregate": {
+          "dsl_median_of_rank_medians_us": 718.713,
+          "pypto_median_of_rank_medians_us": 343.611,
+          "paired_ratio_median_across_ranks": 0.4775925732404117,
+          "ratio_of_rank_median_summaries": 0.4780920896101782
+        }
+      },
+      "s8192-k16-epn28-skewed-full": {
+        "shape": [
+          4,
+          8192,
+          16,
+          112
+        ],
+        "routing": "skewed",
+        "workers": 32,
+        "scope": "full",
+        "ranks": [
+          {
+            "rank": 0,
+            "pid": 1081739,
+            "device": "0",
+            "task_count": 46,
+            "measured_per_side": 20,
+            "dsl_median_us": 833.381,
+            "pypto_median_us": 521.0915,
+            "paired_ratio_median": 0.6081679775772127,
+            "paired_ratio_range": [
+              0.2034152119661759,
+              0.797683622966522
+            ],
+            "pypto_win_fraction": 1.0,
+            "times_us": {
+              "DSL": [
+                855.361,
+                897.14,
+                847.885,
+                877.573,
+                837.732,
+                869.577,
+                829.03,
+                863.396,
+                3517.849,
+                850.381,
+                804.586,
+                846.406,
+                783.536,
+                774.658,
+                779.584,
+                790.792,
+                773.835,
+                769.211,
+                745.757,
+                741.191
+              ],
+              "PTO": [
+                576.155,
+                527.805,
+                590.039,
+                553.217,
+                592.838,
+                494.646,
+                556.089,
+                519.697,
+                715.584,
+                522.486,
+                577.998,
+                474.658,
+                496.496,
+                617.932,
+                485.728,
+                449.545,
+                401.417,
+                379.242,
+                362.565,
+                362.292
+              ]
+            },
+            "binding": {
+              "pro_so_sha256": "eddb5e0c6bd6a21664d1cdffc57d8f66e045f46f70f4046174a740d45fa3739e",
+              "dsl_so_sha256": "d45ee55de6e8bb38677eceb4a538235d0a71b5a56f714463bbf648bdc04280c5",
+              "symbols": {
+                "PTO": [
+                  "_Z20moonep_latest_kernelPhPiS0_S0_S0_S0_S0_S0_S0_S0_S0_S0_S0_S0_S0_S0_S0_S0_S0_S0_S0_S0_S0_S0_S0_lll",
+                  "moonep_latest_kernel(unsigned char*, int*, int*, int*, int*, int*, int*, int*, int*, int*, int*, int*, int*, int*, int*, int*, int*, int*, int*, int*, int*, int*, int*, int*, int*, long, long, long)"
+                ],
+                "DSL": [
+                  "_Z29kernel__PlanKernel___call___037KernelArgTensor_int32_t_1d_Device_s_sS_S_S_S_Ph",
+                  "kernel__PlanKernel___call___0(KernelArgTensor_int32_t_1d_Device_s_s, KernelArgTensor_int32_t_1d_Device_s_s, KernelArgTensor_int32_t_1d_Device_s_s, KernelArgTensor_int32_t_1d_Device_s_s, KernelArgTensor_int32_t_1d_Device_s_s, unsigned char*)"
+                ]
+              },
+              "source_sha256": "46d2e6f9c70df1a5c48d0c8c0484b1f8ded5146750e90f731e103a443d8613d3"
+            },
+            "csv": "results/s8192-k16-epn28-skewed-full/profile/PROF_000001_20261117215523006_01081739KNAIBDBA/mindstudio_profiler_output/op_summary_20261117215548.csv",
+            "distribution": {
+              "DSL": {
+                "p10_us": 766.8656,
+                "p90_us": 879.5297,
+                "min_us": 741.191,
+                "max_us": 3517.849
+              },
+              "PTO": {
+                "p10_us": 377.5743,
+                "p90_us": 595.3474,
+                "min_us": 362.292,
+                "max_us": 715.584
+              }
+            },
+            "paired_ratio_p10_p90": [
+              0.488534419039759,
+              0.708741149110429
+            ]
+          },
+          {
+            "rank": 1,
+            "pid": 1081740,
+            "device": "1",
+            "task_count": 46,
+            "measured_per_side": 20,
+            "dsl_median_us": 829.0745,
+            "pypto_median_us": 520.0895,
+            "paired_ratio_median": 0.6097181088914032,
+            "paired_ratio_range": [
+              0.2076685048391542,
+              0.7211583529040254
+            ],
+            "pypto_win_fraction": 1.0,
+            "times_us": {
+              "DSL": [
+                938.674,
+                921.078,
+                852.369,
+                881.988,
+                838.046,
+                865.668,
+                820.103,
+                840.858,
+                3512.184,
+                850.484,
+                804.349,
+                842.766,
+                782.185,
+                816.08,
+                777.372,
+                787.421,
+                766.936,
+                772.307,
+                745.376,
+                735.199
+              ],
+              "PTO": [
+                616.9,
+                535.156,
+                589.535,
+                535.005,
+                592.378,
+                501.675,
+                563.26,
+                518.963,
+                729.37,
+                521.216,
+                580.063,
+                476.566,
+                498.197,
+                572.24,
+                484.608,
+                456.652,
+                406.124,
+                372.356,
+                392.487,
+                372.086
+              ]
+            },
+            "binding": {
+              "pro_so_sha256": "eddb5e0c6bd6a21664d1cdffc57d8f66e045f46f70f4046174a740d45fa3739e",
+              "dsl_so_sha256": "4b90d6e6e5713406214db594ee0b27304e702b30808f0378b6f1b3f6b20d415b",
+              "symbols": {
+                "PTO": [
+                  "_Z20moonep_latest_kernelPhPiS0_S0_S0_S0_S0_S0_S0_S0_S0_S0_S0_S0_S0_S0_S0_S0_S0_S0_S0_S0_S0_S0_S0_lll",
+                  "moonep_latest_kernel(unsigned char*, int*, int*, int*, int*, int*, int*, int*, int*, int*, int*, int*, int*, int*, int*, int*, int*, int*, int*, int*, int*, int*, int*, int*, int*, long, long, long)"
+                ],
+                "DSL": [
+                  "_Z29kernel__PlanKernel___call___037KernelArgTensor_int32_t_1d_Device_s_sS_S_S_S_Ph",
+                  "kernel__PlanKernel___call___0(KernelArgTensor_int32_t_1d_Device_s_s, KernelArgTensor_int32_t_1d_Device_s_s, KernelArgTensor_int32_t_1d_Device_s_s, KernelArgTensor_int32_t_1d_Device_s_s, KernelArgTensor_int32_t_1d_Device_s_s, unsigned char*)"
+                ]
+              },
+              "source_sha256": "46d2e6f9c70df1a5c48d0c8c0484b1f8ded5146750e90f731e103a443d8613d3"
+            },
+            "csv": "results/s8192-k16-epn28-skewed-full/profile/PROF_000001_20261117215522973_01081740BAJRHJMP/mindstudio_profiler_output/op_summary_20261117215544.csv",
+            "distribution": {
+              "DSL": {
+                "p10_us": 764.7800000000001,
+                "p90_us": 922.8376,
+                "min_us": 735.199,
+                "max_us": 3512.184
+              },
+              "PTO": {
+                "p10_us": 390.4739,
+                "p90_us": 594.8302000000001,
+                "min_us": 372.086,
+                "max_us": 729.37
+              }
+            },
+            "paired_ratio_p10_p90": [
+              0.503705655983308,
+              0.7017708064158824
+            ]
+          },
+          {
+            "rank": 2,
+            "pid": 1081741,
+            "device": "2",
+            "task_count": 46,
+            "measured_per_side": 20,
+            "dsl_median_us": 812.54,
+            "pypto_median_us": 499.28700000000003,
+            "paired_ratio_median": 0.5980125116614262,
+            "paired_ratio_range": [
+              0.18516250775335485,
+              0.7032503714710253
+            ],
+            "pypto_win_fraction": 1.0,
+            "times_us": {
+              "DSL": [
+                889.986,
+                868.898,
+                850.888,
+                845.598,
+                829.346,
+                839.261,
+                833.962,
+                786.375,
+                3509.771,
+                817.48,
+                807.6,
+                851.923,
+                780.54,
+                799.74,
+                745.967,
+                744.443,
+                763.284,
+                730.735,
+                739.754,
+                730.992
+              ],
+              "PTO": [
+                532.027,
+                519.803,
+                577.771,
+                542.832,
+                554.706,
+                477.988,
+                500.743,
+                497.831,
+                649.878,
+                532.115,
+                567.945,
+                487.742,
+                475.517,
+                537.838,
+                430.784,
+                422.905,
+                360.317,
+                354.485,
+                355.058,
+                366.128
+              ]
+            },
+            "binding": {
+              "pro_so_sha256": "eddb5e0c6bd6a21664d1cdffc57d8f66e045f46f70f4046174a740d45fa3739e",
+              "dsl_so_sha256": "2b5edffd11c1e1d79aeda056a72d6efefa3a8071a6a9823413137e91744a252d",
+              "symbols": {
+                "PTO": [
+                  "_Z20moonep_latest_kernelPhPiS0_S0_S0_S0_S0_S0_S0_S0_S0_S0_S0_S0_S0_S0_S0_S0_S0_S0_S0_S0_S0_S0_S0_lll",
+                  "moonep_latest_kernel(unsigned char*, int*, int*, int*, int*, int*, int*, int*, int*, int*, int*, int*, int*, int*, int*, int*, int*, int*, int*, int*, int*, int*, int*, int*, int*, long, long, long)"
+                ],
+                "DSL": [
+                  "_Z29kernel__PlanKernel___call___037KernelArgTensor_int32_t_1d_Device_s_sS_S_S_S_Ph",
+                  "kernel__PlanKernel___call___0(KernelArgTensor_int32_t_1d_Device_s_s, KernelArgTensor_int32_t_1d_Device_s_s, KernelArgTensor_int32_t_1d_Device_s_s, KernelArgTensor_int32_t_1d_Device_s_s, KernelArgTensor_int32_t_1d_Device_s_s, unsigned char*)"
+                ]
+              },
+              "source_sha256": "46d2e6f9c70df1a5c48d0c8c0484b1f8ded5146750e90f731e103a443d8613d3"
+            },
+            "csv": "results/s8192-k16-epn28-skewed-full/profile/PROF_000001_20261117215523035_01081741JIRPQEDJ/mindstudio_profiler_output/op_summary_20261117215552.csv",
+            "distribution": {
+              "DSL": {
+                "p10_us": 738.8778,
+                "p90_us": 871.0068,
+                "min_us": 730.735,
+                "max_us": 3509.771
+              },
+              "PTO": {
+                "p10_us": 359.79110000000003,
+                "p90_us": 568.9276000000001,
+                "min_us": 354.485,
+                "max_us": 649.878
+              }
+            },
+            "paired_ratio_p10_p90": [
+              0.47917704974838643,
+              0.6731665820280234
+            ]
+          },
+          {
+            "rank": 3,
+            "pid": 1081742,
+            "device": "3",
+            "task_count": 46,
+            "measured_per_side": 20,
+            "dsl_median_us": 742.985,
+            "pypto_median_us": 354.1115,
+            "paired_ratio_median": 0.4766273686349489,
+            "paired_ratio_range": [
+              0.4751432041413871,
+              0.5039565872030205
+            ],
+            "pypto_win_fraction": 1.0,
+            "times_us": {
+              "DSL": [
+                742.426,
+                742.955,
+                742.969,
+                743.249,
+                742.869,
+                743.028,
+                742.767,
+                743.292,
+                742.843,
+                742.571,
+                743.001,
+                742.721,
+                743.519,
+                743.532,
+                743.364,
+                743.392,
+                742.837,
+                761.17,
+                743.191,
+                742.878
+              ],
+              "PTO": [
+                354.402,
+                354.069,
+                354.588,
+                353.564,
+                354.04,
+                353.863,
+                354.502,
+                354.665,
+                354.091,
+                354.436,
+                353.626,
+                354.679,
+                353.278,
+                354.132,
+                353.737,
+                354.01,
+                354.4,
+                364.666,
+                374.536,
+                353.977
+              ]
+            },
+            "binding": {
+              "pro_so_sha256": "eddb5e0c6bd6a21664d1cdffc57d8f66e045f46f70f4046174a740d45fa3739e",
+              "dsl_so_sha256": "c4127e78c11dfd4133f14d909f62762eea73a3d74fffafa78d01642d1d27d551",
+              "symbols": {
+                "PTO": [
+                  "_Z20moonep_latest_kernelPhPiS0_S0_S0_S0_S0_S0_S0_S0_S0_S0_S0_S0_S0_S0_S0_S0_S0_S0_S0_S0_S0_S0_S0_lll",
+                  "moonep_latest_kernel(unsigned char*, int*, int*, int*, int*, int*, int*, int*, int*, int*, int*, int*, int*, int*, int*, int*, int*, int*, int*, int*, int*, int*, int*, int*, int*, long, long, long)"
+                ],
+                "DSL": [
+                  "_Z29kernel__PlanKernel___call___037KernelArgTensor_int32_t_1d_Device_s_sS_S_S_S_Ph",
+                  "kernel__PlanKernel___call___0(KernelArgTensor_int32_t_1d_Device_s_s, KernelArgTensor_int32_t_1d_Device_s_s, KernelArgTensor_int32_t_1d_Device_s_s, KernelArgTensor_int32_t_1d_Device_s_s, KernelArgTensor_int32_t_1d_Device_s_s, unsigned char*)"
+                ]
+              },
+              "source_sha256": "46d2e6f9c70df1a5c48d0c8c0484b1f8ded5146750e90f731e103a443d8613d3"
+            },
+            "csv": "results/s8192-k16-epn28-skewed-full/profile/PROF_000001_20261117215523037_01081742MEIAPJLE/mindstudio_profiler_output/op_summary_20261117215556.csv",
+            "distribution": {
+              "DSL": {
+                "p10_us": 742.706,
+                "p90_us": 743.5203,
+                "min_us": 742.426,
+                "max_us": 761.17
+              },
+              "PTO": {
+                "p10_us": 353.6198,
+                "p90_us": 355.6777,
+                "min_us": 353.278,
+                "max_us": 374.536
+              }
+            },
+            "paired_ratio_p10_p90": [
+              0.4758438269232483,
+              0.477694630922632
+            ]
+          }
+        ],
+        "aggregate": {
+          "dsl_median_of_rank_medians_us": 820.80725,
+          "pypto_median_of_rank_medians_us": 509.68825000000004,
+          "paired_ratio_median_across_ranks": 0.6030902446193195,
+          "ratio_of_rank_median_summaries": 0.620959732019911
+        }
+      }
+    },
+    "dsl_reference": "scalar Count diagnostic"
+  },
+  "old_latest": {
+    "oldnew-s1024-balanced": [
+      {
+        "rank": 0,
+        "device": "0",
+        "workers": {
+          "A": 32,
+          "B": 32
+        },
+        "old_us": 102.20949999999999,
+        "new_us": 81.9195,
+        "paired_ratio": 0.7955133186904997,
+        "range": [
+          0.7267745931252796,
+          0.8823458319485149
+        ],
+        "win_fraction": 1.0,
+        "tasks": 46,
+        "times_us": {
+          "A": [
+            116.319,
+            107.798,
+            110.586,
+            102.672,
+            99.291,
+            105.441,
+            102.06,
+            96.355,
+            96.113,
+            98.785,
+            101.941,
+            96.428,
+            96.724,
+            102.359,
+            96.459,
+            108.205,
+            105.412,
+            116.252,
+            101.642,
+            102.484
+          ],
+          "B": [
+            85.62,
+            79.01,
+            87.875,
+            85.094,
+            87.609,
+            81.971,
+            78.609,
+            81.868,
+            82.152,
+            78.672,
+            78.938,
+            79.019,
+            82.333,
+            87.494,
+            79.087,
+            81.851,
+            78.656,
+            84.489,
+            77.209,
+            82.048
+          ]
+        }
+      },
+      {
+        "rank": 3,
+        "device": "3",
+        "workers": {
+          "A": 32,
+          "B": 32
+        },
+        "old_us": 119.0475,
+        "new_us": 99.857,
+        "paired_ratio": 0.8580099746432717,
+        "range": [
+          0.7284585283511087,
+          1.0163997241167906
+        ],
+        "win_fraction": 0.9,
+        "tasks": 46,
+        "times_us": {
+          "A": [
+            133.208,
+            119.14,
+            124.432,
+            116.36,
+            119.082,
+            111.378,
+            130.33,
+            111.047,
+            101.636,
+            99.491,
+            119.013,
+            124.643,
+            121.731,
+            104.392,
+            107.635,
+            119.737,
+            122.225,
+            130.981,
+            104.229,
+            113.419
+          ],
+          "B": [
+            117.071,
+            92.642,
+            103.487,
+            106.063,
+            114.432,
+            100.834,
+            94.94,
+            99.926,
+            97.43,
+            100.382,
+            97.685,
+            99.788,
+            109.038,
+            106.104,
+            80.069,
+            88.733,
+            91.082,
+            106.004,
+            91.742,
+            94.95
+          ]
+        }
+      },
+      {
+        "rank": 1,
+        "device": "1",
+        "workers": {
+          "A": 32,
+          "B": 32
+        },
+        "old_us": 100.627,
+        "new_us": 84.746,
+        "paired_ratio": 0.8321099861367127,
+        "range": [
+          0.6867661035054234,
+          1.026560678538409
+        ],
+        "win_fraction": 0.95,
+        "tasks": 46,
+        "times_us": {
+          "A": [
+            101.746,
+            96.205,
+            104.998,
+            102.174,
+            99.508,
+            107.95,
+            127.317,
+            96.06,
+            103.954,
+            96.124,
+            96.236,
+            107.195,
+            104.88,
+            96.326,
+            96.284,
+            96.028,
+            96.306,
+            119.814,
+            107.606,
+            95.876
+          ],
+          "B": [
+            82.435,
+            81.86,
+            88.295,
+            81.688,
+            102.151,
+            87.859,
+            87.437,
+            82.232,
+            85.587,
+            90.585,
+            85.137,
+            79.793,
+            88.194,
+            84.407,
+            85.085,
+            78.687,
+            78.899,
+            87.649,
+            82.339,
+            82.28
+          ]
+        }
+      },
+      {
+        "rank": 2,
+        "device": "2",
+        "workers": {
+          "A": 32,
+          "B": 32
+        },
+        "old_us": 98.309,
+        "new_us": 80.819,
+        "paired_ratio": 0.8226202893671526,
+        "range": [
+          0.7352973407364114,
+          0.9449429037520393
+        ],
+        "win_fraction": 1.0,
+        "tasks": 46,
+        "times_us": {
+          "A": [
+            98.036,
+            104.39,
+            97.638,
+            98.067,
+            98.396,
+            98.255,
+            98.151,
+            101.984,
+            97.894,
+            98.08,
+            106.711,
+            109.504,
+            97.995,
+            97.978,
+            109.116,
+            107.048,
+            110.005,
+            98.73,
+            97.682,
+            98.363
+          ],
+          "B": [
+            80.862,
+            81.205,
+            80.557,
+            80.802,
+            80.871,
+            80.898,
+            86.098,
+            80.836,
+            80.723,
+            92.68,
+            89.3,
+            80.518,
+            80.781,
+            80.309,
+            86.481,
+            80.725,
+            85.986,
+            80.762,
+            80.589,
+            80.4
+          ]
+        }
+      }
+    ],
+    "oldnew-s1024-skewed": [
+      {
+        "rank": 1,
+        "device": "1",
+        "workers": {
+          "A": 32,
+          "B": 32
+        },
+        "old_us": 56.028000000000006,
+        "new_us": 35.316500000000005,
+        "paired_ratio": 0.6381358634672872,
+        "range": [
+          0.0356089704100931,
+          9.043450939804462
+        ],
+        "win_fraction": 0.9,
+        "tasks": 46,
+        "times_us": {
+          "A": [
+            40.152,
+            85.844,
+            57.133,
+            60.268,
+            40.027,
+            54.923,
+            51.443,
+            49.283,
+            45.808,
+            62.897,
+            60.267,
+            1111.967,
+            971.622,
+            54.107,
+            85.539,
+            54.815,
+            52.332,
+            60.667,
+            53.932,
+            71.657
+          ],
+          "B": [
+            25.022,
+            28.187,
+            42.571,
+            42.671,
+            31.008,
+            39.218,
+            30.724,
+            33.863,
+            30.788,
+            33.821,
+            36.581,
+            39.596,
+            1049.334,
+            489.314,
+            45.151,
+            38.923,
+            30.615,
+            39.621,
+            30.815,
+            34.052
+          ]
+        }
+      },
+      {
+        "rank": 3,
+        "device": "3",
+        "workers": {
+          "A": 32,
+          "B": 32
+        },
+        "old_us": 43.3715,
+        "new_us": 24.698999999999998,
+        "paired_ratio": 0.5714934036666675,
+        "range": [
+          0.39214121552604697,
+          0.7283635103525947
+        ],
+        "win_fraction": 1.0,
+        "tasks": 46,
+        "times_us": {
+          "A": [
+            51.671,
+            43.049,
+            40.508,
+            46.111,
+            46.175,
+            52.453,
+            46.04,
+            46.172,
+            48.669,
+            42.869,
+            42.809,
+            42.84,
+            43.068,
+            40.487,
+            42.967,
+            46.42,
+            40.775,
+            43.675,
+            62.656,
+            42.919
+          ],
+          "B": [
+            22.303,
+            22.085,
+            28.128,
+            24.633,
+            22.061,
+            21.962,
+            24.884,
+            33.63,
+            27.845,
+            25.124,
+            30.722,
+            24.765,
+            24.774,
+            24.339,
+            24.528,
+            27.726,
+            28.017,
+            22.149,
+            24.57,
+            22.297
+          ]
+        }
+      },
+      {
+        "rank": 0,
+        "device": "0",
+        "workers": {
+          "A": 32,
+          "B": 32
+        },
+        "old_us": 40.703,
+        "new_us": 25.265500000000003,
+        "paired_ratio": 0.5563758948298494,
+        "range": [
+          0.023197343367238377,
+          11.959553177787685
+        ],
+        "win_fraction": 0.9,
+        "tasks": 46,
+        "times_us": {
+          "A": [
+            54.831,
+            77.54,
+            48.86,
+            40.482,
+            54.956,
+            40.719,
+            40.014,
+            40.566,
+            39.917,
+            40.35,
+            48.8,
+            1099.738,
+            952.995,
+            40.374,
+            74.491,
+            40.587,
+            40.687,
+            40.403,
+            39.749,
+            55.017
+          ],
+          "B": [
+            33.972,
+            28.175,
+            31.556,
+            25.295,
+            22.378,
+            36.45,
+            21.901,
+            22.658,
+            22.306,
+            22.467,
+            22.512,
+            25.511,
+            1042.413,
+            482.855,
+            31.037,
+            21.994,
+            22.061,
+            22.462,
+            25.236,
+            28.624
+          ]
+        }
+      },
+      {
+        "rank": 2,
+        "device": "2",
+        "workers": {
+          "A": 32,
+          "B": 32
+        },
+        "old_us": 62.688500000000005,
+        "new_us": 39.6535,
+        "paired_ratio": 0.6459011155531814,
+        "range": [
+          0.033039846453528865,
+          8.57489328008813
+        ],
+        "win_fraction": 0.85,
+        "tasks": 46,
+        "times_us": {
+          "A": [
+            61.025,
+            100.044,
+            60.934,
+            55.311,
+            61.329,
+            66.803,
+            61.09,
+            64.048,
+            54.833,
+            68.704,
+            69.372,
+            1118.619,
+            986.737,
+            58.096,
+            89.276,
+            61.052,
+            54.96,
+            72.436,
+            74.721,
+            60.967
+          ],
+          "B": [
+            62.468,
+            39.558,
+            22.295,
+            39.493,
+            50.552,
+            45.113,
+            39.226,
+            45.492,
+            37.087,
+            39.749,
+            37.13,
+            36.959,
+            1058.503,
+            498.167,
+            59.31,
+            39.284,
+            25.117,
+            44.643,
+            48.011,
+            39.528
+          ]
+        }
+      }
+    ],
+    "oldnew-s8192-balanced": [
+      {
+        "rank": 2,
+        "device": "2",
+        "workers": {
+          "A": 32,
+          "B": 32
+        },
+        "old_us": 297.4845,
+        "new_us": 279.368,
+        "paired_ratio": 0.939116872944939,
+        "range": [
+          0.8717098788766805,
+          1.0223698170437652
+        ],
+        "win_fraction": 0.95,
+        "tasks": 46,
+        "times_us": {
+          "A": [
+            300.673,
+            297.62,
+            297.546,
+            302.881,
+            297.378,
+            297.582,
+            297.395,
+            297.502,
+            297.003,
+            297.597,
+            297.514,
+            297.309,
+            296.966,
+            297.462,
+            297.086,
+            297.467,
+            320.087,
+            300.187,
+            296.919,
+            297.43
+          ],
+          "B": [
+            307.399,
+            278.878,
+            279.624,
+            279.358,
+            278.787,
+            278.917,
+            279.03,
+            279.378,
+            279.144,
+            279.79,
+            279.397,
+            279.054,
+            279.957,
+            279.355,
+            282.235,
+            284.66,
+            279.023,
+            279.516,
+            278.888,
+            293.306
+          ]
+        }
+      },
+      {
+        "rank": 1,
+        "device": "1",
+        "workers": {
+          "A": 32,
+          "B": 32
+        },
+        "old_us": 307.6395,
+        "new_us": 299.781,
+        "paired_ratio": 0.9597820018266976,
+        "range": [
+          0.9062943458571197,
+          1.1961002168304764
+        ],
+        "win_fraction": 0.9,
+        "tasks": 46,
+        "times_us": {
+          "A": [
+            296.887,
+            307.716,
+            333.266,
+            296.151,
+            319.197,
+            319.307,
+            310.462,
+            307.82,
+            306.764,
+            315.915,
+            310.245,
+            307.15,
+            338.955,
+            304.837,
+            307.699,
+            299.152,
+            296.473,
+            296.613,
+            304.28,
+            307.58
+          ],
+          "B": [
+            278.184,
+            292.632,
+            307.126,
+            323.805,
+            298.654,
+            306.649,
+            301.187,
+            286.952,
+            301.711,
+            377.866,
+            301.436,
+            295.802,
+            307.193,
+            300.908,
+            290.219,
+            278.249,
+            292.106,
+            284.513,
+            278.804,
+            307.266
+          ]
+        }
+      },
+      {
+        "rank": 0,
+        "device": "0",
+        "workers": {
+          "A": 32,
+          "B": 32
+        },
+        "old_us": 353.1605,
+        "new_us": 343.6465,
+        "paired_ratio": 0.9540408447717581,
+        "range": [
+          0.820600236152916,
+          1.1831987389480918
+        ],
+        "win_fraction": 0.65,
+        "tasks": 46,
+        "times_us": {
+          "A": [
+            381.896,
+            384.361,
+            415.235,
+            364.578,
+            353.16,
+            353.587,
+            350.282,
+            365.086,
+            327.492,
+            356.281,
+            338.95,
+            350.081,
+            381.269,
+            353.161,
+            339.134,
+            344.777,
+            390.012,
+            333.617,
+            327.401,
+            353.128
+          ],
+          "B": [
+            394.297,
+            365.811,
+            363.42,
+            359.909,
+            371.449,
+            328.894,
+            329.055,
+            326.396,
+            354.898,
+            397.128,
+            309.985,
+            332.24,
+            451.117,
+            289.804,
+            332.395,
+            329.284,
+            362.907,
+            317.943,
+            329.493,
+            377.903
+          ]
+        }
+      },
+      {
+        "rank": 3,
+        "device": "3",
+        "workers": {
+          "A": 32,
+          "B": 32
+        },
+        "old_us": 313.3885,
+        "new_us": 301.327,
+        "paired_ratio": 0.9485792462359023,
+        "range": [
+          0.8622379720789334,
+          1.1841700413666214
+        ],
+        "win_fraction": 0.8,
+        "tasks": 46,
+        "times_us": {
+          "A": [
+            350.212,
+            322.386,
+            333.15,
+            307.43,
+            327.378,
+            321.702,
+            296.615,
+            313.438,
+            315.337,
+            321.757,
+            318.69,
+            309.9,
+            307.259,
+            313.339,
+            310.211,
+            307.888,
+            349.915,
+            310.631,
+            309.99,
+            310.454
+          ],
+          "B": [
+            316.222,
+            315.484,
+            318.35,
+            326.753,
+            295.71,
+            307.046,
+            300.944,
+            307.719,
+            301.923,
+            381.015,
+            290.509,
+            299.107,
+            310.257,
+            281.75,
+            290.542,
+            290.251,
+            301.71,
+            287.431,
+            284.414,
+            279.015
+          ]
+        }
+      }
+    ],
+    "oldnew-s8192-skewed": [
+      {
+        "rank": 2,
+        "device": "2",
+        "workers": {
+          "A": 32,
+          "B": 32
+        },
+        "old_us": 373.403,
+        "new_us": 354.8215,
+        "paired_ratio": 0.9524141239970902,
+        "range": [
+          0.9333865596537487,
+          0.9843580366455137
+        ],
+        "win_fraction": 1.0,
+        "tasks": 46,
+        "times_us": {
+          "A": [
+            374.913,
+            372.148,
+            372.327,
+            371.966,
+            371.932,
+            378.304,
+            371.701,
+            372.132,
+            371.253,
+            375.074,
+            380.764,
+            372.257,
+            374.888,
+            372.155,
+            375.052,
+            374.479,
+            372.239,
+            375.692,
+            376.862,
+            374.889
+          ],
+          "B": [
+            354.783,
+            354.349,
+            357.79,
+            354.071,
+            360.446,
+            354.621,
+            353.988,
+            354.847,
+            355.475,
+            354.403,
+            355.4,
+            354.5,
+            362.744,
+            357.473,
+            354.745,
+            356.954,
+            354.551,
+            354.796,
+            361.12,
+            369.025
+          ]
+        }
+      },
+      {
+        "rank": 3,
+        "device": "3",
+        "workers": {
+          "A": 32,
+          "B": 32
+        },
+        "old_us": 373.6865,
+        "new_us": 362.3085,
+        "paired_ratio": 0.9559619493539788,
+        "range": [
+          0.899424026468556,
+          1.0469595807873084
+        ],
+        "win_fraction": 0.95,
+        "tasks": 46,
+        "times_us": {
+          "A": [
+            407.175,
+            401.395,
+            390.317,
+            396.546,
+            373.397,
+            385.787,
+            373.595,
+            393.283,
+            381.685,
+            373.504,
+            373.086,
+            373.1,
+            370.478,
+            373.778,
+            373.111,
+            381.988,
+            381.477,
+            370.902,
+            369.84,
+            370.585
+          ],
+          "B": [
+            382.645,
+            376.528,
+            377.562,
+            356.663,
+            354.102,
+            359.693,
+            362.196,
+            365.354,
+            371.837,
+            363.206,
+            354.344,
+            357.006,
+            354.267,
+            353.952,
+            365.828,
+            365.015,
+            399.391,
+            362.421,
+            353.957,
+            354.161
+          ]
+        }
+      },
+      {
+        "rank": 1,
+        "device": "1",
+        "workers": {
+          "A": 32,
+          "B": 32
+        },
+        "old_us": 385.9465,
+        "new_us": 370.868,
+        "paired_ratio": 0.9628094490724066,
+        "range": [
+          0.8983222552620839,
+          0.9937663971442088
+        ],
+        "win_fraction": 1.0,
+        "tasks": 46,
+        "times_us": {
+          "A": [
+            411.624,
+            381.029,
+            377.614,
+            388.595,
+            383.515,
+            372.016,
+            386.201,
+            392.149,
+            388.484,
+            377.81,
+            386.52,
+            386.25,
+            386.451,
+            380.873,
+            380.474,
+            389.738,
+            389.234,
+            383.856,
+            385.692,
+            383.194
+          ],
+          "B": [
+            369.771,
+            371.884,
+            355.051,
+            355.05,
+            378.085,
+            369.697,
+            366.548,
+            375.308,
+            378.149,
+            374.986,
+            375.062,
+            372.322,
+            369.852,
+            366.368,
+            372.937,
+            374.831,
+            380.525,
+            366.116,
+            361.028,
+            369.285
+          ]
+        }
+      },
+      {
+        "rank": 0,
+        "device": "0",
+        "workers": {
+          "A": 32,
+          "B": 32
+        },
+        "old_us": 389.864,
+        "new_us": 374.727,
+        "paired_ratio": 0.9669042574784039,
+        "range": [
+          0.9068043459621015,
+          1.1341298495685468
+        ],
+        "win_fraction": 0.95,
+        "tasks": 46,
+        "times_us": {
+          "A": [
+            436.667,
+            405.28,
+            399.544,
+            408.195,
+            388.107,
+            390.926,
+            384.784,
+            408.187,
+            393.505,
+            385.429,
+            390.573,
+            382.544,
+            388.256,
+            382.709,
+            382.328,
+            379.597,
+            394.133,
+            389.186,
+            381.815,
+            390.542
+          ],
+          "B": [
+            405.667,
+            396.722,
+            388.649,
+            370.153,
+            377.011,
+            362.956,
+            376.739,
+            371.512,
+            391.369,
+            373.671,
+            368.261,
+            375.053,
+            374.401,
+            359.932,
+            379.823,
+            376.646,
+            446.998,
+            371.232,
+            365.377,
+            369.162
+          ]
+        }
+      }
+    ]
+  },
+  "qrun": "21:47:08–21:59:23",
+  "scope_note": "two paired process groups under same qrun lock"
+}
