@@ -1,0 +1,2990 @@
+<!doctype html><html lang="zh"><meta charset="utf-8"><title>MoonEP Count 优化进展</title><style>body{font:16px system-ui;max-width:1120px;margin:40px auto;padding:0 24px;color:#172b3a;line-height:1.7}h1{font-size:30px}table{border-collapse:collapse;width:100%}td,th{padding:12px;border-bottom:1px solid #cdd7df;text-align:right}td:first-child,th:first-child{text-align:left}header{border-bottom:4px solid #136b75}section{margin:32px 0}small{color:#536579}</style><header><h1>MoonEP 三步优化进展</h1><p>2026-11-18 · Count 已验证并提交 PR dead658 · Count/Greedy 重叠排队中 · Assign SIMD 仅能力编译通过</p></header><section><h2>Count 的实际结果</h2><p>四卡，每卡 S=1024、K=4、E=16，32 AIV，seed42，默认 trusted。A 为优化前 PyPTO，B 为 Count stride 候选；DSL 为 scalar Count 诊断参考。每侧20正式样本，设备 TaskDuration，逐rank中位数再取中位数。</p><p><strong>balanced 单独计算从 69.5145 μs 降至 57.433 μs，同批配对降低约17.6%。同批 DSL 为25.9988 μs，候选仍约为 DSL 的2.216倍。</strong></p><table><tr><th>范围与路由</th><th>A μs</th><th>B μs</th><th>DSL μs</th><th>配对 B/A</th><th>配对 B/DSL</th></tr><tr><td>full-balanced</td><td>95.206</td><td>87.159</td><td>46.305</td><td>0.9318</td><td>1.9356</td></tr><tr><td>full-skewed</td><td>52.014</td><td>47.377</td><td>61.672</td><td>0.9392</td><td>0.7080</td></tr><tr><td>full-extreme</td><td>36.182</td><td>32.547</td><td>50.894</td><td>0.9434</td><td>0.6095</td></tr><tr><td>compute-balanced</td><td>69.514</td><td>57.433</td><td>25.999</td><td>0.8243</td><td>2.2161</td></tr><tr><td>compute-skewed</td><td>14.122</td><td>13.720</td><td>34.663</td><td>0.9812</td><td>0.3961</td></tr><tr><td>compute-extreme</td><td>14.100</td><td>13.767</td><td>34.593</td><td>0.9860</td><td>0.3985</td></tr></table><small>配对比值与汇总中位数之比是不同统计量。全部长尾保留，未截取稳定片段。</small></section><section><h2>实现与输入特点</h2><p>balanced从16专家随机无放回选4；skewed从4专家池选4，仅顺序随机；extreme固定0–3。后二者需求矩阵相同，走固定VID快路径。</p><p>Count将物理行由16个int32扩为128个int32，使每个chunk独占512B缓存行。逻辑专家数仍是16，越界判断保持逻辑E。工作区1 KiB→8 KiB，实际Count参与核从2→16。最终规则限定E=16且256&lt;S×K≤4096，其余布局保持原策略。</p></section><section><h2>验收范围和限制</h2><p>CPU19项、160组尾块算法检查、四个域边界真实编译及严格路径九轮回归通过。6组四rank三方调用均精确比较五输出，72份SO与来源身份绑定保留于完整JSON。</p><p>完整balanced配对汇总约0.932，但rank2为1.028且长尾很大，因此不能承诺稳定端到端提升。skewed/extreme计算配对约0.981/0.986，视为中性控制。</p></section><section><h2>后续两项状态</h2><p>Count/Greedy重叠为独立候选，基于已验收Count版本。将trusted Count提前与Greedy并行，并减少mode1一道屏障，mode0/2会额外计数。当前等待qrun，尚无验收结果。</p><p>Assign SIMD gather、squeeze和可靠计数的聚焦编译已通过，尚未完成设备数值探针或整算子收益验证。</p></section><section><h2>证据</h2><p>PR <a href="https://gitcode.com/wangyu_ai/pypto-gym/merge_requests/1">!1 / dead658</a>。完整逐rank样本、配对范围、胜率、SO哈希与符号见同目录JSON。</p><details><summary>逐rank完整数据</summary><pre style="white-space:pre-wrap">{
+  &quot;full-balanced&quot;: {
+    &quot;ranks&quot;: [
+      {
+        &quot;rank&quot;: 0,
+        &quot;pid&quot;: 1080984,
+        &quot;device&quot;: &quot;0&quot;,
+        &quot;medians_us&quot;: {
+          &quot;A&quot;: 96.8315,
+          &quot;B&quot;: 90.0555,
+          &quot;DSL&quot;: 39.0105
+        },
+        &quot;paired&quot;: {
+          &quot;B/A&quot;: {
+            &quot;median&quot;: 0.9770855983539264,
+            &quot;range&quot;: [
+              0.05844455366260535,
+              3.751732932664992
+            ],
+            &quot;win_fraction&quot;: 0.6
+          },
+          &quot;B/DSL&quot;: {
+            &quot;median&quot;: 2.1119525875379943,
+            &quot;range&quot;: [
+              0.017149138305349067,
+              7.723364437397656
+            ],
+            &quot;win_fraction&quot;: 0.15
+          },
+          &quot;A/DSL&quot;: {
+            &quot;median&quot;: 2.0633799338700642,
+            &quot;range&quot;: [
+              0.2934257724740162,
+              5.794639185855263
+            ],
+            &quot;win_fraction&quot;: 0.1
+          }
+        },
+        &quot;times_us&quot;: {
+          &quot;A&quot;: [
+            79.057,
+            79.201,
+            84.018,
+            81.351,
+            107.007,
+            84.587,
+            86.903,
+            101.601,
+            109.527,
+            1125.169,
+            563.82,
+            78.346,
+            98.172,
+            225.481,
+            100.716,
+            92.574,
+            78.011,
+            95.491,
+            1127.858,
+            106.499
+          ],
+          &quot;B&quot;: [
+            181.419,
+            297.141,
+            97.739,
+            109.013,
+            77.176,
+            88.513,
+            117.337,
+            148.64,
+            88.649,
+            65.76,
+            65.8,
+            65.553,
+            83.514,
+            73.789,
+            77.577,
+            91.462,
+            153.251,
+            94.021,
+            1093.532,
+            80.317
+          ],
+          &quot;DSL&quot;: [
+            38.226,
+            38.473,
+            37.513,
+            42.585,
+            53.873,
+            50.116,
+            38.137,
+            38.812,
+            38.086,
+            3834.595,
+            270.217,
+            37.485,
+            50.051,
+            38.912,
+            103.679,
+            38.305,
+            38.494,
+            39.109,
+            638.686,
+            78.489
+          ]
+        },
+        &quot;binding&quot;: {
+          &quot;A&quot;: {
+            &quot;so_sha256&quot;: &quot;027878008f341eca0b29663418efc1594cc3e70a40a93e4a95f6f25b4e0a983d&quot;,
+            &quot;source_sha256&quot;: &quot;50a79c83c115c4ec2260b0cea79eaedc16a9cb7b2f33b1480c8f7b5f07a05d0f&quot;,
+            &quot;symbol&quot;: &quot;_Z22moonep_latest_kernel_aPhPiS0_S0_S0_S0_S0_S0_S0_S0_S0_S0_S0_S0_S0_S0_S0_S0_S0_S0_S0_S0_S0_S0_S0_lll&quot;
+          },
+          &quot;B&quot;: {
+            &quot;so_sha256&quot;: &quot;76ea0ff554fa1734d694f416d1c4b7364fc9ad89ab3c12268e5d3e222ca58896&quot;,
+            &quot;source_sha256&quot;: &quot;5dc492d311aee00210e68203618034b0b9133315e247e9400eec4d9a66884a63&quot;,
+            &quot;symbol&quot;: &quot;_Z22moonep_latest_kernel_bPhPiS0_S0_S0_S0_S0_S0_S0_S0_S0_S0_S0_S0_S0_S0_S0_S0_S0_S0_S0_S0_S0_S0_S0_lll&quot;
+          },
+          &quot;DSL&quot;: {
+            &quot;so_sha256&quot;: &quot;a5e0ed282ef8ade89a57e0b7ac7d019ad2208b42057b0847ab7e27962fba8159&quot;,
+            &quot;symbol&quot;: &quot;_Z29kernel__PlanKernel___call___037KernelArgTensor_int32_t_1d_Device_s_sS_S_S_S_Ph&quot;,
+            &quot;reference&quot;: &quot;scalar-count-diagnostic&quot;
+          }
+        }
+      },
+      {
+        &quot;rank&quot;: 1,
+        &quot;pid&quot;: 1080985,
+        &quot;device&quot;: &quot;1&quot;,
+        &quot;medians_us&quot;: {
+          &quot;A&quot;: 91.9065,
+          &quot;B&quot;: 72.294,
+          &quot;DSL&quot;: 43.135999999999996
+        },
+        &quot;paired&quot;: {
+          &quot;B/A&quot;: {
+            &quot;median&quot;: 0.8569026153877963,
+            &quot;range&quot;: [
+              0.08755609506219156,
+              2.5155867506689185
+            ],
+            &quot;win_fraction&quot;: 0.65
+          },
+          &quot;B/DSL&quot;: {
+            &quot;median&quot;: 1.7228288908104412,
+            &quot;range&quot;: [
+              0.02510039122327856,
+              29.43148270836094
+            ],
+            &quot;win_fraction&quot;: 0.15
+          },
+          &quot;A/DSL&quot;: {
+            &quot;median&quot;: 1.8508208657785152,
+            &quot;range&quot;: [
+              0.2866778287159748,
+              25.666118987677223
+            ],
+            &quot;win_fraction&quot;: 0.05
+          }
+        },
+        &quot;times_us&quot;: {
+          &quot;A&quot;: [
+            92.168,
+            78.163,
+            94.827,
+            77.67,
+            77.182,
+            78.302,
+            77.495,
+            77.089,
+            77.889,
+            1108.832,
+            421.576,
+            968.511,
+            92.531,
+            77.774,
+            91.939,
+            91.874,
+            97.435,
+            77.807,
+            1109.5,
+            111.578
+          ],
+          &quot;B&quot;: [
+            66.01,
+            195.465,
+            94.896,
+            66.425,
+            66.579,
+            65.634,
+            66.536,
+            66.506,
+            66.406,
+            97.085,
+            1060.511,
+            1110.597,
+            78.009,
+            88.342,
+            66.099,
+            94.454,
+            65.79,
+            79.738,
+            933.297,
+            65.647
+          ],
+          &quot;DSL&quot;: [
+            56.423,
+            43.308,
+            50.463,
+            37.5,
+            37.405,
+            42.964,
+            38.602,
+            38.621,
+            38.091,
+            3867.868,
+            251.477,
+            37.735,
+            37.52,
+            38.489,
+            84.563,
+            66.873,
+            38.224,
+            49.267,
+            626.022,
+            75.125
+          ]
+        },
+        &quot;binding&quot;: {
+          &quot;A&quot;: {
+            &quot;so_sha256&quot;: &quot;027878008f341eca0b29663418efc1594cc3e70a40a93e4a95f6f25b4e0a983d&quot;,
+            &quot;source_sha256&quot;: &quot;50a79c83c115c4ec2260b0cea79eaedc16a9cb7b2f33b1480c8f7b5f07a05d0f&quot;,
+            &quot;symbol&quot;: &quot;_Z22moonep_latest_kernel_aPhPiS0_S0_S0_S0_S0_S0_S0_S0_S0_S0_S0_S0_S0_S0_S0_S0_S0_S0_S0_S0_S0_S0_S0_lll&quot;
+          },
+          &quot;B&quot;: {
+            &quot;so_sha256&quot;: &quot;76ea0ff554fa1734d694f416d1c4b7364fc9ad89ab3c12268e5d3e222ca58896&quot;,
+            &quot;source_sha256&quot;: &quot;5dc492d311aee00210e68203618034b0b9133315e247e9400eec4d9a66884a63&quot;,
+            &quot;symbol&quot;: &quot;_Z22moonep_latest_kernel_bPhPiS0_S0_S0_S0_S0_S0_S0_S0_S0_S0_S0_S0_S0_S0_S0_S0_S0_S0_S0_S0_S0_S0_S0_lll&quot;
+          },
+          &quot;DSL&quot;: {
+            &quot;so_sha256&quot;: &quot;8b753f338c2e1881818a65d1cc897202a2c87487a16b4981808c32ac7f60e899&quot;,
+            &quot;symbol&quot;: &quot;_Z29kernel__PlanKernel___call___037KernelArgTensor_int32_t_1d_Device_s_sS_S_S_S_Ph&quot;,
+            &quot;reference&quot;: &quot;scalar-count-diagnostic&quot;
+          }
+        }
+      },
+      {
+        &quot;rank&quot;: 2,
+        &quot;pid&quot;: 1080986,
+        &quot;device&quot;: &quot;2&quot;,
+        &quot;medians_us&quot;: {
+          &quot;A&quot;: 100.3295,
+          &quot;B&quot;: 96.6175,
+          &quot;DSL&quot;: 51.759
+        },
+        &quot;paired&quot;: {
+          &quot;B/A&quot;: {
+            &quot;median&quot;: 1.0278164799006708,
+            &quot;range&quot;: [
+              0.08683196935771521,
+              3.0539042975951496
+            ],
+            &quot;win_fraction&quot;: 0.4
+          },
+          &quot;B/DSL&quot;: {
+            &quot;median&quot;: 2.2090877262105666,
+            &quot;range&quot;: [
+              0.025341412097212163,
+              24.571274583131682
+            ],
+            &quot;win_fraction&quot;: 0.05
+          },
+          &quot;A/DSL&quot;: {
+            &quot;median&quot;: 1.9480727227926684,
+            &quot;range&quot;: [
+              0.2918442629443889,
+              21.66872717673457
+            ],
+            &quot;win_fraction&quot;: 0.05
+          }
+        },
+        &quot;times_us&quot;: {
+          &quot;A&quot;: [
+            109.099,
+            97.636,
+            77.865,
+            85.814,
+            120.008,
+            78.038,
+            89.421,
+            100.267,
+            100.392,
+            1123.676,
+            557.359,
+            985.017,
+            101.469,
+            236.677,
+            77.324,
+            91.538,
+            106.863,
+            83.175,
+            1090.186,
+            77.625
+          ],
+          &quot;B&quot;: [
+            196.578,
+            298.171,
+            66.824,
+            120.528,
+            86.539,
+            86.502,
+            123.857,
+            157.67,
+            89.169,
+            97.571,
+            1051.505,
+            1116.961,
+            95.664,
+            94.6,
+            78.54,
+            95.191,
+            142.723,
+            83.78,
+            1074.59,
+            68.849
+          ],
+          &quot;DSL&quot;: [
+            79.671,
+            76.263,
+            50.784,
+            54.239,
+            77.971,
+            38.272,
+            44.881,
+            39.109,
+            52.734,
+            3850.259,
+            264.877,
+            45.458,
+            62.031,
+            40.114,
+            37.944,
+            72.55,
+            40.367,
+            38.151,
+            638.622,
+            38.071
+          ]
+        },
+        &quot;binding&quot;: {
+          &quot;A&quot;: {
+            &quot;so_sha256&quot;: &quot;027878008f341eca0b29663418efc1594cc3e70a40a93e4a95f6f25b4e0a983d&quot;,
+            &quot;source_sha256&quot;: &quot;50a79c83c115c4ec2260b0cea79eaedc16a9cb7b2f33b1480c8f7b5f07a05d0f&quot;,
+            &quot;symbol&quot;: &quot;_Z22moonep_latest_kernel_aPhPiS0_S0_S0_S0_S0_S0_S0_S0_S0_S0_S0_S0_S0_S0_S0_S0_S0_S0_S0_S0_S0_S0_S0_lll&quot;
+          },
+          &quot;B&quot;: {
+            &quot;so_sha256&quot;: &quot;76ea0ff554fa1734d694f416d1c4b7364fc9ad89ab3c12268e5d3e222ca58896&quot;,
+            &quot;source_sha256&quot;: &quot;5dc492d311aee00210e68203618034b0b9133315e247e9400eec4d9a66884a63&quot;,
+            &quot;symbol&quot;: &quot;_Z22moonep_latest_kernel_bPhPiS0_S0_S0_S0_S0_S0_S0_S0_S0_S0_S0_S0_S0_S0_S0_S0_S0_S0_S0_S0_S0_S0_S0_lll&quot;
+          },
+          &quot;DSL&quot;: {
+            &quot;so_sha256&quot;: &quot;89ae1277e485c88491f9cc7bd0e39bb9408b0c8082d4054700ad57cac43cef70&quot;,
+            &quot;symbol&quot;: &quot;_Z29kernel__PlanKernel___call___037KernelArgTensor_int32_t_1d_Device_s_sS_S_S_S_Ph&quot;,
+            &quot;reference&quot;: &quot;scalar-count-diagnostic&quot;
+          }
+        }
+      },
+      {
+        &quot;rank&quot;: 3,
+        &quot;pid&quot;: 1080987,
+        &quot;device&quot;: &quot;3&quot;,
+        &quot;medians_us&quot;: {
+          &quot;A&quot;: 93.58099999999999,
+          &quot;B&quot;: 84.2635,
+          &quot;DSL&quot;: 49.4735
+        },
+        &quot;paired&quot;: {
+          &quot;B/A&quot;: {
+            &quot;median&quot;: 0.8866077381111384,
+            &quot;range&quot;: [
+              0.3238484544491426,
+              13.429307191819166
+            ],
+            &quot;win_fraction&quot;: 0.55
+          },
+          &quot;B/DSL&quot;: {
+            &quot;median&quot;: 1.759329959048533,
+            &quot;range&quot;: [
+              0.7722767249609003,
+              28.506601880215484
+            ],
+            &quot;win_fraction&quot;: 0.1
+          },
+          &quot;A/DSL&quot;: {
+            &quot;median&quot;: 2.01650080431247,
+            &quot;range&quot;: [
+              0.9320069871833934,
+              23.914367900870335
+            ],
+            &quot;win_fraction&quot;: 0.05
+          }
+        },
+        &quot;times_us&quot;: {
+          &quot;A&quot;: [
+            101.238,
+            83.726,
+            100.74,
+            80.913,
+            112.242,
+            92.478,
+            94.684,
+            97.323,
+            106.198,
+            80.827,
+            80.383,
+            972.693,
+            81.338,
+            213.322,
+            91.771,
+            80.288,
+            104.06,
+            80.923,
+            80.9,
+            106.444
+          ],
+          &quot;B&quot;: [
+            194.341,
+            69.561,
+            104.377,
+            112.557,
+            81.799,
+            83.997,
+            118.237,
+            143.692,
+            84.53,
+            100.72,
+            1079.488,
+            1116.276,
+            70.159,
+            69.084,
+            76.043,
+            69.443,
+            143.701,
+            66.896,
+            67.033,
+            73.013
+          ],
+          &quot;DSL&quot;: [
+            66.067,
+            65.823,
+            51.997,
+            58.95,
+            66.47,
+            47.869,
+            40.853,
+            38.04,
+            48.212,
+            38.493,
+            37.868,
+            40.674,
+            51.862,
+            50.735,
+            98.466,
+            66.659,
+            39.719,
+            38.616,
+            38.002,
+            88.141
+          ]
+        },
+        &quot;binding&quot;: {
+          &quot;A&quot;: {
+            &quot;so_sha256&quot;: &quot;027878008f341eca0b29663418efc1594cc3e70a40a93e4a95f6f25b4e0a983d&quot;,
+            &quot;source_sha256&quot;: &quot;50a79c83c115c4ec2260b0cea79eaedc16a9cb7b2f33b1480c8f7b5f07a05d0f&quot;,
+            &quot;symbol&quot;: &quot;_Z22moonep_latest_kernel_aPhPiS0_S0_S0_S0_S0_S0_S0_S0_S0_S0_S0_S0_S0_S0_S0_S0_S0_S0_S0_S0_S0_S0_S0_lll&quot;
+          },
+          &quot;B&quot;: {
+            &quot;so_sha256&quot;: &quot;76ea0ff554fa1734d694f416d1c4b7364fc9ad89ab3c12268e5d3e222ca58896&quot;,
+            &quot;source_sha256&quot;: &quot;5dc492d311aee00210e68203618034b0b9133315e247e9400eec4d9a66884a63&quot;,
+            &quot;symbol&quot;: &quot;_Z22moonep_latest_kernel_bPhPiS0_S0_S0_S0_S0_S0_S0_S0_S0_S0_S0_S0_S0_S0_S0_S0_S0_S0_S0_S0_S0_S0_S0_lll&quot;
+          },
+          &quot;DSL&quot;: {
+            &quot;so_sha256&quot;: &quot;78922093d72b450f8b0fef2c921906901c39bbbaf281197999d85487724ad175&quot;,
+            &quot;symbol&quot;: &quot;_Z29kernel__PlanKernel___call___037KernelArgTensor_int32_t_1d_Device_s_sS_S_S_S_Ph&quot;,
+            &quot;reference&quot;: &quot;scalar-count-diagnostic&quot;
+          }
+        }
+      }
+    ],
+    &quot;median_of_rank_medians_us&quot;: {
+      &quot;A&quot;: 95.20625,
+      &quot;B&quot;: 87.1595,
+      &quot;DSL&quot;: 46.30475
+    },
+    &quot;median_paired_ratios&quot;: {
+      &quot;B/A&quot;: 0.9318466682325324,
+      &quot;B/DSL&quot;: 1.9356412732932635,
+      &quot;A/DSL&quot;: 1.9822867635525694
+    }
+  },
+  &quot;full-skewed&quot;: {
+    &quot;ranks&quot;: [
+      {
+        &quot;rank&quot;: 0,
+        &quot;pid&quot;: 1099648,
+        &quot;device&quot;: &quot;0&quot;,
+        &quot;medians_us&quot;: {
+          &quot;A&quot;: 72.168,
+          &quot;B&quot;: 55.189499999999995,
+          &quot;DSL&quot;: 69.309
+        },
+        &quot;paired&quot;: {
+          &quot;B/A&quot;: {
+            &quot;median&quot;: 0.9255006629486608,
+            &quot;range&quot;: [
+              0.035263940414495466,
+              1.3386377786078945
+            ],
+            &quot;win_fraction&quot;: 0.75
+          },
+          &quot;B/DSL&quot;: {
+            &quot;median&quot;: 0.8637969766500292,
+            &quot;range&quot;: [
+              0.06671485136069387,
+              7.571127340053487
+            ],
+            &quot;win_fraction&quot;: 0.7
+          },
+          &quot;A/DSL&quot;: {
+            &quot;median&quot;: 1.0015149265317935,
+            &quot;range&quot;: [
+              0.21488315493428525,
+              8.132483028183502
+            ],
+            &quot;win_fraction&quot;: 0.5
+          }
+        },
+        &quot;times_us&quot;: {
+          &quot;A&quot;: [
+            45.793,
+            45.619,
+            67.86,
+            1052.605,
+            637.843,
+            1165.312,
+            496.27,
+            70.648,
+            73.688,
+            82.288,
+            591.823,
+            513.837,
+            499.601,
+            474.384,
+            41.911,
+            40.155,
+            42.629,
+            68.187,
+            48.168,
+            45.956
+          ],
+          &quot;B&quot;: [
+            44.815,
+            45.304,
+            56.626,
+            37.119,
+            33.968,
+            1092.11,
+            65.145,
+            56.779,
+            67.795,
+            67.747,
+            484.316,
+            532.186,
+            451.058,
+            441.639,
+            53.537,
+            53.753,
+            45.305,
+            50.873,
+            48.13,
+            51.018
+          ],
+          &quot;DSL&quot;: [
+            65.483,
+            70.873,
+            48.577,
+            533.508,
+            509.152,
+            699.021,
+            498.219,
+            65.727,
+            73.18,
+            382.943,
+            310.131,
+            672.717,
+            258.264,
+            58.332,
+            47.511,
+            56.251,
+            67.745,
+            58.899,
+            62.986,
+            55.981
+          ]
+        },
+        &quot;binding&quot;: {
+          &quot;A&quot;: {
+            &quot;so_sha256&quot;: &quot;027878008f341eca0b29663418efc1594cc3e70a40a93e4a95f6f25b4e0a983d&quot;,
+            &quot;source_sha256&quot;: &quot;50a79c83c115c4ec2260b0cea79eaedc16a9cb7b2f33b1480c8f7b5f07a05d0f&quot;,
+            &quot;symbol&quot;: &quot;_Z22moonep_latest_kernel_aPhPiS0_S0_S0_S0_S0_S0_S0_S0_S0_S0_S0_S0_S0_S0_S0_S0_S0_S0_S0_S0_S0_S0_S0_lll&quot;
+          },
+          &quot;B&quot;: {
+            &quot;so_sha256&quot;: &quot;76ea0ff554fa1734d694f416d1c4b7364fc9ad89ab3c12268e5d3e222ca58896&quot;,
+            &quot;source_sha256&quot;: &quot;5dc492d311aee00210e68203618034b0b9133315e247e9400eec4d9a66884a63&quot;,
+            &quot;symbol&quot;: &quot;_Z22moonep_latest_kernel_bPhPiS0_S0_S0_S0_S0_S0_S0_S0_S0_S0_S0_S0_S0_S0_S0_S0_S0_S0_S0_S0_S0_S0_S0_lll&quot;
+          },
+          &quot;DSL&quot;: {
+            &quot;so_sha256&quot;: &quot;6f2c00ee1a9eebc88e79f2352d8ba1a947e10b8fa2c29e880ee431a57f5f4591&quot;,
+            &quot;symbol&quot;: &quot;_Z29kernel__PlanKernel___call___037KernelArgTensor_int32_t_1d_Device_s_sS_S_S_S_Ph&quot;,
+            &quot;reference&quot;: &quot;scalar-count-diagnostic&quot;
+          }
+        }
+      },
+      {
+        &quot;rank&quot;: 1,
+        &quot;pid&quot;: 1099649,
+        &quot;device&quot;: &quot;1&quot;,
+        &quot;medians_us&quot;: {
+          &quot;A&quot;: 32.918499999999995,
+          &quot;B&quot;: 39.565,
+          &quot;DSL&quot;: 54.035
+        },
+        &quot;paired&quot;: {
+          &quot;B/A&quot;: {
+            &quot;median&quot;: 0.9528201248788104,
+            &quot;range&quot;: [
+              0.6510548329273337,
+              2.403956319369853
+            ],
+            &quot;win_fraction&quot;: 0.7
+          },
+          &quot;B/DSL&quot;: {
+            &quot;median&quot;: 0.6991231661585173,
+            &quot;range&quot;: [
+              0.1575202995143845,
+              11.170376471098201
+            ],
+            &quot;win_fraction&quot;: 0.8
+          },
+          &quot;A/DSL&quot;: {
+            &quot;median&quot;: 0.5446120942421258,
+            &quot;range&quot;: [
+              0.16835045205213975,
+              11.312143739569562
+            ],
+            &quot;win_fraction&quot;: 0.7
+          }
+        },
+        &quot;times_us&quot;: {
+          &quot;A&quot;: [
+            31.589,
+            31.554,
+            59.993,
+            23.011,
+            22.713,
+            1147.445,
+            22.344,
+            70.449,
+            51.158,
+            59.94,
+            578.211,
+            521.931,
+            23.407,
+            23.282,
+            22.605,
+            31.231,
+            22.978,
+            65.271,
+            34.248,
+            34.343
+          ],
+          &quot;B&quot;: [
+            33.621,
+            31.497,
+            42.095,
+            28.347,
+            33.88,
+            1084.027,
+            53.714,
+            54.179,
+            39.603,
+            56.084,
+            464.343,
+            515.39,
+            22.492,
+            21.869,
+            39.628,
+            39.527,
+            22.48,
+            42.495,
+            25.444,
+            28.539
+          ],
+          &quot;DSL&quot;: [
+            80.648,
+            57.949,
+            57.416,
+            46.801,
+            46.102,
+            119.535,
+            46.384,
+            60.743,
+            55.87,
+            356.043,
+            295.779,
+            46.139,
+            45.989,
+            47.335,
+            52.135,
+            57.335,
+            45.985,
+            53.296,
+            54.774,
+            53.017
+          ]
+        },
+        &quot;binding&quot;: {
+          &quot;A&quot;: {
+            &quot;so_sha256&quot;: &quot;027878008f341eca0b29663418efc1594cc3e70a40a93e4a95f6f25b4e0a983d&quot;,
+            &quot;source_sha256&quot;: &quot;50a79c83c115c4ec2260b0cea79eaedc16a9cb7b2f33b1480c8f7b5f07a05d0f&quot;,
+            &quot;symbol&quot;: &quot;_Z22moonep_latest_kernel_aPhPiS0_S0_S0_S0_S0_S0_S0_S0_S0_S0_S0_S0_S0_S0_S0_S0_S0_S0_S0_S0_S0_S0_S0_lll&quot;
+          },
+          &quot;B&quot;: {
+            &quot;so_sha256&quot;: &quot;76ea0ff554fa1734d694f416d1c4b7364fc9ad89ab3c12268e5d3e222ca58896&quot;,
+            &quot;source_sha256&quot;: &quot;5dc492d311aee00210e68203618034b0b9133315e247e9400eec4d9a66884a63&quot;,
+            &quot;symbol&quot;: &quot;_Z22moonep_latest_kernel_bPhPiS0_S0_S0_S0_S0_S0_S0_S0_S0_S0_S0_S0_S0_S0_S0_S0_S0_S0_S0_S0_S0_S0_S0_lll&quot;
+          },
+          &quot;DSL&quot;: {
+            &quot;so_sha256&quot;: &quot;61c7e86f4c047e02d5ed88db91c73f9dacd55a9a4ef8f851024e5619e7c52b92&quot;,
+            &quot;symbol&quot;: &quot;_Z29kernel__PlanKernel___call___037KernelArgTensor_int32_t_1d_Device_s_sS_S_S_S_Ph&quot;,
+            &quot;reference&quot;: &quot;scalar-count-diagnostic&quot;
+          }
+        }
+      },
+      {
+        &quot;rank&quot;: 2,
+        &quot;pid&quot;: 1099650,
+        &quot;device&quot;: &quot;2&quot;,
+        &quot;medians_us&quot;: {
+          &quot;A&quot;: 71.1105,
+          &quot;B&quot;: 55.3655,
+          &quot;DSL&quot;: 77.452
+        },
+        &quot;paired&quot;: {
+          &quot;B/A&quot;: {
+            &quot;median&quot;: 0.9222673374741313,
+            &quot;range&quot;: [
+              0.03232092004174459,
+              1.372401043381366
+            ],
+            &quot;win_fraction&quot;: 0.7
+          },
+          &quot;B/DSL&quot;: {
+            &quot;median&quot;: 0.7169360124620237,
+            &quot;range&quot;: [
+              0.0636381877431509,
+              6.921048784053803
+            ],
+            &quot;win_fraction&quot;: 0.75
+          },
+          &quot;A/DSL&quot;: {
+            &quot;median&quot;: 0.8335440756573733,
+            &quot;range&quot;: [
+              0.1859910892770817,
+              7.3784622382507274
+            ],
+            &quot;win_fraction&quot;: 0.55
+          }
+        },
+        &quot;times_us&quot;: {
+          &quot;A&quot;: [
+            37.319,
+            28.468,
+            39.487,
+            1059.778,
+            634.002,
+            1161.395,
+            518.31,
+            81.575,
+            70.874,
+            71.176,
+            580.999,
+            524.759,
+            496.442,
+            454.196,
+            44.927,
+            47.817,
+            42.533,
+            71.045,
+            48.16,
+            37.009
+          ],
+          &quot;B&quot;: [
+            39.686,
+            34.336,
+            54.192,
+            34.253,
+            42.747,
+            1092.22,
+            59.846,
+            73.95,
+            59.673,
+            59.46,
+            488.486,
+            522.64,
+            448.972,
+            426.039,
+            48.66,
+            45.448,
+            42.98,
+            56.539,
+            40.051,
+            48.392
+          ],
+          &quot;DSL&quot;: [
+            79.199,
+            75.705,
+            65.742,
+            538.246,
+            518.388,
+            710.704,
+            508.58,
+            68.618,
+            79.674,
+            382.685,
+            309.534,
+            674.898,
+            264.902,
+            61.557,
+            60.807,
+            73.129,
+            62.753,
+            70.198,
+            71.422,
+            72.379
+          ]
+        },
+        &quot;binding&quot;: {
+          &quot;A&quot;: {
+            &quot;so_sha256&quot;: &quot;027878008f341eca0b29663418efc1594cc3e70a40a93e4a95f6f25b4e0a983d&quot;,
+            &quot;source_sha256&quot;: &quot;50a79c83c115c4ec2260b0cea79eaedc16a9cb7b2f33b1480c8f7b5f07a05d0f&quot;,
+            &quot;symbol&quot;: &quot;_Z22moonep_latest_kernel_aPhPiS0_S0_S0_S0_S0_S0_S0_S0_S0_S0_S0_S0_S0_S0_S0_S0_S0_S0_S0_S0_S0_S0_S0_lll&quot;
+          },
+          &quot;B&quot;: {
+            &quot;so_sha256&quot;: &quot;76ea0ff554fa1734d694f416d1c4b7364fc9ad89ab3c12268e5d3e222ca58896&quot;,
+            &quot;source_sha256&quot;: &quot;5dc492d311aee00210e68203618034b0b9133315e247e9400eec4d9a66884a63&quot;,
+            &quot;symbol&quot;: &quot;_Z22moonep_latest_kernel_bPhPiS0_S0_S0_S0_S0_S0_S0_S0_S0_S0_S0_S0_S0_S0_S0_S0_S0_S0_S0_S0_S0_S0_S0_lll&quot;
+          },
+          &quot;DSL&quot;: {
+            &quot;so_sha256&quot;: &quot;5661676de55bf8285336148b1be0139916ea0118aad7eaa5020403861755b394&quot;,
+            &quot;symbol&quot;: &quot;_Z29kernel__PlanKernel___call___037KernelArgTensor_int32_t_1d_Device_s_sS_S_S_S_Ph&quot;,
+            &quot;reference&quot;: &quot;scalar-count-diagnostic&quot;
+          }
+        }
+      },
+      {
+        &quot;rank&quot;: 3,
+        &quot;pid&quot;: 1099651,
+        &quot;device&quot;: &quot;3&quot;,
+        &quot;medians_us&quot;: {
+          &quot;A&quot;: 23.9565,
+          &quot;B&quot;: 22.4325,
+          &quot;DSL&quot;: 47.2375
+        },
+        &quot;paired&quot;: {
+          &quot;B/A&quot;: {
+            &quot;median&quot;: 0.9641095307216413,
+            &quot;range&quot;: [
+              0.02144333571943987,
+              1.127980095001131
+            ],
+            &quot;win_fraction&quot;: 0.75
+          },
+          &quot;B/DSL&quot;: {
+            &quot;median&quot;: 0.4769036258292819,
+            &quot;range&quot;: [
+              0.04326256628972792,
+              8.930130729908656
+            ],
+            &quot;win_fraction&quot;: 0.9
+          },
+          &quot;A/DSL&quot;: {
+            &quot;median&quot;: 0.5113620392202621,
+            &quot;range&quot;: [
+              0.053161195892345296,
+              9.549924578898851
+            ],
+            &quot;win_fraction&quot;: 0.8
+          }
+        },
+        &quot;times_us&quot;: {
+          &quot;A&quot;: [
+            25.509,
+            22.383,
+            22.038,
+            1043.541,
+            607.77,
+            22.993,
+            475.182,
+            24.757,
+            25.522,
+            22.916,
+            22.105,
+            22.664,
+            476.134,
+            455.837,
+            22.401,
+            22.556,
+            28.497,
+            22.58,
+            23.156,
+            25.575
+          ],
+          &quot;B&quot;: [
+            21.767,
+            22.44,
+            22.335,
+            22.377,
+            24.948,
+            21.944,
+            22.152,
+            22.638,
+            22.247,
+            24.817,
+            24.934,
+            22.193,
+            438.209,
+            426.253,
+            22.695,
+            22.425,
+            28.214,
+            22.083,
+            22.012,
+            24.906
+          ],
+          &quot;DSL&quot;: [
+            47.027,
+            47.719,
+            46.747,
+            517.237,
+            509.325,
+            47.211,
+            477.153,
+            46.764,
+            46.639,
+            47.113,
+            46.569,
+            426.326,
+            246.759,
+            47.732,
+            47.264,
+            47.032,
+            50.615,
+            47.35,
+            46.939,
+            47.055
+          ]
+        },
+        &quot;binding&quot;: {
+          &quot;A&quot;: {
+            &quot;so_sha256&quot;: &quot;027878008f341eca0b29663418efc1594cc3e70a40a93e4a95f6f25b4e0a983d&quot;,
+            &quot;source_sha256&quot;: &quot;50a79c83c115c4ec2260b0cea79eaedc16a9cb7b2f33b1480c8f7b5f07a05d0f&quot;,
+            &quot;symbol&quot;: &quot;_Z22moonep_latest_kernel_aPhPiS0_S0_S0_S0_S0_S0_S0_S0_S0_S0_S0_S0_S0_S0_S0_S0_S0_S0_S0_S0_S0_S0_S0_lll&quot;
+          },
+          &quot;B&quot;: {
+            &quot;so_sha256&quot;: &quot;76ea0ff554fa1734d694f416d1c4b7364fc9ad89ab3c12268e5d3e222ca58896&quot;,
+            &quot;source_sha256&quot;: &quot;5dc492d311aee00210e68203618034b0b9133315e247e9400eec4d9a66884a63&quot;,
+            &quot;symbol&quot;: &quot;_Z22moonep_latest_kernel_bPhPiS0_S0_S0_S0_S0_S0_S0_S0_S0_S0_S0_S0_S0_S0_S0_S0_S0_S0_S0_S0_S0_S0_S0_lll&quot;
+          },
+          &quot;DSL&quot;: {
+            &quot;so_sha256&quot;: &quot;dc6d91a89705883944a92179706bfba7679c959974327e435db5e4aedb63f5a0&quot;,
+            &quot;symbol&quot;: &quot;_Z29kernel__PlanKernel___call___037KernelArgTensor_int32_t_1d_Device_s_sS_S_S_S_Ph&quot;,
+            &quot;reference&quot;: &quot;scalar-count-diagnostic&quot;
+          }
+        }
+      }
+    ],
+    &quot;median_of_rank_medians_us&quot;: {
+      &quot;A&quot;: 52.0145,
+      &quot;B&quot;: 47.37725,
+      &quot;DSL&quot;: 61.672
+    },
+    &quot;median_paired_ratios&quot;: {
+      &quot;B/A&quot;: 0.9391603939137356,
+      &quot;B/DSL&quot;: 0.7080295893102705,
+      &quot;A/DSL&quot;: 0.6890780849497495
+    }
+  },
+  &quot;full-extreme&quot;: {
+    &quot;ranks&quot;: [
+      {
+        &quot;rank&quot;: 0,
+        &quot;pid&quot;: 1117523,
+        &quot;device&quot;: &quot;0&quot;,
+        &quot;medians_us&quot;: {
+          &quot;A&quot;: 48.3835,
+          &quot;B&quot;: 45.272499999999994,
+          &quot;DSL&quot;: 64.359
+        },
+        &quot;paired&quot;: {
+          &quot;B/A&quot;: {
+            &quot;median&quot;: 0.9280877364732818,
+            &quot;range&quot;: [
+              0.2609617954646698,
+              7.09067482686423
+            ],
+            &quot;win_fraction&quot;: 0.65
+          },
+          &quot;B/DSL&quot;: {
+            &quot;median&quot;: 0.705328502727428,
+            &quot;range&quot;: [
+              0.07575650855621072,
+              4.103266694626964
+            ],
+            &quot;win_fraction&quot;: 0.65
+          },
+          &quot;A/DSL&quot;: {
+            &quot;median&quot;: 0.8452500714441951,
+            &quot;range&quot;: [
+              0.07680297572330334,
+              2.5411568109535874
+            ],
+            &quot;win_fraction&quot;: 0.65
+          }
+        },
+        &quot;times_us&quot;: {
+          &quot;A&quot;: [
+            48.754,
+            26.097,
+            48.079,
+            37.223,
+            36.982,
+            52.034,
+            48.155,
+            967.247,
+            48.397,
+            40.272,
+            42.582,
+            48.37,
+            1016.176,
+            37.254,
+            53.784,
+            57.202,
+            141.423,
+            45.797,
+            1029.536,
+            530.957
+          ],
+          &quot;B&quot;: [
+            33.81,
+            36.915,
+            45.584,
+            33.948,
+            51.148,
+            33.641,
+            44.945,
+            1073.018,
+            34.166,
+            45.291,
+            62.18,
+            42.589,
+            937.763,
+            264.156,
+            53.834,
+            45.254,
+            36.906,
+            45.173,
+            715.218,
+            467.929
+          ],
+          &quot;DSL&quot;: [
+            64.341,
+            56.094,
+            103.65,
+            72.669,
+            78.023,
+            53.956,
+            101.016,
+            545.305,
+            46.567,
+            57.259,
+            46.202,
+            62.912,
+            659.698,
+            64.377,
+            49.96,
+            60.752,
+            55.653,
+            596.292,
+            506.528,
+            289.734
+          ]
+        },
+        &quot;binding&quot;: {
+          &quot;A&quot;: {
+            &quot;so_sha256&quot;: &quot;027878008f341eca0b29663418efc1594cc3e70a40a93e4a95f6f25b4e0a983d&quot;,
+            &quot;source_sha256&quot;: &quot;50a79c83c115c4ec2260b0cea79eaedc16a9cb7b2f33b1480c8f7b5f07a05d0f&quot;,
+            &quot;symbol&quot;: &quot;_Z22moonep_latest_kernel_aPhPiS0_S0_S0_S0_S0_S0_S0_S0_S0_S0_S0_S0_S0_S0_S0_S0_S0_S0_S0_S0_S0_S0_S0_lll&quot;
+          },
+          &quot;B&quot;: {
+            &quot;so_sha256&quot;: &quot;76ea0ff554fa1734d694f416d1c4b7364fc9ad89ab3c12268e5d3e222ca58896&quot;,
+            &quot;source_sha256&quot;: &quot;5dc492d311aee00210e68203618034b0b9133315e247e9400eec4d9a66884a63&quot;,
+            &quot;symbol&quot;: &quot;_Z22moonep_latest_kernel_bPhPiS0_S0_S0_S0_S0_S0_S0_S0_S0_S0_S0_S0_S0_S0_S0_S0_S0_S0_S0_S0_S0_S0_S0_lll&quot;
+          },
+          &quot;DSL&quot;: {
+            &quot;so_sha256&quot;: &quot;36cf2a20a5753ae8d3ec2b971f4f99164ebc45e944482d9f856e6cecbd252aca&quot;,
+            &quot;symbol&quot;: &quot;_Z29kernel__PlanKernel___call___037KernelArgTensor_int32_t_1d_Device_s_sS_S_S_S_Ph&quot;,
+            &quot;reference&quot;: &quot;scalar-count-diagnostic&quot;
+          }
+        }
+      },
+      {
+        &quot;rank&quot;: 1,
+        &quot;pid&quot;: 1117524,
+        &quot;device&quot;: &quot;1&quot;,
+        &quot;medians_us&quot;: {
+          &quot;A&quot;: 38.303,
+          &quot;B&quot;: 35.308,
+          &quot;DSL&quot;: 52.3585
+        },
+        &quot;paired&quot;: {
+          &quot;B/A&quot;: {
+            &quot;median&quot;: 0.9172767776470976,
+            &quot;range&quot;: [
+              0.6316695352839932,
+              6.545134585832549
+            ],
+            &quot;win_fraction&quot;: 0.6
+          },
+          &quot;B/DSL&quot;: {
+            &quot;median&quot;: 0.6081308557580225,
+            &quot;range&quot;: [
+              0.058638914994697415,
+              5.192708538168089
+            ],
+            &quot;win_fraction&quot;: 0.7
+          },
+          &quot;A/DSL&quot;: {
+            &quot;median&quot;: 0.7662317361902047,
+            &quot;range&quot;: [
+              0.05474344935808451,
+              2.540598467591634
+            ],
+            &quot;win_fraction&quot;: 0.8
+          }
+        },
+        &quot;times_us&quot;: {
+          &quot;A&quot;: [
+            34.681,
+            22.778,
+            22.828,
+            22.315,
+            31.761,
+            39.717,
+            36.626,
+            955.697,
+            36.889,
+            39.752,
+            22.75,
+            40.089,
+            1004.105,
+            40.346,
+            42.611,
+            43.14,
+            23.113,
+            31.746,
+            1009.435,
+            490.742
+          ],
+          &quot;B&quot;: [
+            28.169,
+            22.42,
+            36.6,
+            28.254,
+            39.927,
+            28.005,
+            31.633,
+            1065.127,
+            28.06,
+            34.016,
+            61.834,
+            25.323,
+            926.383,
+            264.07,
+            37.185,
+            28.247,
+            42.746,
+            34.005,
+            683.896,
+            447.536
+          ],
+          &quot;DSL&quot;: [
+            46.78,
+            47.03,
+            83.483,
+            46.825,
+            65.148,
+            47.625,
+            84.015,
+            534.088,
+            50.288,
+            46.288,
+            59.594,
+            46.52,
+            641.587,
+            50.854,
+            53.863,
+            47.177,
+            49.166,
+            579.905,
+            498.406,
+            193.16
+          ]
+        },
+        &quot;binding&quot;: {
+          &quot;A&quot;: {
+            &quot;so_sha256&quot;: &quot;027878008f341eca0b29663418efc1594cc3e70a40a93e4a95f6f25b4e0a983d&quot;,
+            &quot;source_sha256&quot;: &quot;50a79c83c115c4ec2260b0cea79eaedc16a9cb7b2f33b1480c8f7b5f07a05d0f&quot;,
+            &quot;symbol&quot;: &quot;_Z22moonep_latest_kernel_aPhPiS0_S0_S0_S0_S0_S0_S0_S0_S0_S0_S0_S0_S0_S0_S0_S0_S0_S0_S0_S0_S0_S0_S0_lll&quot;
+          },
+          &quot;B&quot;: {
+            &quot;so_sha256&quot;: &quot;76ea0ff554fa1734d694f416d1c4b7364fc9ad89ab3c12268e5d3e222ca58896&quot;,
+            &quot;source_sha256&quot;: &quot;5dc492d311aee00210e68203618034b0b9133315e247e9400eec4d9a66884a63&quot;,
+            &quot;symbol&quot;: &quot;_Z22moonep_latest_kernel_bPhPiS0_S0_S0_S0_S0_S0_S0_S0_S0_S0_S0_S0_S0_S0_S0_S0_S0_S0_S0_S0_S0_S0_S0_lll&quot;
+          },
+          &quot;DSL&quot;: {
+            &quot;so_sha256&quot;: &quot;0bfb98645b507d8f678ac5ce34e7fe8b06a1136612f4b5121315afcf326afcd3&quot;,
+            &quot;symbol&quot;: &quot;_Z29kernel__PlanKernel___call___037KernelArgTensor_int32_t_1d_Device_s_sS_S_S_S_Ph&quot;,
+            &quot;reference&quot;: &quot;scalar-count-diagnostic&quot;
+          }
+        }
+      },
+      {
+        &quot;rank&quot;: 2,
+        &quot;pid&quot;: 1117525,
+        &quot;device&quot;: &quot;2&quot;,
+        &quot;medians_us&quot;: {
+          &quot;A&quot;: 22.901,
+          &quot;B&quot;: 22.5835,
+          &quot;DSL&quot;: 47.367
+        },
+        &quot;paired&quot;: {
+          &quot;B/A&quot;: {
+            &quot;median&quot;: 0.9858629131072476,
+            &quot;range&quot;: [
+              0.17470808718051548,
+              1.089328725520997
+            ],
+            &quot;win_fraction&quot;: 0.75
+          },
+          &quot;B/DSL&quot;: {
+            &quot;median&quot;: 0.4727664132682566,
+            &quot;range&quot;: [
+              0.22932235011061383,
+              0.6664608571611063
+            ],
+            &quot;win_fraction&quot;: 1.0
+          },
+          &quot;A/DSL&quot;: {
+            &quot;median&quot;: 0.48248510347137424,
+            &quot;range&quot;: [
+              0.25118760909432375,
+              2.7690763481046448
+            ],
+            &quot;win_fraction&quot;: 0.95
+          }
+        },
+        &quot;times_us&quot;: {
+          &quot;A&quot;: [
+            28.647,
+            31.506,
+            31.579,
+            25.626,
+            22.44,
+            22.907,
+            22.737,
+            22.34,
+            22.895,
+            34.0,
+            22.853,
+            22.682,
+            23.486,
+            22.876,
+            31.408,
+            22.575,
+            129.662,
+            30.876,
+            22.26,
+            22.84
+          ],
+          &quot;B&quot;: [
+            31.206,
+            22.41,
+            22.494,
+            22.59,
+            22.426,
+            22.295,
+            23.079,
+            22.697,
+            22.696,
+            22.437,
+            22.47,
+            22.462,
+            22.726,
+            22.01,
+            31.303,
+            22.638,
+            22.653,
+            25.728,
+            22.389,
+            22.577
+          ],
+          &quot;DSL&quot;: [
+            79.973,
+            52.822,
+            98.089,
+            61.815,
+            73.299,
+            48.144,
+            90.518,
+            47.03,
+            46.719,
+            51.634,
+            46.444,
+            55.195,
+            46.368,
+            47.318,
+            46.969,
+            46.883,
+            46.825,
+            47.416,
+            46.545,
+            46.998
+          ]
+        },
+        &quot;binding&quot;: {
+          &quot;A&quot;: {
+            &quot;so_sha256&quot;: &quot;027878008f341eca0b29663418efc1594cc3e70a40a93e4a95f6f25b4e0a983d&quot;,
+            &quot;source_sha256&quot;: &quot;50a79c83c115c4ec2260b0cea79eaedc16a9cb7b2f33b1480c8f7b5f07a05d0f&quot;,
+            &quot;symbol&quot;: &quot;_Z22moonep_latest_kernel_aPhPiS0_S0_S0_S0_S0_S0_S0_S0_S0_S0_S0_S0_S0_S0_S0_S0_S0_S0_S0_S0_S0_S0_S0_lll&quot;
+          },
+          &quot;B&quot;: {
+            &quot;so_sha256&quot;: &quot;76ea0ff554fa1734d694f416d1c4b7364fc9ad89ab3c12268e5d3e222ca58896&quot;,
+            &quot;source_sha256&quot;: &quot;5dc492d311aee00210e68203618034b0b9133315e247e9400eec4d9a66884a63&quot;,
+            &quot;symbol&quot;: &quot;_Z22moonep_latest_kernel_bPhPiS0_S0_S0_S0_S0_S0_S0_S0_S0_S0_S0_S0_S0_S0_S0_S0_S0_S0_S0_S0_S0_S0_S0_lll&quot;
+          },
+          &quot;DSL&quot;: {
+            &quot;so_sha256&quot;: &quot;c6ad70bf46d313e15cbe492e833d7798a3a7775c33642ebb5e56b6ce05a5f132&quot;,
+            &quot;symbol&quot;: &quot;_Z29kernel__PlanKernel___call___037KernelArgTensor_int32_t_1d_Device_s_sS_S_S_S_Ph&quot;,
+            &quot;reference&quot;: &quot;scalar-count-diagnostic&quot;
+          }
+        }
+      },
+      {
+        &quot;rank&quot;: 3,
+        &quot;pid&quot;: 1117526,
+        &quot;device&quot;: &quot;3&quot;,
+        &quot;medians_us&quot;: {
+          &quot;A&quot;: 34.0605,
+          &quot;B&quot;: 29.786,
+          &quot;DSL&quot;: 49.4285
+        },
+        &quot;paired&quot;: {
+          &quot;B/A&quot;: {
+            &quot;median&quot;: 0.9586666443977974,
+            &quot;range&quot;: [
+              0.21819020527408317,
+              9.356762287851522
+            ],
+            &quot;win_fraction&quot;: 0.6
+          },
+          &quot;B/DSL&quot;: {
+            &quot;median&quot;: 0.6108757025380926,
+            &quot;range&quot;: [
+              0.03845075775162805,
+              4.962107744989802
+            ],
+            &quot;win_fraction&quot;: 0.75
+          },
+          &quot;A/DSL&quot;: {
+            &quot;median&quot;: 0.6544726379242689,
+            &quot;range&quot;: [
+              0.03855737434288928,
+              3.5821328700957547
+            ],
+            &quot;win_fraction&quot;: 0.75
+          }
+        },
+        &quot;times_us&quot;: {
+          &quot;A&quot;: [
+            22.938,
+            28.47,
+            31.777,
+            25.602,
+            28.749,
+            34.628,
+            44.853,
+            955.562,
+            40.155,
+            23.223,
+            34.135,
+            33.986,
+            985.26,
+            28.341,
+            22.665,
+            37.308,
+            169.091,
+            22.422,
+            1021.03,
+            515.249
+          ],
+          &quot;B&quot;: [
+            24.794,
+            30.919,
+            39.235,
+            22.651,
+            25.015,
+            33.607,
+            22.922,
+            1048.713,
+            24.961,
+            24.908,
+            56.085,
+            28.653,
+            932.862,
+            265.18,
+            25.026,
+            28.022,
+            36.894,
+            22.36,
+            714.725,
+            463.668
+          ],
+          &quot;DSL&quot;: [
+            71.893,
+            48.603,
+            47.319,
+            48.621,
+            47.734,
+            46.912,
+            46.703,
+            526.797,
+            46.931,
+            47.836,
+            61.293,
+            53.32,
+            641.139,
+            53.441,
+            50.236,
+            47.852,
+            47.204,
+            581.523,
+            492.787,
+            263.164
+          ]
+        },
+        &quot;binding&quot;: {
+          &quot;A&quot;: {
+            &quot;so_sha256&quot;: &quot;027878008f341eca0b29663418efc1594cc3e70a40a93e4a95f6f25b4e0a983d&quot;,
+            &quot;source_sha256&quot;: &quot;50a79c83c115c4ec2260b0cea79eaedc16a9cb7b2f33b1480c8f7b5f07a05d0f&quot;,
+            &quot;symbol&quot;: &quot;_Z22moonep_latest_kernel_aPhPiS0_S0_S0_S0_S0_S0_S0_S0_S0_S0_S0_S0_S0_S0_S0_S0_S0_S0_S0_S0_S0_S0_S0_lll&quot;
+          },
+          &quot;B&quot;: {
+            &quot;so_sha256&quot;: &quot;76ea0ff554fa1734d694f416d1c4b7364fc9ad89ab3c12268e5d3e222ca58896&quot;,
+            &quot;source_sha256&quot;: &quot;5dc492d311aee00210e68203618034b0b9133315e247e9400eec4d9a66884a63&quot;,
+            &quot;symbol&quot;: &quot;_Z22moonep_latest_kernel_bPhPiS0_S0_S0_S0_S0_S0_S0_S0_S0_S0_S0_S0_S0_S0_S0_S0_S0_S0_S0_S0_S0_S0_S0_lll&quot;
+          },
+          &quot;DSL&quot;: {
+            &quot;so_sha256&quot;: &quot;2cd2835b0ad5ea917e5b52a78db65fb9c795f84315d402898486d722b9a33d5a&quot;,
+            &quot;symbol&quot;: &quot;_Z29kernel__PlanKernel___call___037KernelArgTensor_int32_t_1d_Device_s_sS_S_S_S_Ph&quot;,
+            &quot;reference&quot;: &quot;scalar-count-diagnostic&quot;
+          }
+        }
+      }
+    ],
+    &quot;median_of_rank_medians_us&quot;: {
+      &quot;A&quot;: 36.181749999999994,
+      &quot;B&quot;: 32.547,
+      &quot;DSL&quot;: 50.8935
+    },
+    &quot;median_paired_ratios&quot;: {
+      &quot;B/A&quot;: 0.9433771904355396,
+      &quot;B/DSL&quot;: 0.6095032791480576,
+      &quot;A/DSL&quot;: 0.7103521870572368
+    }
+  },
+  &quot;compute-balanced&quot;: {
+    &quot;ranks&quot;: [
+      {
+        &quot;rank&quot;: 0,
+        &quot;pid&quot;: 1130560,
+        &quot;device&quot;: &quot;0&quot;,
+        &quot;medians_us&quot;: {
+          &quot;A&quot;: 69.571,
+          &quot;B&quot;: 56.994,
+          &quot;DSL&quot;: 25.948999999999998
+        },
+        &quot;paired&quot;: {
+          &quot;B/A&quot;: {
+            &quot;median&quot;: 0.82101891349878,
+            &quot;range&quot;: [
+              0.8019646477626432,
+              0.8332681924118064
+            ],
+            &quot;win_fraction&quot;: 1.0
+          },
+          &quot;B/DSL&quot;: {
+            &quot;median&quot;: 2.201071195372543,
+            &quot;range&quot;: [
+              2.131902761104442,
+              2.2541166347244497
+            ],
+            &quot;win_fraction&quot;: 0.0
+          },
+          &quot;A/DSL&quot;: {
+            &quot;median&quot;: 2.6824153142513065,
+            &quot;range&quot;: [
+              2.6200181159420293,
+              2.731368880573745
+            ],
+            &quot;win_fraction&quot;: 0.0
+          }
+        },
+        &quot;times_us&quot;: {
+          &quot;A&quot;: [
+            69.947,
+            69.42,
+            69.706,
+            70.279,
+            69.081,
+            68.985,
+            69.287,
+            69.499,
+            69.466,
+            70.323,
+            69.643,
+            69.824,
+            69.353,
+            69.481,
+            69.319,
+            68.985,
+            70.076,
+            69.929,
+            70.002,
+            70.038
+          ],
+          &quot;B&quot;: [
+            57.539,
+            56.758,
+            57.448,
+            56.891,
+            57.563,
+            56.936,
+            57.445,
+            57.631,
+            57.394,
+            56.561,
+            57.156,
+            56.576,
+            57.41,
+            56.762,
+            57.013,
+            56.66,
+            56.975,
+            56.828,
+            57.168,
+            56.168
+          ],
+          &quot;DSL&quot;: [
+            25.989,
+            26.496,
+            25.881,
+            25.998,
+            25.886,
+            25.951,
+            26.034,
+            25.567,
+            25.722,
+            26.108,
+            25.674,
+            26.167,
+            26.051,
+            26.013,
+            25.934,
+            25.804,
+            25.656,
+            26.656,
+            25.923,
+            25.947
+          ]
+        },
+        &quot;binding&quot;: {
+          &quot;A&quot;: {
+            &quot;so_sha256&quot;: &quot;1b87553b293c517a13628a6064f98bd8400530919f63dbabd079ef6ca7044b6f&quot;,
+            &quot;source_sha256&quot;: &quot;9738f36d63a85d6397b6c4f8a6ee7eee0191fb3434dfe2e8a4bdbe7c1b56ef53&quot;,
+            &quot;symbol&quot;: &quot;_Z28moonep_local_latest_kernel_alPiS_S_S_S_S_S_S_S_S_S_S_S_S_S_S_S_S_S_S_S_S_S_S_lll&quot;
+          },
+          &quot;B&quot;: {
+            &quot;so_sha256&quot;: &quot;3b1748785282a5258ae519641f8493e48c7b6369f5a4dd0f7941adddebc5f420&quot;,
+            &quot;source_sha256&quot;: &quot;21e362a2b20a29ddf97999559b4ec32c10e56f77ca89b3b2b47f23e32d92baeb&quot;,
+            &quot;symbol&quot;: &quot;_Z28moonep_local_latest_kernel_blPiS_S_S_S_S_S_S_S_S_S_S_S_S_S_S_S_S_S_S_S_S_S_S_lll&quot;
+          },
+          &quot;DSL&quot;: {
+            &quot;so_sha256&quot;: &quot;ba1ce01a4607999b6d0995011f17197f37fbb4c8c8f60a3f859d1dd564ce82d2&quot;,
+            &quot;symbol&quot;: &quot;_Z29kernel__PlanKernel___call___037KernelArgTensor_int32_t_1d_Device_s_sS_S_S_S_Ph&quot;,
+            &quot;reference&quot;: &quot;scalar-count-diagnostic&quot;
+          }
+        }
+      },
+      {
+        &quot;rank&quot;: 1,
+        &quot;pid&quot;: 1130561,
+        &quot;device&quot;: &quot;1&quot;,
+        &quot;medians_us&quot;: {
+          &quot;A&quot;: 68.8655,
+          &quot;B&quot;: 57.344,
+          &quot;DSL&quot;: 25.677500000000002
+        },
+        &quot;paired&quot;: {
+          &quot;B/A&quot;: {
+            &quot;median&quot;: 0.8324184981072444,
+            &quot;range&quot;: [
+              0.8187985193933546,
+              0.8536036036036037
+            ],
+            &quot;win_fraction&quot;: 1.0
+          },
+          &quot;B/DSL&quot;: {
+            &quot;median&quot;: 2.240687918045441,
+            &quot;range&quot;: [
+              2.144030750678324,
+              2.3005371672327986
+            ],
+            &quot;win_fraction&quot;: 0.0
+          },
+          &quot;A/DSL&quot;: {
+            &quot;median&quot;: 2.6784489360908577,
+            &quot;range&quot;: [
+              2.5992236961109434,
+              2.7275851173078443
+            ],
+            &quot;win_fraction&quot;: 0.0
+          }
+        },
+        &quot;times_us&quot;: {
+          &quot;A&quot;: [
+            68.852,
+            68.973,
+            69.057,
+            68.522,
+            67.932,
+            69.365,
+            68.816,
+            68.442,
+            68.971,
+            69.461,
+            68.387,
+            69.431,
+            68.737,
+            68.591,
+            68.59,
+            68.559,
+            69.019,
+            69.218,
+            68.879,
+            69.677
+          ],
+          &quot;B&quot;: [
+            57.917,
+            56.894,
+            58.245,
+            56.825,
+            57.987,
+            57.221,
+            57.454,
+            58.282,
+            57.186,
+            57.386,
+            57.753,
+            56.85,
+            57.931,
+            56.96,
+            57.232,
+            57.32,
+            57.227,
+            57.125,
+            57.828,
+            57.368
+          ],
+          &quot;DSL&quot;: [
+            25.841,
+            26.536,
+            25.318,
+            26.202,
+            25.88,
+            25.546,
+            25.648,
+            25.85,
+            25.338,
+            25.61,
+            25.367,
+            26.056,
+            25.717,
+            25.872,
+            25.53,
+            25.641,
+            25.38,
+            26.276,
+            25.565,
+            25.707
+          ]
+        },
+        &quot;binding&quot;: {
+          &quot;A&quot;: {
+            &quot;so_sha256&quot;: &quot;1b87553b293c517a13628a6064f98bd8400530919f63dbabd079ef6ca7044b6f&quot;,
+            &quot;source_sha256&quot;: &quot;9738f36d63a85d6397b6c4f8a6ee7eee0191fb3434dfe2e8a4bdbe7c1b56ef53&quot;,
+            &quot;symbol&quot;: &quot;_Z28moonep_local_latest_kernel_alPiS_S_S_S_S_S_S_S_S_S_S_S_S_S_S_S_S_S_S_S_S_S_S_lll&quot;
+          },
+          &quot;B&quot;: {
+            &quot;so_sha256&quot;: &quot;3b1748785282a5258ae519641f8493e48c7b6369f5a4dd0f7941adddebc5f420&quot;,
+            &quot;source_sha256&quot;: &quot;21e362a2b20a29ddf97999559b4ec32c10e56f77ca89b3b2b47f23e32d92baeb&quot;,
+            &quot;symbol&quot;: &quot;_Z28moonep_local_latest_kernel_blPiS_S_S_S_S_S_S_S_S_S_S_S_S_S_S_S_S_S_S_S_S_S_S_lll&quot;
+          },
+          &quot;DSL&quot;: {
+            &quot;so_sha256&quot;: &quot;55b9a0f8dee020c88f7ec76b99792e47e812417d32dc3587049fbcde15126fcc&quot;,
+            &quot;symbol&quot;: &quot;_Z29kernel__PlanKernel___call___037KernelArgTensor_int32_t_1d_Device_s_sS_S_S_S_Ph&quot;,
+            &quot;reference&quot;: &quot;scalar-count-diagnostic&quot;
+          }
+        }
+      },
+      {
+        &quot;rank&quot;: 2,
+        &quot;pid&quot;: 1130562,
+        &quot;device&quot;: &quot;2&quot;,
+        &quot;medians_us&quot;: {
+          &quot;A&quot;: 69.458,
+          &quot;B&quot;: 57.522000000000006,
+          &quot;DSL&quot;: 26.0485
+        },
+        &quot;paired&quot;: {
+          &quot;B/A&quot;: {
+            &quot;median&quot;: 0.8276607014199717,
+            &quot;range&quot;: [
+              0.8142417959533853,
+              0.8478430691780227
+            ],
+            &quot;win_fraction&quot;: 1.0
+          },
+          &quot;B/DSL&quot;: {
+            &quot;median&quot;: 2.2232993215499954,
+            &quot;range&quot;: [
+              2.1326526796065672,
+              2.2722578626193086
+            ],
+            &quot;win_fraction&quot;: 0.0
+          },
+          &quot;A/DSL&quot;: {
+            &quot;median&quot;: 2.6646140633148723,
+            &quot;range&quot;: [
+              2.6076517446426566,
+              2.7383038648098887
+            ],
+            &quot;win_fraction&quot;: 0.0
+          }
+        },
+        &quot;times_us&quot;: {
+          &quot;A&quot;: [
+            69.731,
+            69.726,
+            69.126,
+            69.475,
+            68.792,
+            68.873,
+            69.512,
+            69.386,
+            69.487,
+            69.16,
+            69.176,
+            69.639,
+            69.309,
+            69.497,
+            69.303,
+            68.787,
+            69.783,
+            69.441,
+            70.002,
+            69.935
+          ],
+          &quot;B&quot;: [
+            57.439,
+            57.025,
+            58.608,
+            57.028,
+            58.32,
+            57.644,
+            57.505,
+            57.959,
+            57.539,
+            57.101,
+            57.874,
+            56.773,
+            58.242,
+            56.957,
+            58.099,
+            57.956,
+            57.393,
+            57.124,
+            58.088,
+            56.944
+          ],
+          &quot;DSL&quot;: [
+            26.064,
+            26.739,
+            26.142,
+            26.08,
+            26.071,
+            26.17,
+            25.706,
+            26.033,
+            25.75,
+            25.919,
+            25.529,
+            26.6,
+            25.682,
+            26.276,
+            25.706,
+            25.975,
+            25.85,
+            26.561,
+            25.564,
+            26.421
+          ]
+        },
+        &quot;binding&quot;: {
+          &quot;A&quot;: {
+            &quot;so_sha256&quot;: &quot;1b87553b293c517a13628a6064f98bd8400530919f63dbabd079ef6ca7044b6f&quot;,
+            &quot;source_sha256&quot;: &quot;9738f36d63a85d6397b6c4f8a6ee7eee0191fb3434dfe2e8a4bdbe7c1b56ef53&quot;,
+            &quot;symbol&quot;: &quot;_Z28moonep_local_latest_kernel_alPiS_S_S_S_S_S_S_S_S_S_S_S_S_S_S_S_S_S_S_S_S_S_S_lll&quot;
+          },
+          &quot;B&quot;: {
+            &quot;so_sha256&quot;: &quot;3b1748785282a5258ae519641f8493e48c7b6369f5a4dd0f7941adddebc5f420&quot;,
+            &quot;source_sha256&quot;: &quot;21e362a2b20a29ddf97999559b4ec32c10e56f77ca89b3b2b47f23e32d92baeb&quot;,
+            &quot;symbol&quot;: &quot;_Z28moonep_local_latest_kernel_blPiS_S_S_S_S_S_S_S_S_S_S_S_S_S_S_S_S_S_S_S_S_S_S_lll&quot;
+          },
+          &quot;DSL&quot;: {
+            &quot;so_sha256&quot;: &quot;bcb59778afb94757a114d635aa8dd2615dc1e9c363baf17a878cc482a61d8f12&quot;,
+            &quot;symbol&quot;: &quot;_Z29kernel__PlanKernel___call___037KernelArgTensor_int32_t_1d_Device_s_sS_S_S_S_Ph&quot;,
+            &quot;reference&quot;: &quot;scalar-count-diagnostic&quot;
+          }
+        }
+      },
+      {
+        &quot;rank&quot;: 3,
+        &quot;pid&quot;: 1130563,
+        &quot;device&quot;: &quot;3&quot;,
+        &quot;medians_us&quot;: {
+          &quot;A&quot;: 72.52,
+          &quot;B&quot;: 58.442499999999995,
+          &quot;DSL&quot;: 26.478499999999997
+        },
+        &quot;paired&quot;: {
+          &quot;B/A&quot;: {
+            &quot;median&quot;: 0.8058585181800471,
+            &quot;range&quot;: [
+              0.7928596919867131,
+              0.827378293881197
+            ],
+            &quot;win_fraction&quot;: 1.0
+          },
+          &quot;B/DSL&quot;: {
+            &quot;median&quot;: 2.208914418298557,
+            &quot;range&quot;: [
+              2.1535982814178305,
+              2.2848663552117636
+            ],
+            &quot;win_fraction&quot;: 0.0
+          },
+          &quot;A/DSL&quot;: {
+            &quot;median&quot;: 2.7467879878113006,
+            &quot;range&quot;: [
+              2.6777872403450957,
+              2.8263923927809045
+            ],
+            &quot;win_fraction&quot;: 0.0
+          }
+        },
+        &quot;times_us&quot;: {
+          &quot;A&quot;: [
+            72.712,
+            72.911,
+            72.46,
+            72.676,
+            71.648,
+            72.193,
+            72.019,
+            72.241,
+            72.822,
+            72.854,
+            72.007,
+            72.629,
+            72.147,
+            72.581,
+            72.237,
+            72.464,
+            72.77,
+            72.319,
+            73.097,
+            72.576
+          ],
+          &quot;B&quot;: [
+            58.529,
+            58.145,
+            59.667,
+            58.072,
+            59.28,
+            58.476,
+            58.701,
+            58.989,
+            58.253,
+            57.763,
+            58.995,
+            57.71,
+            58.884,
+            57.999,
+            58.29,
+            58.409,
+            58.629,
+            58.307,
+            58.884,
+            58.049
+          ],
+          &quot;DSL&quot;: [
+            26.467,
+            26.999,
+            26.114,
+            26.519,
+            25.983,
+            26.796,
+            26.076,
+            26.735,
+            25.765,
+            26.528,
+            25.924,
+            26.64,
+            26.002,
+            26.49,
+            25.732,
+            26.677,
+            25.844,
+            27.007,
+            26.025,
+            26.709
+          ]
+        },
+        &quot;binding&quot;: {
+          &quot;A&quot;: {
+            &quot;so_sha256&quot;: &quot;1b87553b293c517a13628a6064f98bd8400530919f63dbabd079ef6ca7044b6f&quot;,
+            &quot;source_sha256&quot;: &quot;9738f36d63a85d6397b6c4f8a6ee7eee0191fb3434dfe2e8a4bdbe7c1b56ef53&quot;,
+            &quot;symbol&quot;: &quot;_Z28moonep_local_latest_kernel_alPiS_S_S_S_S_S_S_S_S_S_S_S_S_S_S_S_S_S_S_S_S_S_S_lll&quot;
+          },
+          &quot;B&quot;: {
+            &quot;so_sha256&quot;: &quot;3b1748785282a5258ae519641f8493e48c7b6369f5a4dd0f7941adddebc5f420&quot;,
+            &quot;source_sha256&quot;: &quot;21e362a2b20a29ddf97999559b4ec32c10e56f77ca89b3b2b47f23e32d92baeb&quot;,
+            &quot;symbol&quot;: &quot;_Z28moonep_local_latest_kernel_blPiS_S_S_S_S_S_S_S_S_S_S_S_S_S_S_S_S_S_S_S_S_S_S_lll&quot;
+          },
+          &quot;DSL&quot;: {
+            &quot;so_sha256&quot;: &quot;5cf15884282b402c023d57660e5f0d4599ad21f06de3b3479a0158cfcf46eba9&quot;,
+            &quot;symbol&quot;: &quot;_Z29kernel__PlanKernel___call___037KernelArgTensor_int32_t_1d_Device_s_sS_S_S_S_Ph&quot;,
+            &quot;reference&quot;: &quot;scalar-count-diagnostic&quot;
+          }
+        }
+      }
+    ],
+    &quot;median_of_rank_medians_us&quot;: {
+      &quot;A&quot;: 69.5145,
+      &quot;B&quot;: 57.43300000000001,
+      &quot;DSL&quot;: 25.99875
+    },
+    &quot;median_paired_ratios&quot;: {
+      &quot;B/A&quot;: 0.8243398074593759,
+      &quot;B/DSL&quot;: 2.2161068699242765,
+      &quot;A/DSL&quot;: 2.680432125171082
+    }
+  },
+  &quot;compute-skewed&quot;: {
+    &quot;ranks&quot;: [
+      {
+        &quot;rank&quot;: 0,
+        &quot;pid&quot;: 1140412,
+        &quot;device&quot;: &quot;0&quot;,
+        &quot;medians_us&quot;: {
+          &quot;A&quot;: 14.283999999999999,
+          &quot;B&quot;: 13.6905,
+          &quot;DSL&quot;: 34.551
+        },
+        &quot;paired&quot;: {
+          &quot;B/A&quot;: {
+            &quot;median&quot;: 0.9660093340022196,
+            &quot;range&quot;: [
+              0.9008321298397635,
+              1.0474850256188208
+            ],
+            &quot;win_fraction&quot;: 0.85
+          },
+          &quot;B/DSL&quot;: {
+            &quot;median&quot;: 0.3964945264680843,
+            &quot;range&quot;: [
+              0.376364785656821,
+              0.42127276423944926
+            ],
+            &quot;win_fraction&quot;: 1.0
+          },
+          &quot;A/DSL&quot;: {
+            &quot;median&quot;: 0.4117800554802439,
+            &quot;range&quot;: [
+              0.3883565411226587,
+              0.42594955059437517
+            ],
+            &quot;win_fraction&quot;: 1.0
+          }
+        },
+        &quot;times_us&quot;: {
+          &quot;A&quot;: [
+            14.672,
+            14.531,
+            14.257,
+            14.472,
+            13.857,
+            13.415,
+            13.962,
+            13.973,
+            14.579,
+            14.486,
+            14.036,
+            14.517,
+            14.23,
+            13.95,
+            13.987,
+            13.877,
+            14.691,
+            14.311,
+            14.618,
+            14.541
+          ],
+          &quot;B&quot;: [
+            13.691,
+            13.408,
+            14.049,
+            13.562,
+            14.515,
+            13.654,
+            13.69,
+            14.504,
+            13.861,
+            13.328,
+            13.997,
+            13.47,
+            13.98,
+            13.454,
+            13.658,
+            13.691,
+            13.747,
+            13.646,
+            14.144,
+            13.099
+          ],
+          &quot;DSL&quot;: [
+            34.577,
+            35.017,
+            34.594,
+            34.457,
+            34.486,
+            34.543,
+            34.244,
+            34.429,
+            34.324,
+            34.559,
+            34.386,
+            34.588,
+            34.601,
+            34.569,
+            34.444,
+            34.533,
+            34.49,
+            34.783,
+            34.606,
+            34.804
+          ]
+        },
+        &quot;binding&quot;: {
+          &quot;A&quot;: {
+            &quot;so_sha256&quot;: &quot;1b87553b293c517a13628a6064f98bd8400530919f63dbabd079ef6ca7044b6f&quot;,
+            &quot;source_sha256&quot;: &quot;9738f36d63a85d6397b6c4f8a6ee7eee0191fb3434dfe2e8a4bdbe7c1b56ef53&quot;,
+            &quot;symbol&quot;: &quot;_Z28moonep_local_latest_kernel_alPiS_S_S_S_S_S_S_S_S_S_S_S_S_S_S_S_S_S_S_S_S_S_S_lll&quot;
+          },
+          &quot;B&quot;: {
+            &quot;so_sha256&quot;: &quot;3b1748785282a5258ae519641f8493e48c7b6369f5a4dd0f7941adddebc5f420&quot;,
+            &quot;source_sha256&quot;: &quot;21e362a2b20a29ddf97999559b4ec32c10e56f77ca89b3b2b47f23e32d92baeb&quot;,
+            &quot;symbol&quot;: &quot;_Z28moonep_local_latest_kernel_blPiS_S_S_S_S_S_S_S_S_S_S_S_S_S_S_S_S_S_S_S_S_S_S_lll&quot;
+          },
+          &quot;DSL&quot;: {
+            &quot;so_sha256&quot;: &quot;cfff880a37b1fae4a23e8ba5444c59e9a211d41bd5b1641e51eb743d7b45396f&quot;,
+            &quot;symbol&quot;: &quot;_Z29kernel__PlanKernel___call___037KernelArgTensor_int32_t_1d_Device_s_sS_S_S_S_Ph&quot;,
+            &quot;reference&quot;: &quot;scalar-count-diagnostic&quot;
+          }
+        }
+      },
+      {
+        &quot;rank&quot;: 1,
+        &quot;pid&quot;: 1140413,
+        &quot;device&quot;: &quot;1&quot;,
+        &quot;medians_us&quot;: {
+          &quot;A&quot;: 14.1345,
+          &quot;B&quot;: 13.703,
+          &quot;DSL&quot;: 34.381
+        },
+        &quot;paired&quot;: {
+          &quot;B/A&quot;: {
+            &quot;median&quot;: 0.9790014147419288,
+            &quot;range&quot;: [
+              0.9259703599153141,
+              1.0505110354021625
+            ],
+            &quot;win_fraction&quot;: 0.7
+          },
+          &quot;B/DSL&quot;: {
+            &quot;median&quot;: 0.3998419858971078,
+            &quot;range&quot;: [
+              0.38194626379064417,
+              0.4233218437810364
+            ],
+            &quot;win_fraction&quot;: 1.0
+          },
+          &quot;A/DSL&quot;: {
+            &quot;median&quot;: 0.4107834379496321,
+            &quot;range&quot;: [
+              0.39283116580838495,
+              0.4278528396794759
+            ],
+            &quot;win_fraction&quot;: 1.0
+          }
+        },
+        &quot;times_us&quot;: {
+          &quot;A&quot;: [
+            14.304,
+            14.026,
+            14.113,
+            14.17,
+            13.706,
+            13.889,
+            13.911,
+            13.502,
+            14.441,
+            14.453,
+            14.156,
+            14.47,
+            14.25,
+            13.592,
+            13.812,
+            13.697,
+            14.302,
+            14.069,
+            14.63,
+            14.349
+          ],
+          &quot;B&quot;: [
+            13.7,
+            13.638,
+            14.162,
+            13.121,
+            14.059,
+            13.6,
+            14.024,
+            14.184,
+            14.072,
+            13.706,
+            14.492,
+            13.461,
+            14.311,
+            13.494,
+            13.777,
+            13.602,
+            13.649,
+            13.429,
+            14.32,
+            13.299
+          ],
+          &quot;DSL&quot;: [
+            34.113,
+            34.814,
+            34.369,
+            34.353,
+            34.391,
+            34.448,
+            34.441,
+            34.371,
+            33.823,
+            34.234,
+            34.234,
+            34.25,
+            34.677,
+            34.586,
+            34.501,
+            34.351,
+            34.494,
+            34.807,
+            34.194,
+            34.463
+          ]
+        },
+        &quot;binding&quot;: {
+          &quot;A&quot;: {
+            &quot;so_sha256&quot;: &quot;1b87553b293c517a13628a6064f98bd8400530919f63dbabd079ef6ca7044b6f&quot;,
+            &quot;source_sha256&quot;: &quot;9738f36d63a85d6397b6c4f8a6ee7eee0191fb3434dfe2e8a4bdbe7c1b56ef53&quot;,
+            &quot;symbol&quot;: &quot;_Z28moonep_local_latest_kernel_alPiS_S_S_S_S_S_S_S_S_S_S_S_S_S_S_S_S_S_S_S_S_S_S_lll&quot;
+          },
+          &quot;B&quot;: {
+            &quot;so_sha256&quot;: &quot;3b1748785282a5258ae519641f8493e48c7b6369f5a4dd0f7941adddebc5f420&quot;,
+            &quot;source_sha256&quot;: &quot;21e362a2b20a29ddf97999559b4ec32c10e56f77ca89b3b2b47f23e32d92baeb&quot;,
+            &quot;symbol&quot;: &quot;_Z28moonep_local_latest_kernel_blPiS_S_S_S_S_S_S_S_S_S_S_S_S_S_S_S_S_S_S_S_S_S_S_lll&quot;
+          },
+          &quot;DSL&quot;: {
+            &quot;so_sha256&quot;: &quot;d52f6048cbf0846a82b2d6f072960bc2e5cdc1cfbe90cff593577074d461a4a3&quot;,
+            &quot;symbol&quot;: &quot;_Z29kernel__PlanKernel___call___037KernelArgTensor_int32_t_1d_Device_s_sS_S_S_S_Ph&quot;,
+            &quot;reference&quot;: &quot;scalar-count-diagnostic&quot;
+          }
+        }
+      },
+      {
+        &quot;rank&quot;: 2,
+        &quot;pid&quot;: 1140414,
+        &quot;device&quot;: &quot;2&quot;,
+        &quot;medians_us&quot;: {
+          &quot;A&quot;: 14.08,
+          &quot;B&quot;: 13.7365,
+          &quot;DSL&quot;: 34.7745
+        },
+        &quot;paired&quot;: {
+          &quot;B/A&quot;: {
+            &quot;median&quot;: 0.9864737169730584,
+            &quot;range&quot;: [
+              0.9285911221395092,
+              1.0830702150052625
+            ],
+            &quot;win_fraction&quot;: 0.55
+          },
+          &quot;B/DSL&quot;: {
+            &quot;median&quot;: 0.39571647234793184,
+            &quot;range&quot;: [
+              0.3824829248694255,
+              0.4209873337372688
+            ],
+            &quot;win_fraction&quot;: 1.0
+          },
+          &quot;A/DSL&quot;: {
+            &quot;median&quot;: 0.4045197398496536,
+            &quot;range&quot;: [
+              0.38246118458884415,
+              0.42139870223503967
+            ],
+            &quot;win_fraction&quot;: 1.0
+          }
+        },
+        &quot;times_us&quot;: {
+          &quot;A&quot;: [
+            14.089,
+            14.086,
+            14.054,
+            14.173,
+            13.302,
+            13.485,
+            13.788,
+            13.747,
+            14.429,
+            14.426,
+            14.612,
+            14.318,
+            14.074,
+            13.424,
+            13.633,
+            13.636,
+            14.32,
+            13.867,
+            14.293,
+            14.508
+          ],
+          &quot;B&quot;: [
+            13.855,
+            13.711,
+            14.591,
+            13.328,
+            14.407,
+            13.705,
+            13.644,
+            14.273,
+            13.946,
+            13.718,
+            14.123,
+            13.683,
+            14.527,
+            13.574,
+            13.755,
+            14.109,
+            13.646,
+            13.629,
+            14.306,
+            13.472
+          ],
+          &quot;DSL&quot;: [
+            34.913,
+            35.32,
+            34.659,
+            34.846,
+            34.78,
+            34.738,
+            34.639,
+            34.79,
+            34.534,
+            34.657,
+            34.675,
+            35.043,
+            34.658,
+            35.087,
+            34.769,
+            34.765,
+            34.558,
+            35.117,
+            34.801,
+            34.959
+          ]
+        },
+        &quot;binding&quot;: {
+          &quot;A&quot;: {
+            &quot;so_sha256&quot;: &quot;1b87553b293c517a13628a6064f98bd8400530919f63dbabd079ef6ca7044b6f&quot;,
+            &quot;source_sha256&quot;: &quot;9738f36d63a85d6397b6c4f8a6ee7eee0191fb3434dfe2e8a4bdbe7c1b56ef53&quot;,
+            &quot;symbol&quot;: &quot;_Z28moonep_local_latest_kernel_alPiS_S_S_S_S_S_S_S_S_S_S_S_S_S_S_S_S_S_S_S_S_S_S_lll&quot;
+          },
+          &quot;B&quot;: {
+            &quot;so_sha256&quot;: &quot;3b1748785282a5258ae519641f8493e48c7b6369f5a4dd0f7941adddebc5f420&quot;,
+            &quot;source_sha256&quot;: &quot;21e362a2b20a29ddf97999559b4ec32c10e56f77ca89b3b2b47f23e32d92baeb&quot;,
+            &quot;symbol&quot;: &quot;_Z28moonep_local_latest_kernel_blPiS_S_S_S_S_S_S_S_S_S_S_S_S_S_S_S_S_S_S_S_S_S_S_lll&quot;
+          },
+          &quot;DSL&quot;: {
+            &quot;so_sha256&quot;: &quot;4febc74622cd062f3819bb610050d1db29e7656aa9ece32d6cddc1a092b0fffb&quot;,
+            &quot;symbol&quot;: &quot;_Z29kernel__PlanKernel___call___037KernelArgTensor_int32_t_1d_Device_s_sS_S_S_S_Ph&quot;,
+            &quot;reference&quot;: &quot;scalar-count-diagnostic&quot;
+          }
+        }
+      },
+      {
+        &quot;rank&quot;: 3,
+        &quot;pid&quot;: 1140415,
+        &quot;device&quot;: &quot;3&quot;,
+        &quot;medians_us&quot;: {
+          &quot;A&quot;: 14.1095,
+          &quot;B&quot;: 13.944500000000001,
+          &quot;DSL&quot;: 35.114000000000004
+        },
+        &quot;paired&quot;: {
+          &quot;B/A&quot;: {
+            &quot;median&quot;: 0.983325194314115,
+            &quot;range&quot;: [
+              0.9172937521574043,
+              1.0488683869107682
+            ],
+            &quot;win_fraction&quot;: 0.65
+          },
+          &quot;B/DSL&quot;: {
+            &quot;median&quot;: 0.39490050621413864,
+            &quot;range&quot;: [
+              0.37149807079349106,
+              0.4166261406871299
+            ],
+            &quot;win_fraction&quot;: 1.0
+          },
+          &quot;A/DSL&quot;: {
+            &quot;median&quot;: 0.4023827030462285,
+            &quot;range&quot;: [
+              0.38691035385885497,
+              0.41487664520540146
+            ],
+            &quot;win_fraction&quot;: 1.0
+          }
+        },
+        &quot;times_us&quot;: {
+          &quot;A&quot;: [
+            14.25,
+            14.485,
+            14.234,
+            14.474,
+            13.874,
+            13.945,
+            14.096,
+            13.889,
+            14.478,
+            14.563,
+            14.022,
+            14.597,
+            14.123,
+            13.871,
+            13.591,
+            13.675,
+            14.256,
+            14.002,
+            14.501,
+            14.053
+          ],
+          &quot;B&quot;: [
+            13.913,
+            13.287,
+            14.564,
+            13.708,
+            14.552,
+            13.821,
+            14.047,
+            14.294,
+            13.723,
+            13.49,
+            14.321,
+            13.691,
+            13.986,
+            13.475,
+            14.029,
+            13.976,
+            13.728,
+            14.044,
+            14.07,
+            13.5
+          ],
+          &quot;DSL&quot;: [
+            35.112,
+            35.766,
+            34.957,
+            35.44,
+            35.189,
+            35.328,
+            35.116,
+            35.021,
+            35.052,
+            35.102,
+            35.05,
+            35.331,
+            35.014,
+            35.054,
+            35.127,
+            35.177,
+            34.935,
+            35.685,
+            35.097,
+            35.32
+          ]
+        },
+        &quot;binding&quot;: {
+          &quot;A&quot;: {
+            &quot;so_sha256&quot;: &quot;1b87553b293c517a13628a6064f98bd8400530919f63dbabd079ef6ca7044b6f&quot;,
+            &quot;source_sha256&quot;: &quot;9738f36d63a85d6397b6c4f8a6ee7eee0191fb3434dfe2e8a4bdbe7c1b56ef53&quot;,
+            &quot;symbol&quot;: &quot;_Z28moonep_local_latest_kernel_alPiS_S_S_S_S_S_S_S_S_S_S_S_S_S_S_S_S_S_S_S_S_S_S_lll&quot;
+          },
+          &quot;B&quot;: {
+            &quot;so_sha256&quot;: &quot;3b1748785282a5258ae519641f8493e48c7b6369f5a4dd0f7941adddebc5f420&quot;,
+            &quot;source_sha256&quot;: &quot;21e362a2b20a29ddf97999559b4ec32c10e56f77ca89b3b2b47f23e32d92baeb&quot;,
+            &quot;symbol&quot;: &quot;_Z28moonep_local_latest_kernel_blPiS_S_S_S_S_S_S_S_S_S_S_S_S_S_S_S_S_S_S_S_S_S_S_lll&quot;
+          },
+          &quot;DSL&quot;: {
+            &quot;so_sha256&quot;: &quot;31c03ad041216dccad6a7f063ad864093c7acd46631eac22a75f0705f80f1b32&quot;,
+            &quot;symbol&quot;: &quot;_Z29kernel__PlanKernel___call___037KernelArgTensor_int32_t_1d_Device_s_sS_S_S_S_Ph&quot;,
+            &quot;reference&quot;: &quot;scalar-count-diagnostic&quot;
+          }
+        }
+      }
+    ],
+    &quot;median_of_rank_medians_us&quot;: {
+      &quot;A&quot;: 14.122,
+      &quot;B&quot;: 13.71975,
+      &quot;DSL&quot;: 34.66275
+    },
+    &quot;median_paired_ratios&quot;: {
+      &quot;B/A&quot;: 0.9811633045280219,
+      &quot;B/DSL&quot;: 0.3961054994080081,
+      &quot;A/DSL&quot;: 0.40765158889964287
+    }
+  },
+  &quot;compute-extreme&quot;: {
+    &quot;ranks&quot;: [
+      {
+        &quot;rank&quot;: 0,
+        &quot;pid&quot;: 1149546,
+        &quot;device&quot;: &quot;0&quot;,
+        &quot;medians_us&quot;: {
+          &quot;A&quot;: 14.0685,
+          &quot;B&quot;: 13.734,
+          &quot;DSL&quot;: 34.4705
+        },
+        &quot;paired&quot;: {
+          &quot;B/A&quot;: {
+            &quot;median&quot;: 0.9673520056665308,
+            &quot;range&quot;: [
+              0.9221734728315897,
+              1.0490519965527147
+            ],
+            &quot;win_fraction&quot;: 0.85
+          },
+          &quot;B/DSL&quot;: {
+            &quot;median&quot;: 0.40021835562608077,
+            &quot;range&quot;: [
+              0.38283648466416087,
+              0.4272551772551772
+            ],
+            &quot;win_fraction&quot;: 1.0
+          },
+          &quot;A/DSL&quot;: {
+            &quot;median&quot;: 0.40803747546309427,
+            &quot;range&quot;: [
+              0.3998436866786314,
+              0.43316180340330973
+            ],
+            &quot;win_fraction&quot;: 1.0
+          }
+        },
+        &quot;times_us&quot;: {
+          &quot;A&quot;: [
+            14.491,
+            14.227,
+            13.924,
+            14.444,
+            13.813,
+            13.995,
+            13.918,
+            13.799,
+            14.123,
+            14.815,
+            14.175,
+            13.978,
+            14.072,
+            14.02,
+            13.945,
+            13.923,
+            14.746,
+            14.364,
+            14.597,
+            14.065
+          ],
+          &quot;B&quot;: [
+            13.57,
+            13.343,
+            14.607,
+            13.683,
+            14.044,
+            13.768,
+            13.87,
+            14.353,
+            13.469,
+            13.662,
+            14.043,
+            13.341,
+            13.91,
+            13.506,
+            13.482,
+            13.7,
+            13.912,
+            13.903,
+            14.272,
+            13.486
+          ],
+          &quot;DSL&quot;: [
+            34.535,
+            34.853,
+            34.188,
+            34.572,
+            34.546,
+            34.312,
+            34.089,
+            34.441,
+            34.028,
+            34.202,
+            34.101,
+            34.284,
+            34.625,
+            34.583,
+            34.702,
+            34.399,
+            34.399,
+            34.672,
+            34.5,
+            34.62
+          ]
+        },
+        &quot;binding&quot;: {
+          &quot;A&quot;: {
+            &quot;so_sha256&quot;: &quot;1b87553b293c517a13628a6064f98bd8400530919f63dbabd079ef6ca7044b6f&quot;,
+            &quot;source_sha256&quot;: &quot;9738f36d63a85d6397b6c4f8a6ee7eee0191fb3434dfe2e8a4bdbe7c1b56ef53&quot;,
+            &quot;symbol&quot;: &quot;_Z28moonep_local_latest_kernel_alPiS_S_S_S_S_S_S_S_S_S_S_S_S_S_S_S_S_S_S_S_S_S_S_lll&quot;
+          },
+          &quot;B&quot;: {
+            &quot;so_sha256&quot;: &quot;3b1748785282a5258ae519641f8493e48c7b6369f5a4dd0f7941adddebc5f420&quot;,
+            &quot;source_sha256&quot;: &quot;21e362a2b20a29ddf97999559b4ec32c10e56f77ca89b3b2b47f23e32d92baeb&quot;,
+            &quot;symbol&quot;: &quot;_Z28moonep_local_latest_kernel_blPiS_S_S_S_S_S_S_S_S_S_S_S_S_S_S_S_S_S_S_S_S_S_S_lll&quot;
+          },
+          &quot;DSL&quot;: {
+            &quot;so_sha256&quot;: &quot;698307440711c12362587ea48e75ba24371107fa2a2117658cd152c6037d7dcb&quot;,
+            &quot;symbol&quot;: &quot;_Z29kernel__PlanKernel___call___037KernelArgTensor_int32_t_1d_Device_s_sS_S_S_S_Ph&quot;,
+            &quot;reference&quot;: &quot;scalar-count-diagnostic&quot;
+          }
+        }
+      },
+      {
+        &quot;rank&quot;: 1,
+        &quot;pid&quot;: 1149547,
+        &quot;device&quot;: &quot;1&quot;,
+        &quot;medians_us&quot;: {
+          &quot;A&quot;: 14.175999999999998,
+          &quot;B&quot;: 13.8325,
+          &quot;DSL&quot;: 34.3805
+        },
+        &quot;paired&quot;: {
+          &quot;B/A&quot;: {
+            &quot;median&quot;: 0.9909525291679667,
+            &quot;range&quot;: [
+              0.9132363983889686,
+              1.0458485564868545
+            ],
+            &quot;win_fraction&quot;: 0.55
+          },
+          &quot;B/DSL&quot;: {
+            &quot;median&quot;: 0.40207452052058534,
+            &quot;range&quot;: [
+              0.38751417522026116,
+              0.4235399924569903
+            ],
+            &quot;win_fraction&quot;: 1.0
+          },
+          &quot;A/DSL&quot;: {
+            &quot;median&quot;: 0.4100014305393591,
+            &quot;range&quot;: [
+              0.39598444844194275,
+              0.4267361920298298
+            ],
+            &quot;win_fraction&quot;: 1.0
+          }
+        },
+        &quot;times_us&quot;: {
+          &quot;A&quot;: [
+            14.281,
+            14.473,
+            13.959,
+            13.719,
+            13.954,
+            13.606,
+            13.938,
+            13.822,
+            14.26,
+            14.464,
+            14.165,
+            14.649,
+            14.476,
+            13.648,
+            13.849,
+            13.937,
+            14.578,
+            14.227,
+            14.271,
+            14.187
+          ],
+          &quot;B&quot;: [
+            13.837,
+            13.714,
+            14.599,
+            13.518,
+            14.431,
+            13.828,
+            14.098,
+            14.325,
+            13.686,
+            13.327,
+            14.397,
+            13.378,
+            14.103,
+            13.601,
+            14.087,
+            13.992,
+            13.707,
+            13.669,
+            14.334,
+            13.54
+          ],
+          &quot;DSL&quot;: [
+            34.697,
+            34.933,
+            34.469,
+            34.242,
+            34.625,
+            34.313,
+            34.466,
+            34.397,
+            34.361,
+            34.391,
+            34.023,
+            34.328,
+            34.37,
+            34.466,
+            34.48,
+            34.25,
+            34.169,
+            34.835,
+            34.006,
+            34.258
+          ]
+        },
+        &quot;binding&quot;: {
+          &quot;A&quot;: {
+            &quot;so_sha256&quot;: &quot;1b87553b293c517a13628a6064f98bd8400530919f63dbabd079ef6ca7044b6f&quot;,
+            &quot;source_sha256&quot;: &quot;9738f36d63a85d6397b6c4f8a6ee7eee0191fb3434dfe2e8a4bdbe7c1b56ef53&quot;,
+            &quot;symbol&quot;: &quot;_Z28moonep_local_latest_kernel_alPiS_S_S_S_S_S_S_S_S_S_S_S_S_S_S_S_S_S_S_S_S_S_S_lll&quot;
+          },
+          &quot;B&quot;: {
+            &quot;so_sha256&quot;: &quot;3b1748785282a5258ae519641f8493e48c7b6369f5a4dd0f7941adddebc5f420&quot;,
+            &quot;source_sha256&quot;: &quot;21e362a2b20a29ddf97999559b4ec32c10e56f77ca89b3b2b47f23e32d92baeb&quot;,
+            &quot;symbol&quot;: &quot;_Z28moonep_local_latest_kernel_blPiS_S_S_S_S_S_S_S_S_S_S_S_S_S_S_S_S_S_S_S_S_S_S_lll&quot;
+          },
+          &quot;DSL&quot;: {
+            &quot;so_sha256&quot;: &quot;c1f0542ed31b9ddab3daec0400f36059c46ea1a6b4b2671732593bfc06570748&quot;,
+            &quot;symbol&quot;: &quot;_Z29kernel__PlanKernel___call___037KernelArgTensor_int32_t_1d_Device_s_sS_S_S_S_Ph&quot;,
+            &quot;reference&quot;: &quot;scalar-count-diagnostic&quot;
+          }
+        }
+      },
+      {
+        &quot;rank&quot;: 2,
+        &quot;pid&quot;: 1149548,
+        &quot;device&quot;: &quot;2&quot;,
+        &quot;medians_us&quot;: {
+          &quot;A&quot;: 14.132,
+          &quot;B&quot;: 13.7915,
+          &quot;DSL&quot;: 34.715500000000006
+        },
+        &quot;paired&quot;: {
+          &quot;B/A&quot;: {
+            &quot;median&quot;: 0.9837724000864437,
+            &quot;range&quot;: [
+              0.922251272877391,
+              1.0624578746349134
+            ],
+            &quot;win_fraction&quot;: 0.6
+          },
+          &quot;B/DSL&quot;: {
+            &quot;median&quot;: 0.39674019437507246,
+            &quot;range&quot;: [
+              0.3825969626503603,
+              0.41720529839714793
+            ],
+            &quot;win_fraction&quot;: 1.0
+          },
+          &quot;A/DSL&quot;: {
+            &quot;median&quot;: 0.4057881147470377,
+            &quot;range&quot;: [
+              0.3862821106225411,
+              0.4194183186224859
+            ],
+            &quot;win_fraction&quot;: 1.0
+          }
+        },
+        &quot;times_us&quot;: {
+          &quot;A&quot;: [
+            14.4,
+            14.369,
+            13.983,
+            14.191,
+            13.664,
+            13.967,
+            14.075,
+            13.745,
+            14.133,
+            14.493,
+            14.257,
+            13.982,
+            14.131,
+            13.748,
+            13.616,
+            13.353,
+            14.438,
+            14.193,
+            14.232,
+            14.534
+          ],
+          &quot;B&quot;: [
+            13.542,
+            13.924,
+            14.32,
+            13.524,
+            14.271,
+            13.909,
+            13.67,
+            14.448,
+            13.733,
+            13.582,
+            14.394,
+            13.327,
+            14.359,
+            13.714,
+            13.788,
+            14.187,
+            13.795,
+            13.444,
+            14.257,
+            13.404
+          ],
+          &quot;DSL&quot;: [
+            34.644,
+            35.177,
+            34.597,
+            34.919,
+            34.699,
+            34.519,
+            34.791,
+            34.733,
+            34.719,
+            34.555,
+            34.501,
+            34.833,
+            34.742,
+            35.177,
+            34.653,
+            34.568,
+            34.691,
+            35.029,
+            34.712,
+            34.998
+          ]
+        },
+        &quot;binding&quot;: {
+          &quot;A&quot;: {
+            &quot;so_sha256&quot;: &quot;1b87553b293c517a13628a6064f98bd8400530919f63dbabd079ef6ca7044b6f&quot;,
+            &quot;source_sha256&quot;: &quot;9738f36d63a85d6397b6c4f8a6ee7eee0191fb3434dfe2e8a4bdbe7c1b56ef53&quot;,
+            &quot;symbol&quot;: &quot;_Z28moonep_local_latest_kernel_alPiS_S_S_S_S_S_S_S_S_S_S_S_S_S_S_S_S_S_S_S_S_S_S_lll&quot;
+          },
+          &quot;B&quot;: {
+            &quot;so_sha256&quot;: &quot;3b1748785282a5258ae519641f8493e48c7b6369f5a4dd0f7941adddebc5f420&quot;,
+            &quot;source_sha256&quot;: &quot;21e362a2b20a29ddf97999559b4ec32c10e56f77ca89b3b2b47f23e32d92baeb&quot;,
+            &quot;symbol&quot;: &quot;_Z28moonep_local_latest_kernel_blPiS_S_S_S_S_S_S_S_S_S_S_S_S_S_S_S_S_S_S_S_S_S_S_lll&quot;
+          },
+          &quot;DSL&quot;: {
+            &quot;so_sha256&quot;: &quot;16c95e87f4545ae06f71c4077d4de72681767f2c120d5b080ca170808708ab1b&quot;,
+            &quot;symbol&quot;: &quot;_Z29kernel__PlanKernel___call___037KernelArgTensor_int32_t_1d_Device_s_sS_S_S_S_Ph&quot;,
+            &quot;reference&quot;: &quot;scalar-count-diagnostic&quot;
+          }
+        }
+      },
+      {
+        &quot;rank&quot;: 3,
+        &quot;pid&quot;: 1149549,
+        &quot;device&quot;: &quot;3&quot;,
+        &quot;medians_us&quot;: {
+          &quot;A&quot;: 13.940999999999999,
+          &quot;B&quot;: 13.7425,
+          &quot;DSL&quot;: 35.138999999999996
+        },
+        &quot;paired&quot;: {
+          &quot;B/A&quot;: {
+            &quot;median&quot;: 0.9882830399607854,
+            &quot;range&quot;: [
+              0.934289457353651,
+              1.0682258304781767
+            ],
+            &quot;win_fraction&quot;: 0.65
+          },
+          &quot;B/DSL&quot;: {
+            &quot;median&quot;: 0.39255616261448956,
+            &quot;range&quot;: [
+              0.37799477688202565,
+              0.42032067122579164
+            ],
+            &quot;win_fraction&quot;: 1.0
+          },
+          &quot;A/DSL&quot;: {
+            &quot;median&quot;: 0.39667972523871725,
+            &quot;range&quot;: [
+              0.3812688135400693,
+              0.4130174478275744
+            ],
+            &quot;win_fraction&quot;: 1.0
+          }
+        },
+        &quot;times_us&quot;: {
+          &quot;A&quot;: [
+            14.487,
+            14.503,
+            14.006,
+            13.862,
+            13.668,
+            13.764,
+            13.796,
+            13.426,
+            14.197,
+            14.272,
+            14.028,
+            14.44,
+            14.422,
+            13.632,
+            13.563,
+            13.622,
+            13.719,
+            13.876,
+            14.239,
+            14.073
+          ],
+          &quot;B&quot;: [
+            13.799,
+            13.55,
+            14.628,
+            13.382,
+            14.303,
+            13.664,
+            13.985,
+            14.342,
+            13.686,
+            13.433,
+            14.208,
+            13.557,
+            14.376,
+            13.357,
+            13.409,
+            14.014,
+            13.997,
+            13.593,
+            14.067,
+            13.316
+          ],
+          &quot;DSL&quot;: [
+            35.076,
+            35.76,
+            34.802,
+            35.279,
+            35.028,
+            34.883,
+            35.184,
+            35.214,
+            35.098,
+            35.174,
+            35.177,
+            35.197,
+            35.088,
+            35.15,
+            35.128,
+            35.099,
+            34.974,
+            35.558,
+            34.963,
+            35.228
+          ]
+        },
+        &quot;binding&quot;: {
+          &quot;A&quot;: {
+            &quot;so_sha256&quot;: &quot;1b87553b293c517a13628a6064f98bd8400530919f63dbabd079ef6ca7044b6f&quot;,
+            &quot;source_sha256&quot;: &quot;9738f36d63a85d6397b6c4f8a6ee7eee0191fb3434dfe2e8a4bdbe7c1b56ef53&quot;,
+            &quot;symbol&quot;: &quot;_Z28moonep_local_latest_kernel_alPiS_S_S_S_S_S_S_S_S_S_S_S_S_S_S_S_S_S_S_S_S_S_S_lll&quot;
+          },
+          &quot;B&quot;: {
+            &quot;so_sha256&quot;: &quot;3b1748785282a5258ae519641f8493e48c7b6369f5a4dd0f7941adddebc5f420&quot;,
+            &quot;source_sha256&quot;: &quot;21e362a2b20a29ddf97999559b4ec32c10e56f77ca89b3b2b47f23e32d92baeb&quot;,
+            &quot;symbol&quot;: &quot;_Z28moonep_local_latest_kernel_blPiS_S_S_S_S_S_S_S_S_S_S_S_S_S_S_S_S_S_S_S_S_S_S_lll&quot;
+          },
+          &quot;DSL&quot;: {
+            &quot;so_sha256&quot;: &quot;346480ea56536a17d0d09434d1096a46b7aceb4de8fd2f8e1836c9193d47e020&quot;,
+            &quot;symbol&quot;: &quot;_Z29kernel__PlanKernel___call___037KernelArgTensor_int32_t_1d_Device_s_sS_S_S_S_Ph&quot;,
+            &quot;reference&quot;: &quot;scalar-count-diagnostic&quot;
+          }
+        }
+      }
+    ],
+    &quot;median_of_rank_medians_us&quot;: {
+      &quot;A&quot;: 14.100249999999999,
+      &quot;B&quot;: 13.767,
+      &quot;DSL&quot;: 34.593
+    },
+    &quot;median_paired_ratios&quot;: {
+      &quot;B/A&quot;: 0.9860277200236145,
+      &quot;B/DSL&quot;: 0.3984792750005766,
+      &quot;A/DSL&quot;: 0.40691279510506595
+    }
+  }
+}</pre></details></section></html>
