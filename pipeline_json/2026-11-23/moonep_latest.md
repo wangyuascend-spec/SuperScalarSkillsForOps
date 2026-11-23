@@ -1,6 +1,6 @@
 MoonEP 四卡实测 · 2026-11-23
 
-PyPTO PR 518bd5c 对照 cannbot DSL 主线 e776e13（算子最后修改 55e8df5）。DSL 0.8.2 在四卡通信初始化时找不到 cannbotdsl._comm_native，预填需求矩阵的纯计算诊断也在采样前退出。最新 DSL 耗时和相对倍率均待验证。
+PyPTO PR 518bd5c 对照 cannbot DSL 主线 e776e13（算子最后修改 55e8df5）。DSL 0.8.2 在四卡通信初始化时找不到 cannbotdsl._comm_native，检查的 cp310 x86_64 0.8.2/0.8.3/0.8.4 wheel 均缺该扩展。预填需求矩阵的纯计算诊断在 0.8.2、0.8.4 均未获得样本，0.8.4 在 _run_cannbotir_passes 出现段错误。最新 DSL 耗时和相对倍率均待验证。
 
 小网络每卡 S=1024、K=4、总 E=16。大网络每卡 S=8192、K=16、总 E=112。balanced 从全部专家抽样，skewed 从 max(K,E/4) 个热门专家中抽样，extreme 固定选择前 K 个专家。
 
@@ -12,21 +12,21 @@ full 为融合任务的设备耗时，compute 使用预填需求矩阵，comm �
 
 | 规模/批次 | 测试项 | 默认 μs | 提前 Count μs |
 | --- | --- | --- | --- |
-| large-samples | compute-balanced | 271.42 | 271.32 |
-| large-samples | compute-extreme | 102.33 | 102.66 |
-| large-samples | compute-skewed | 346.20 | 346.35 |
-| large-samples | full-balanced | 285.49 | 285.24 |
-| large-samples | full-extreme | 126.47 | 127.28 |
-| large-samples | full-skewed | 367.34 | 363.57 |
-| comm-small-samples | full-balanced | 22.63 | 25.21 |
-| comm-small-samples | full-extreme | 14.42 | 12.63 |
-| comm-small-samples | full-skewed | 36.03 | 41.64 |
-| small-samples | compute-balanced | 35.74 | 27.97 |
-| small-samples | compute-extreme | 13.67 | 16.25 |
-| small-samples | compute-skewed | 13.52 | 16.32 |
-| small-samples | full-balanced | 58.07 | 47.54 |
-| small-samples | full-extreme | 32.78 | 29.78 |
-| small-samples | full-skewed | 29.37 | 29.86 |
-| comm-large-samples | full-balanced | 30.06 | 29.41 |
-| comm-large-samples | full-extreme | 30.64 | 31.37 |
-| comm-large-samples | full-skewed | 17.12 | 21.01 |
+| large | compute-balanced | 271.42 | 271.32 |
+| large | compute-extreme | 102.33 | 102.66 |
+| large | compute-skewed | 346.20 | 346.35 |
+| large | full-balanced | 285.49 | 285.24 |
+| large | full-extreme | 126.47 | 127.28 |
+| large | full-skewed | 367.34 | 363.57 |
+| small | comm-balanced | 22.63 | 25.21 |
+| small | comm-extreme | 14.42 | 12.63 |
+| small | comm-skewed | 36.03 | 41.64 |
+| small | compute-balanced | 35.74 | 27.97 |
+| small | compute-extreme | 13.67 | 16.25 |
+| small | compute-skewed | 13.52 | 16.32 |
+| small | full-balanced | 58.07 | 47.54 |
+| small | full-extreme | 32.78 | 29.78 |
+| small | full-skewed | 29.37 | 29.86 |
+| large | comm-balanced | 30.06 | 29.41 |
+| large | comm-extreme | 30.64 | 31.37 |
+| large | comm-skewed | 17.12 | 21.01 |
