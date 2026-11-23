@@ -1,0 +1,14 @@
+{
+  "date": "2026-11-23",
+  "base": "518bd5c",
+  "source_sha256": "a8ea4d0d51f18b3380f72a412069e4f82928fea23bffa534ef42e6e95b170d3e",
+  "cpu_predicate_cases": 912,
+  "compiled_so": "call_kernel_8d40c181c086.so",
+  "first_qrun_exit": 255,
+  "independent_set_device_control_exit": 1,
+  "device_error": 507033,
+  "hardware_numerical_result": null,
+  "auto_task_duration_us": null,
+  "five_percent_gate": null,
+  "pushed_to_operator_pr": false
+}
