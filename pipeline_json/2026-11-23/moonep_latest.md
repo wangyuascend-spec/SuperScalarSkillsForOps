@@ -18,9 +18,15 @@ full 为融合任务的设备耗时，compute 使用预填需求矩阵，comm �
 | large-samples | full-balanced | 285.49 | 285.24 |
 | large-samples | full-extreme | 126.47 | 127.28 |
 | large-samples | full-skewed | 367.34 | 363.57 |
+| comm-small-samples | full-balanced | 22.63 | 25.21 |
+| comm-small-samples | full-extreme | 14.42 | 12.63 |
+| comm-small-samples | full-skewed | 36.03 | 41.64 |
 | small-samples | compute-balanced | 35.74 | 27.97 |
 | small-samples | compute-extreme | 13.67 | 16.25 |
 | small-samples | compute-skewed | 13.52 | 16.32 |
 | small-samples | full-balanced | 58.07 | 47.54 |
 | small-samples | full-extreme | 32.78 | 29.78 |
 | small-samples | full-skewed | 29.37 | 29.86 |
+| comm-large-samples | full-balanced | 30.06 | 29.41 |
+| comm-large-samples | full-extreme | 30.64 | 31.37 |
+| comm-large-samples | full-skewed | 17.12 | 21.01 |
