@@ -1,0 +1,827 @@
+<!doctype html><html lang="zh-CN"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>MoonEP Plan 算子实现详解：从四卡需求交换到每一条路由的 VID</title><style>body{font:16px/1.75 system-ui,sans-serif;color:#18333a;background:#f4f7f6;margin:0}main{background:white;max-width:1080px;margin:auto;padding:3vw 4vw}h1,h2{line-height:1.35}h2{border-top:1px solid #bed0ca;margin-top:2em;padding-top:1em}nav{columns:2}a,summary{color:#075e65}details{background:#eff5f3;margin:10px 0;padding:8px 14px}summary,button{cursor:pointer}pre,.scroll{overflow:auto}pre{font:14px/1.55 monospace}pre i{color:#607b74;user-select:none}th,td{border-bottom:1px solid #cddad7;padding:.45em;text-align:left}table{border-collapse:collapse;width:100%}th{background:#e5eeea}@media(max-width:680px){nav{columns:1}}</style><main><h1>MoonEP Plan 算子实现详解：从四卡需求交换到每一条路由的 VID</h1><nav><div><a href="#s1">01　跟踪目标与版本</a></div><div><a href="#s2">02　先分清来源、目的、槽位和块</a></div><div><a href="#s3">03　Host 入口、内存与一次启动</a></div><div><a href="#s4">04　Exchange：本地 tpe 怎样成为四行 dem</a></div><div><a href="#s5">05　Count：一块路由对应一行直方图</a></div><div><a href="#s6">06　Greedy 初始化：只让专家的原属卡承担需求</a></div><div><a href="#s7">07　Greedy 四轮：为什么 e5 的结果是 1021 + 25</a></div><div><a href="#s8">08　mode 与 Publish：让其他 AIV 看见规划</a></div><div><a href="#s9">09　Tables：从目的卡观察各槽接多少条</a></div><div><a href="#s10">10　Prefix：从块内次数推导专家的全局序号</a></div><div><a href="#s11">11　Assign：SIMD 快项与压紧慢项</a></div><div><a href="#s12">12　逐 token 对账：同一块里的两个 e4 为何去了不同卡</a></div><div><a href="#s13">13　mode 0 / mode 2：两个可复现的对照输入</a></div><div><a href="#s14">14　同步与回退：哪些结论只适用于这个例子</a></div><div><a href="#s15">15　如何核对本文的数字</a></div></nav><p><button onclick="document.querySelectorAll('details').forEach(d=>d.open=true)">展开全部源码</button> <button onclick="document.querySelectorAll('details').forEach(d=>d.open=false)">收起全部源码</button></p><h2 id="s1">01　跟踪目标与版本</h2><p>主仓 !1118，固定提交 f92d13f。四卡，每卡 S=1024、K=4，总 E=16，32 AIV，early_count=True、validate_inputs=False。跟踪实际 balanced 输入（seed 42）：rank 3 的 token 879 选了 [6,4,0,1]，规划后得到 [10,4,0,1]。输入的 4 是专家号，输出的 4 是目的地址，二者含义不同。</p><p>每卡一次融合 kernel：交换需求 → Greedy 分配份额（其他核同时 Count）→ 发布和同步 → 按 mode 建表或直接映射 → 返回 VID。Plan 只交换规划元数据，不搬 token 特征、不执行专家网络。所有内核文件均位于 ops/pypto_pro/experimental/moonep_plan/op_kernel/。每块直接附固定版本源码及原文件行号。</p><h2 id="s2">02　先分清来源、目的、槽位和块</h2><div class="scroll"><table><tr><th>变量</th><th>形状或单位</th><th>含义</th></tr><tr><td>topk / flat</td><td>[1024,4] / [4096]</td><td>本来源卡的选择。i=token×4+K槽，值为专家号。</td></tr><tr><td>tpe / dem</td><td>[16] / [4,16]</td><td>本卡次数 / 四张来源卡的直方图。dem[src,e] 是谁选了专家。</td></tr><tr><td>rem / order</td><td>各 [16,4]</td><td>rem[e,dst] 是计划由谁承担多少条；order 是服务段顺序，home=1。</td></tr><tr><td>ub_loads / loads</td><td>逻辑长度 4</td><td>ub_loads[0,dst] 是该目的卡所有专家份额的总和。</td></tr><tr><td>counts / pcnt</td><td>逻辑 [16块,16专家] / [16专家,16块]</td><td>块内次数 / 此来源以前完整块的累计次数。counts 物理行宽 128。</td></tr><tr><td>dpre / ord_rank / ord_end</td><td>[16] / [16,5] / [16,5]</td><td>本来源在专家序列中的起点 / 服务段目的卡 / 右开区间终点。</td></tr><tr><td>fixed / jrep</td><td>[16] / [4,16]</td><td>专家固定地址或慢路径标记 / 专家在目的卡迁入区的槽序号。</td></tr><tr><td>etc / cu</td><td>[4,4] / [8]</td><td>各目的卡迁入槽对应专家 / 本目的卡八个槽的累计终点。</td></tr><tr><td>vtopk</td><td>[4096]</td><td>本来源每条路由的目的地址。VID=dst×8+slot；0～3 原属，4～7 迁入。</td></tr></table></div><h2 id="s3">03　Host 入口、内存与一次启动</h2><p>所有 rank 按相同顺序创建和调用实例。构造检查 R/E、S/K 和 int32 范围，分配 GM 缓冲和 Window。N=S×K=4096，chunk 数 ceil(N/256)=16。counts 的 128 个 int32 物理行宽使每块独占 512 B；只有前 16 桶是有效专家。每次调用核对设备、流、形状和连续性，递增 epoch 后启动 kernel[None,workers]。结果别名指向复用的工作区。</p><details><summary>moonep_plan_latest_pro.py · 第 374–419 行 · 查看源码</summary><pre><i>374</i>     def __init__(self, group, experts, tokens, topk, workers=None, validate_inputs=False, *, early_count=True):
+<i>375</i>         r, e, s, k = group.size(), experts, tokens, topk
+<i>376</i>         if not (1 &lt;= r &lt;= 64 and r &lt;= e &lt;= 1024 and e % r == 0):
+<i>377</i>             raise ValueError(&#x27;invalid R/E&#x27;)
+<i>378</i>         if not (s &gt;= 1 and 1 &lt;= k &lt;= e and r*s*k &lt; 2**31):
+<i>379</i>             raise ValueError(&#x27;S/K invalid or int32 overflow&#x27;)
+<i>380</i>         if not isinstance(validate_inputs,bool):
+<i>381</i>             raise ValueError(&#x27;validate_inputs must be bool&#x27;)
+<i>382</i>         if type(early_count) is not bool and early_count != &#x27;auto&#x27;:
+<i>383</i>             raise ValueError(&#x27;early_count must be bool or auto&#x27;)
+<i>384</i>         self._early_count = 2 if early_count == &#x27;auto&#x27; else int(early_count)
+<i>385</i>         self._strict_mode=int(validate_inputs)
+<i>386</i>         from pypto_pro.runtime.platform import get_platform_info
+<i>387</i>         try:
+<i>388</i>             resident=int(get_platform_info().vector_core_num)
+<i>389</i>         except Exception:
+<i>390</i>             resident=8
+<i>391</i>         resident=min(resident if resident&gt;0 else 8,64)
+<i>392</i>         default_workers=min(r,8) if validate_inputs else min(resident,32,max(r,(s*k+127)//128))
+<i>393</i>         self.workers=default_workers if workers is None else workers
+<i>394</i>         if not isinstance(self.workers,int) or not 1&lt;=self.workers&lt;=min(resident,56):
+<i>395</i>             raise ValueError(&#x27;workers exceed resident AIV cores or current acceptance-domain limit (experimental strict/trusted: 56)&#x27;)
+<i>396</i>         self.r,self.e,self.s,self.k=r,e,s,k
+<i>397</i>         self.device=torch.device(&#x27;npu&#x27;,torch.npu.current_device())
+<i>398</i>         self.stream=torch.npu.current_stream().npu_stream
+<i>399</i>         self._epoch=0; self.closed=False; self.lock=threading.Lock()
+<i>400</i>         n,epn,nc=s*k,e//r,(s*k+255)//256
+<i>401</i>         count_stride=128 if e==16 and 256&lt;n&lt;=4096 else e
+<i>402</i>         shapes=[(r,e),(e,r),(e,r),(r,),(r,e),(r,epn),(2*epn,),
+<i>403</i>                 (r,),(nc,count_stride),(e,nc),(e,),(e,),(e,r+1),(e,r+1),
+<i>404</i>                 (nc,e,3),(n,),(n,),(1,)]
+<i>405</i>         self.buffers=[torch.empty(shape,dtype=torch.int32,device=self.device) for shape in shapes]
+<i>406</i>         # Partition ownership is expressed in conservative 512-byte cache lines.
+<i>407</i>         if any(t.data_ptr()%512 for t in self.buffers):
+<i>408</i>             raise RuntimeError(&#x27;workspace allocator must provide 512-byte alignment&#x27;)
+<i>409</i>         # Trusted zero placeholders are initialized by the first Pro launch,
+<i>410</i>         # then reused read-only. Construction launches no torch zero kernel.
+<i>411</i>         self.dem=self.buffers[0]
+<i>412</i>         aligned=(e+7)//8*8
+<i>413</i>         self.padded_tpe=torch.empty((1,aligned),dtype=torch.int32,device=self.device)
+<i>414</i>         self.padded_dem=torch.empty((r,aligned),dtype=torch.int32,device=self.device)
+<i>415</i>         self.validation=torch.empty((s if validate_inputs else 1,),dtype=torch.int32,device=self.device)
+<i>416</i>         self.hist_error=torch.empty((1,),dtype=torch.int32,device=self.device)
+<i>417</i>         self.win=None if r==1 else pld.create_window(group,size=r*aligned*4,num_signals=r)
+<i>418</i>         if self.win is not None and (self.win.nrank()!=r or self.win.num_signals()&lt;r or self.win.size()&lt;r*aligned*4):
+<i>419</i>             raise RuntimeError(&#x27;Window metadata mismatch&#x27;)</pre></details><details><summary>moonep_plan_latest_pro.py · 第 425–455 行 · 查看源码</summary><pre><i>425</i>     def __call__(self,tpe,topk):
+<i>426</i>         if not self.lock.acquire(blocking=False):
+<i>427</i>             raise RuntimeError(&#x27;concurrent use of DistributedPlan&#x27;)
+<i>428</i>         try:
+<i>429</i>             if self.closed: raise RuntimeError(&#x27;Window closed&#x27;)
+<i>430</i>             if torch.npu.current_device()!=self.device.index or torch.npu.current_stream().npu_stream!=self.stream:
+<i>431</i>                 raise RuntimeError(&#x27;use the creating stream&#x27;)
+<i>432</i>             for value,shape in ((tpe,(self.e,)),(topk,(self.s,self.k))):
+<i>433</i>                 if value.shape!=shape or value.dtype!=torch.int32 or value.device!=self.device or not value.is_contiguous():
+<i>434</i>                     raise ValueError(&#x27;input shape/dtype/device/contiguity mismatch&#x27;)
+<i>435</i>             if self._epoch&gt;=2**63-1: raise OverflowError(&#x27;recreate Window before epoch wraps&#x27;)
+<i>436</i>             self._epoch+=1
+<i>437</i>             b=self.buffers
+<i>438</i>             kernel=moonep_local_latest_kernel if self.r==1 else moonep_latest_kernel
+<i>439</i>             endpoint=0 if self.r==1 else self.win
+<i>440</i>             policy_args = () if self.r == 1 else (self._early_count,)
+<i>441</i>             kernel[None,self.workers](endpoint,b[0],tpe,topk,*b[1:],self.padded_tpe,self.padded_dem,self.hist_error,self.validation,self.workers,self._epoch,self._strict_mode,*policy_args)
+<i>442</i>             return b[16],b[6],b[5],b[16],b[15],b[17]
+<i>443</i>         finally:
+<i>444</i>             self.lock.release()
+<i>445</i>
+<i>446</i>     def close(self):
+<i>447</i>         if not self.lock.acquire(blocking=False):
+<i>448</i>             raise RuntimeError(&#x27;concurrent close&#x27;)
+<i>449</i>         try:
+<i>450</i>             if not self.closed:
+<i>451</i>                 torch.npu.synchronize(self.device)
+<i>452</i>                 if self.win is not None: self.win.close()
+<i>453</i>                 self.closed=True
+<i>454</i>         finally:
+<i>455</i>             self.lock.release()</pre></details><h2 id="s4">04　Exchange：本地 tpe 怎样成为四行 dem</h2><p>首轮用 128 线程 helper 清零占位；全体 AIV 在入口参加 Window barrier。AIV 0 把本卡 tpe 装入 UB，本例按 8 对齐且总矩阵 256 B，走紧凑路径。给三个远端 peer 各 put 本行 64 B 并 notify(epoch)，本地行也 put；等待三个来源 ready≥本轮 epoch 后，整矩阵 get 到 UB 再 store 到本卡 GM。每卡远端有效数据共 192 B，另有控制信号。源码另一分支逐行收取，必要时去掉 padding。</p><div class="scroll"><table><tr><th>来源</th><th>专家 0～7</th><th>专家 8～15</th><th>行和</th></tr><tr><td>0</td><td>[253, 262, 245, 238, 271, 255, 264, 255]</td><td>[272, 254, 257, 254, 228, 270, 269, 249]</td><td>4096</td></tr><tr><td>1</td><td>[257, 274, 234, 280, 239, 256, 252, 269]</td><td>[248, 253, 258, 268, 243, 255, 240, 270]</td><td>4096</td></tr><tr><td>2</td><td>[228, 237, 252, 278, 277, 252, 256, 254]</td><td>[269, 245, 260, 238, 299, 254, 248, 249]</td><td>4096</td></tr><tr><td>3</td><td>[255, 245, 274, 246, 272, 283, 236, 262]</td><td>[248, 256, 261, 230, 244, 272, 246, 266]</td><td>4096</td></tr></table></div><details><summary>moonep_plan_latest_pro.py · 第 57–100 行 · 查看源码</summary><pre><i>57</i>         bi = pl.get_block_idx()
+<i>58</i>         me = win.rank()
+<i>59</i>         flat = pl.make_tensor(pl.make_ptr(topk),[topk.shape[0]*topk.shape[1]],dtype=pl.DT_INT32)
+<i>60</i>         if strict_mode == 0:
+<i>61</i>             if epoch == 1:
+<i>62</i>                 _zero_partition[128](zero,bi,workers)
+<i>63</i>         # All AIVs participate; this isolates payload reuse across ranks/rounds.
+<i>64</i>         pld.barrier(win)
+<i>65</i>         if bi == 0:
+<i>66</i>             tile=pl.make_tile(pl.TileType(shape=[1,padded_tpe.shape[1]],dtype=pl.DT_INT32,target_memory=pl.MemorySpace.Vec),addr=0)
+<i>67</i>             if padded_tpe.shape[1] == tpe.shape[0]:
+<i>68</i>                 tpe_view=pl.make_tensor(pl.make_ptr(tpe),[1,tpe.shape[0]],dtype=pl.DT_INT32)
+<i>69</i>                 pl.load(tile,tpe_view,[0,0])
+<i>70</i>             else:
+<i>71</i>                 _pad_tpe[1](tpe,padded_tpe)
+<i>72</i>                 pl.system.sync_src(set_pipe=pl.PipeType.V,wait_pipe=pl.PipeType.S,event_id=4)
+<i>73</i>                 pl.system.sync_dst(set_pipe=pl.PipeType.V,wait_pipe=pl.PipeType.S,event_id=4)
+<i>74</i>                 pl.system.dsb(scope=pl.MemDsb.DDR)
+<i>75</i>                 pl.load(tile,padded_tpe,[0,0])
+<i>76</i>             pl.system.sync_src(set_pipe=pl.PipeType.MTE2,wait_pipe=pl.PipeType.MTE3,event_id=2)
+<i>77</i>             pl.system.sync_dst(set_pipe=pl.PipeType.MTE2,wait_pipe=pl.PipeType.MTE3,event_id=2)
+<i>78</i>             data=pld.make_dtensor(win,0,[padded_dem.shape[0],padded_dem.shape[1]],pl.DT_INT32)
+<i>79</i>             if padded_dem.shape[1] == dem.shape[1] and padded_dem.shape[0]*padded_dem.shape[1]*4 &lt;= 32768:
+<i>80</i>                 ready=pld.signal(win,me)
+<i>81</i>                 for peer in pl.range(dem.shape[0]):
+<i>82</i>                     if peer != me:
+<i>83</i>                         pld.put(data,tile,[me,0],peer)
+<i>84</i>                         pld.notify(ready,peer,epoch)
+<i>85</i>                 # Local copy fills the same symmetric-buffer row as the DSL.
+<i>86</i>                 pld.put(data,tile,[me,0],me)
+<i>87</i>                 pl.system.sync_src(set_pipe=pl.PipeType.MTE3,wait_pipe=pl.PipeType.MTE2,event_id=3)
+<i>88</i>                 pl.system.sync_dst(set_pipe=pl.PipeType.MTE3,wait_pipe=pl.PipeType.MTE2,event_id=3)
+<i>89</i>                 for source in pl.range(dem.shape[0]):
+<i>90</i>                     if source != me:
+<i>91</i>                         received=pld.signal(win,source)
+<i>92</i>                         pld.wait(received,epoch,cmp=pld.Cmp.GE)
+<i>93</i>                 matrix=pl.make_tile(pl.TileType(shape=[padded_dem.shape[0],padded_dem.shape[1]],dtype=pl.DT_INT32,target_memory=pl.MemorySpace.Vec),addr=0)
+<i>94</i>                 pld.get(matrix,data,[0,0],me)
+<i>95</i>                 pl.system.sync_src(set_pipe=pl.PipeType.MTE2,wait_pipe=pl.PipeType.MTE3,event_id=2)
+<i>96</i>                 pl.system.sync_dst(set_pipe=pl.PipeType.MTE2,wait_pipe=pl.PipeType.MTE3,event_id=2)
+<i>97</i>                 pl.store(dem,matrix,[0,0])
+<i>98</i>                 pl.system.sync_src(set_pipe=pl.PipeType.MTE3,wait_pipe=pl.PipeType.S,event_id=1)
+<i>99</i>                 pl.system.sync_dst(set_pipe=pl.PipeType.MTE3,wait_pipe=pl.PipeType.S,event_id=1)
+<i>100</i>                 pl.system.dsb(scope=pl.MemDsb.DDR)</pre></details><details><summary>moonep_plan_latest_pro.py · 第 101–123 行 · 查看源码</summary><pre><i>101</i>             else:
+<i>102</i>                 ready=pld.signal(win,me)
+<i>103</i>                 for peer in pl.range(dem.shape[0]):
+<i>104</i>                     pld.put(data,tile,[me,0],peer)
+<i>105</i>                     pld.notify(ready,peer,epoch)
+<i>106</i>                 for source in pl.range(dem.shape[0]):
+<i>107</i>                     received=pld.signal(win,source)
+<i>108</i>                     pld.wait(received,epoch,cmp=pld.Cmp.GE)
+<i>109</i>                 for row in pl.range(dem.shape[0]):
+<i>110</i>                     pld.get(tile,data,[row,0],me)
+<i>111</i>                     pl.system.sync_src(set_pipe=pl.PipeType.MTE2,wait_pipe=pl.PipeType.MTE3,event_id=2)
+<i>112</i>                     pl.system.sync_dst(set_pipe=pl.PipeType.MTE2,wait_pipe=pl.PipeType.MTE3,event_id=2)
+<i>113</i>                     if padded_dem.shape[1] == dem.shape[1]:
+<i>114</i>                         pl.store(dem,tile,[row,0])
+<i>115</i>                     else:
+<i>116</i>                         pl.store(padded_dem,tile,[row,0])
+<i>117</i>                     pl.system.sync_src(set_pipe=pl.PipeType.MTE3,wait_pipe=pl.PipeType.MTE2,event_id=3)
+<i>118</i>                     pl.system.sync_dst(set_pipe=pl.PipeType.MTE3,wait_pipe=pl.PipeType.MTE2,event_id=3)
+<i>119</i>                 pl.system.sync_src(set_pipe=pl.PipeType.MTE3,wait_pipe=pl.PipeType.S,event_id=1)
+<i>120</i>                 pl.system.sync_dst(set_pipe=pl.PipeType.MTE3,wait_pipe=pl.PipeType.S,event_id=1)
+<i>121</i>                 pl.system.dsb(scope=pl.MemDsb.DDR)
+<i>122</i>                 if padded_dem.shape[1] != dem.shape[1]:
+<i>123</i>                     _unpad_dem[1](padded_dem,dem)</pre></details><h2 id="s5">05　Count：一块路由对应一行直方图</h2><p>只读本卡 flat，因此不依赖 Exchange 结果。提前时 AIV 1～16 各领一个 256 项块，AIV 17～31 没有块可领。每核 64 个 SIMT 线程，tid 处理块内 tid、tid+64、tid+128、tid+192。核内清零 hist 后同步，多线程用 UB atomic_add 更新同一专家桶，再同步、写 GM；第三次核内同步保证复用下一块之前已读完。</p><div class="scroll"><table><tr><th>来源</th><th>块</th><th>路由下标</th><th>实际有效 counts 行</th></tr><tr><td>0</td><td>0</td><td>0～255</td><td>[16, 16, 18, 15, 20, 12, 17, 18, 11, 24, 11, 22, 11, 10, 19, 16]</td></tr><tr><td>3</td><td>13</td><td>3328～3583</td><td>[20, 15, 15, 20, 9, 18, 14, 19, 19, 21, 14, 15, 13, 14, 14, 16]</td></tr></table></div><p>True 的适用条件是默认可信多卡路径、E=16、256&lt;N≤4096、多 AIV。False 在 mode 1 决策后再数；auto 在相同形状下根据本卡 tpe 判断，最热专家超过两倍平均需求便不提前。按列跨块汇总应还原 tpe；块内统计保留了分块并行 Assign 所需的顺序信息。</p><details><summary>moonep_plan_latest_pro.py · 第 124–134 行 · 查看源码</summary><pre><i>124</i>         overlap_count = early_count != 0 and strict_mode == 0 and dem.shape[1] == 16 and flat.shape[0] &gt; 256 and flat.shape[0] &lt;= 4096 and workers &gt; 1
+<i>125</i>         if early_count == 2 and overlap_count:
+<i>126</i>             pl.system.dcci(tpe)
+<i>127</i>             for expert in pl.range(dem.shape[1]):
+<i>128</i>                 if tpe[expert] * dem.shape[1] &gt; 2 * flat.shape[0]:
+<i>129</i>                     overlap_count = False
+<i>130</i>         if overlap_count:
+<i>131</i>             if bi &gt; 0:
+<i>132</i>                 hist = pl.make_tile(pl.TileType(shape=[1, ((counts.shape[1]+7)//8)*8], dtype=pl.DT_INT32, target_memory=pl.MemorySpace.Vec), addr=131072)
+<i>133</i>                 _count_partition_trusted[64](flat,counts,hist,bi-1,workers-1,dem.shape[1])
+<i>134</i>         # Bounded UB working set; large R/E falls back to the existing GM path.</pre></details><details><summary>moonep_plan_stages_pro.py · 第 355–388 行 · 查看源码</summary><pre><i>355</i> @pl.vector_function(mode=&quot;simt&quot;, max_threads=64)
+<i>356</i> def _count_partition_trusted(topk, counts, hist, worker, workers, logical_e):
+<i>357</i>     tid = pl.simt.linear_thread_idx()
+<i>358</i>     threads = pl.simt.block_dim().x
+<i>359</i>     n = topk.shape[0]
+<i>360</i>     e_count = logical_e
+<i>361</i>     row_stride = counts.shape[1]
+<i>362</i>     chunks = counts.shape[0]
+<i>363</i>     group_width = 1
+<i>364</i>     for alignment_step in pl.range(7):
+<i>365</i>         if row_stride * group_width % 128 != 0:
+<i>366</i>             group_width = group_width * 2
+<i>367</i>     for group_start in pl.range(worker * group_width, chunks, workers * group_width):
+<i>368</i>         group_end = group_start + group_width
+<i>369</i>         if chunks &lt; group_end:
+<i>370</i>             group_end = chunks
+<i>371</i>         for c in pl.range(group_start, group_end):
+<i>372</i>             for e in pl.range(tid, row_stride, threads):
+<i>373</i>                 hist[0,e] = 0
+<i>374</i>             pl.simt.syncthreads()
+<i>375</i>             end = (c + 1) * 256
+<i>376</i>             if n &lt; end:
+<i>377</i>                 end = n
+<i>378</i>             for i in pl.range(c * 256 + tid,end,threads):
+<i>379</i>                 e = pl.simt.cast(topk[i],pl.DT_INT64)
+<i>380</i>                 if e &gt;= 0 and e &lt; e_count:
+<i>381</i>                     pl.simt.atomic_add(hist[0,e],pl.simt.cast(1,pl.DT_INT32))
+<i>382</i>             pl.simt.syncthreads()
+<i>383</i>             for e in pl.range(tid, row_stride, threads):
+<i>384</i>                 counts[c,e] = hist[0,e]
+<i>385</i>             # All lanes finish reading this row before reusing the tile.
+<i>386</i>             pl.simt.syncthreads()
+<i>387</i>     pl.simt.threadfence()
+<i>388</i> </pre></details><h2 id="s6">06　Greedy 初始化：只让专家的原属卡承担需求</h2><p>同一 dem 在每卡 AIV 0 产生相同决策。本例命中精确的小网络 scalar 分支。epn=E/R=4；UB 中每个专家物理预留八列。对专家 e 把四张来源卡的 dem 求和，将总数放在 ub_rem[e,home]，并设 ub_order[e,home]=1。然后对每个目的卡按专家求和得到 ub_loads。</p><div class="scroll"><table><tr><th>原属目的卡</th><th>专家</th><th>各专家初始份额</th><th>ub_loads</th></tr><tr><td>0</td><td>e0～e3</td><td>[993, 1018, 1005, 1042]</td><td>4058</td></tr><tr><td>1</td><td>e4～e7</td><td>[1059, 1046, 1008, 1040]</td><td>4153</td></tr><tr><td>2</td><td>e8～e11</td><td>[1037, 1008, 1036, 990]</td><td>4071</td></tr><tr><td>3</td><td>e12～e15</td><td>[1014, 1051, 1003, 1034]</td><td>4102</td></tr></table></div><p>e5 的四个来源分别有 255、256、252、283 条。ub_rem[5,:]=[0,1046,0,0]，表示初始全给 rank 1。ub_loads[0,1]=4153 是整个目的卡的任务量，不是专家 5 自己的量。rank 1 作为来源只发出 4096 条。全局总数 16384，目标 cap=4096。</p><details><summary>moonep_plan_latest_pro.py · 第 135–182 行 · 查看源码</summary><pre><i>135</i>         padded_ranks = ((dem.shape[0]+7)//8)*8
+<i>136</i>         greedy_bytes = dem.shape[1]*padded_ranks*8 + padded_ranks*4
+<i>137</i>         ub_cols = padded_ranks if greedy_bytes &lt;= 98304 else 8
+<i>138</i>         ub_rows = dem.shape[1] if greedy_bytes &lt;= 98304 else 1
+<i>139</i>         if greedy_bytes &lt;= 98304:
+<i>140</i>             ub_rem=pl.make_tile(pl.TileType(shape=[ub_rows,ub_cols],dtype=pl.DT_INT32,target_memory=pl.MemorySpace.Vec),addr=0)
+<i>141</i>             ub_order=pl.make_tile(pl.TileType(shape=[ub_rows,ub_cols],dtype=pl.DT_INT32,target_memory=pl.MemorySpace.Vec),addr=ub_rows*ub_cols*4)
+<i>142</i>             ub_loads=pl.make_tile(pl.TileType(shape=[1,ub_cols],dtype=pl.DT_INT32,target_memory=pl.MemorySpace.Vec),addr=ub_rows*ub_cols*8)
+<i>143</i>             if bi == 0:
+<i>144</i>                 # Four-rank small-network scalar Greedy, validated with 32 AIVs.
+<i>145</i>                 if dem.shape[0] == 4 and dem.shape[1] == 16 and topk.shape[0] == 1024 and topk.shape[1] == 4 and workers == 32 and strict_mode == 0:
+<i>146</i>                     ranks = dem.shape[0]
+<i>147</i>                     experts = dem.shape[1]
+<i>148</i>                     epn = experts // ranks
+<i>149</i>                     bad = 0
+<i>150</i>                     if strict_mode != 0:
+<i>151</i>                         for r in pl.range(ranks):
+<i>152</i>                             total = 0
+<i>153</i>                             for e in pl.range(experts):
+<i>154</i>                                 value = dem[r, e]
+<i>155</i>                                 if value &lt; 0:
+<i>156</i>                                     bad = 1
+<i>157</i>                                 total = total + value
+<i>158</i>                             if total != flat.shape[0]:
+<i>159</i>                                 bad = 4
+<i>160</i>                     errors[0] = bad
+<i>161</i>                     hist_error[0] = 0
+<i>162</i>                     overflow[0] = 0
+<i>163</i>                     for e in pl.range(experts):
+<i>164</i>                         total = 0
+<i>165</i>                         for r in pl.range(ranks):
+<i>166</i>                             total = total + dem[r, e]
+<i>167</i>                         for r in pl.range(ranks):
+<i>168</i>                             ub_rem[e, r] = 0
+<i>169</i>                             ub_order[e, r] = 0
+<i>170</i>                         home = e // epn
+<i>171</i>                         ub_rem[e, home] = total
+<i>172</i>                         ub_order[e, home] = 1
+<i>173</i>                     for r in pl.range(ranks):
+<i>174</i>                         ub_loads[0, r] = 0
+<i>175</i>                     if bad == 0:
+<i>176</i>                         experts = dem.shape[1]
+<i>177</i>                         ranks = dem.shape[0]
+<i>178</i>                         epn = experts // ranks
+<i>179</i>                         total = 0
+<i>180</i>                         for r in pl.range(ranks):
+<i>181</i>                             amount = 0
+<i>182</i>                             for e in pl.range(experts):</pre></details><h2 id="s7">07　Greedy 四轮：为什么 e5 的结果是 1021 + 25</h2><p>每轮选负载最高 src、最低 dst，从 src 原属专家中挑当前 ub_rem[e,src] 最大者。take=min(该专家剩余量,cap−dst负载)。一个专家不够时仍在同一 src 内选。并列时严格比较、升序扫描，先遇到的小编号胜出。新服务位置记下一顺序号；从源份额扣除 take，加到目的份额。</p><div class="scroll"><table><tr><th>扫描</th><th>src→dst</th><th>调整</th><th>各目的卡负载</th></tr><tr><td>初始</td><td>—</td><td>—</td><td>4058,4153,4071,4102</td></tr><tr><td>1</td><td>1→0</td><td>e4 给 38</td><td>4096,4115,4071,4102</td></tr><tr><td>2</td><td>1→2</td><td>e5 给 25</td><td>4096,4090,4096,4102</td></tr><tr><td>3</td><td>3→1</td><td>e13 给 6</td><td>4096,4096,4096,4096</td></tr><tr><td>4</td><td>—</td><td>high==cap，不调整</td><td>4096,4096,4096,4096</td></tr></table></div><p>e4 原有 1059，第一次调整后剩 1021；第二轮 e5 的 1046 成为最大。rank 1 此时仅超目标 19，但 rank 2 缺 25，代码优先填满目的卡，所以给出 25。e5 最终 rem=[0,1021,25,0]、order=[0,1,2,0]。这里只分数额，尚未为具体 token 选目的卡。</p><details><summary>moonep_plan_latest_pro.py · 第 183–231 行 · 查看源码</summary><pre><i>183</i>                                 amount = amount + ub_rem[e, r]
+<i>184</i>                             ub_loads[0, r] = amount
+<i>185</i>                             total = total + amount
+<i>186</i>                         cap = total // ranks
+<i>187</i>                         for iteration in pl.range(ranks):
+<i>188</i>                             src = 0
+<i>189</i>                             dst = 0
+<i>190</i>                             high = -1
+<i>191</i>                             low = 2147483647
+<i>192</i>                             for r in pl.range(ranks):
+<i>193</i>                                 amount = ub_loads[0, r]
+<i>194</i>                                 if amount &gt; high:
+<i>195</i>                                     high = amount
+<i>196</i>                                     src = r
+<i>197</i>                                 if amount &lt; low:
+<i>198</i>                                     low = amount
+<i>199</i>                                     dst = r
+<i>200</i>                             if high &gt; cap:
+<i>201</i>                                 remaining = cap - low
+<i>202</i>                                 moved = 0
+<i>203</i>                                 for slot in pl.range(epn):
+<i>204</i>                                     if remaining &gt; 0:
+<i>205</i>                                         best = -1
+<i>206</i>                                         largest = 0
+<i>207</i>                                         for j in pl.range(epn):
+<i>208</i>                                             e = src * epn + j
+<i>209</i>                                             amount = ub_rem[e, src]
+<i>210</i>                                             if amount &gt; largest:
+<i>211</i>                                                 largest = amount
+<i>212</i>                                                 best = e
+<i>213</i>                                         if largest &gt; 0:
+<i>214</i>                                             take = largest
+<i>215</i>                                             if remaining &lt; take:
+<i>216</i>                                                 take = remaining
+<i>217</i>                                             if ub_order[best, dst] == 0:
+<i>218</i>                                                 copies = 0
+<i>219</i>                                                 for r in pl.range(ranks):
+<i>220</i>                                                     if ub_order[best, r] &gt; 0:
+<i>221</i>                                                         copies = copies + 1
+<i>222</i>                                                 ub_order[best, dst] = copies + 1
+<i>223</i>                                             ub_rem[best, src] = ub_rem[best, src] - take
+<i>224</i>                                             ub_rem[best, dst] = ub_rem[best, dst] + take
+<i>225</i>                                             remaining = remaining - take
+<i>226</i>                                             moved = moved + take
+<i>227</i>                                 ub_loads[0, src] = high - moved
+<i>228</i>                                 ub_loads[0, dst] = cap
+<i>229</i>                     if strict_mode == 0:
+<i>230</i>                         remote = 0
+<i>231</i>                         split = 0</pre></details><h2 id="s8">08　mode 与 Publish：让其他 AIV 看见规划</h2><p>根据正份额判断：全在 home 为 mode 0；存在远端但每个有需求的专家只在一处为 mode 2；任一专家分在两处或更多，覆盖为 mode 1。本例 e4、e5、e13 均拆分。可信路径用 overflow[0] 携带 mode。</p><p>决策由 AIV 0 的 scalar 单元串行执行。_publish_greedy[64] 用 AIV 0 的线程把 rem/order/loads 发布至本卡 GM；本例线程 0～15 有专家行。mode 0 还写 etc/cu；mode 2 写 fixed。所有 32 个 AIV 在第 263 行第一次显式卡内全核同步。</p><details><summary>moonep_plan_latest_pro.py · 第 231–264 行 · 查看源码</summary><pre><i>231</i>                         split = 0
+<i>232</i>                         for e in pl.range(experts):
+<i>233</i>                             active = 0
+<i>234</i>                             for r in pl.range(ranks):
+<i>235</i>                                 if ub_rem[e, r] &gt; 0:
+<i>236</i>                                     active = active + 1
+<i>237</i>                                     if r != e // epn:
+<i>238</i>                                         remote = 1
+<i>239</i>                             if active &gt; 1:
+<i>240</i>                                 split = 1
+<i>241</i>                         mode = 0
+<i>242</i>                         if remote != 0:
+<i>243</i>                             mode = 2
+<i>244</i>                         if split != 0:
+<i>245</i>                             mode = 1
+<i>246</i>                         overflow[0] = mode
+<i>247</i>                     pl.system.dsb(scope=pl.MemDsb.ALL)
+<i>248</i>                     pl.system.dcci(overflow)
+<i>249</i>                 else:
+<i>250</i>                     _stage_zero_ub[1](dem,ub_rem,ub_order,ub_loads,errors,hist_error,overflow,flat.shape[0],strict_mode)
+<i>251</i>             _publish_greedy[64](ub_rem,ub_order,ub_loads,rem,order,loads,etc,cu,fixed,overflow,me,bi,strict_mode)
+<i>252</i>         else:
+<i>253</i>             if bi == 0:
+<i>254</i>                 _stage_zero_legacy_mode[1](dem,flat,rem,order,loads,errors,hist_error,overflow,etc,cu,fixed,me,topk.shape[1],strict_mode)
+<i>255</i>         if strict_mode != 0:
+<i>256</i>             _validate_tokens[64](flat,validation,topk.shape[1],dem.shape[1],bi,workers)
+<i>257</i>             _count_partition[64](flat,counts,out,zero,bi,workers,dem.shape[1])
+<i>258</i>         pl.system.sync_src(set_pipe=pl.PipeType.V,wait_pipe=pl.PipeType.S,event_id=5)
+<i>259</i>         pl.system.sync_dst(set_pipe=pl.PipeType.V,wait_pipe=pl.PipeType.S,event_id=5)
+<i>260</i>         pl.system.dsb(scope=pl.MemDsb.DDR)
+<i>261</i>         # SYNCALL orders cores; explicit clean/invalidate handles scalar cache.
+<i>262</i>         pl.system.dcci(errors)
+<i>263</i>         pl.system.sync_all(core_type=pl.SyncCoreType.AIV_ONLY)
+<i>264</i>         pl.system.dcci(errors)</pre></details><details><summary>moonep_plan_stages_pro.py · 第 501–546 行 · 查看源码</summary><pre><i>501</i> @pl.vector_function(mode=&quot;simt&quot;, max_threads=64)
+<i>502</i> def _publish_greedy(ub_rem, ub_order, ub_loads, rem, order, loads, etc, cu, fixed, flag, me, worker, strict_mode):
+<i>503</i>     tid = pl.simt.linear_thread_idx()
+<i>504</i>     threads = pl.simt.block_dim().x
+<i>505</i>     experts = rem.shape[0]
+<i>506</i>     ranks = rem.shape[1]
+<i>507</i>     epn = experts // ranks
+<i>508</i>     if worker == 0:
+<i>509</i>         for e in pl.range(tid, experts, threads):
+<i>510</i>             for r in pl.range(ranks):
+<i>511</i>                 rem[e, r] = ub_rem[e, r]
+<i>512</i>                 order[e, r] = ub_order[e, r]
+<i>513</i>         for r in pl.range(tid, ranks, threads):
+<i>514</i>             loads[r] = ub_loads[0, r]
+<i>515</i>     # Lane 0 has consumed load[0]; this UB slot has no later loads reader.
+<i>516</i>     if worker == 0 and strict_mode == 0 and (tid == 0):
+<i>517</i>         ub_loads[0, 0] = pl.simt.atomic_add(flag[0], pl.simt.cast(0, pl.DT_INT32))
+<i>518</i>     # Keep the barrier uniform for strict mode and otherwise idle AIVs too.
+<i>519</i>     pl.simt.syncthreads()
+<i>520</i>     if worker == 0 and strict_mode == 0:
+<i>521</i>         remote = ub_loads[0, 0]
+<i>522</i>         if remote == 0:
+<i>523</i>             for i in pl.range(tid, experts, threads):
+<i>524</i>                 etc[i // epn, i % epn] = -1
+<i>525</i>             if tid == 0:
+<i>526</i>                 acc = 0
+<i>527</i>                 for j in pl.range(epn):
+<i>528</i>                     acc = acc + pl.simt.cast(ub_rem[me * epn + j, me], pl.DT_INT64)
+<i>529</i>                     cu[j] = pl.simt.cast(acc, pl.DT_INT32)
+<i>530</i>                 for j in pl.range(epn):
+<i>531</i>                     cu[epn + j] = pl.simt.cast(acc, pl.DT_INT32)
+<i>532</i>         if remote == 2:
+<i>533</i>             for e in pl.range(tid, experts, threads):
+<i>534</i>                 home = e // epn
+<i>535</i>                 dst = home
+<i>536</i>                 for r in pl.range(ranks):
+<i>537</i>                     if ub_rem[e, r] &gt; 0:
+<i>538</i>                         dst = r
+<i>539</i>                 slot = e % epn
+<i>540</i>                 if dst != home:
+<i>541</i>                     slot = epn
+<i>542</i>                     for other in pl.range(e):
+<i>543</i>                         if ub_order[other, dst] &gt;= 2:
+<i>544</i>                             slot = slot + 1
+<i>545</i>                 fixed[e] = pl.simt.cast(dst * (2 * epn) + slot, pl.DT_INT32)
+<i>546</i>     pl.simt.threadfence()</pre></details><h2 id="s9">09　Tables：从目的卡观察各槽接多少条</h2><p>mode 1 调用 _tables_partition[4]。每行 epn=4，按 512 B 对齐组合的 group_width=32，四行都落到第一个组，故 AIV 0 的 4 个线程各处理一行。先累计 home 槽，再按专家编号升序登记迁入槽。jrep 在 replicas 递增前记录，首个额外槽的相对下标为 0。etc 含全部目的卡，cu 仅对应当前目的卡。</p><div class="scroll"><table><tr><th>目的卡</th><th>etc 迁入区 → 专家</th><th>本目的卡的 cu</th></tr><tr><td>0</td><td>[4, -1, -1, -1]</td><td>[993, 2011, 3016, 4058, 4096, 4096, 4096, 4096]</td></tr><tr><td>1</td><td>[13, -1, -1, -1]</td><td>[1021, 2042, 3050, 4090, 4096, 4096, 4096, 4096]</td></tr><tr><td>2</td><td>[5, -1, -1, -1]</td><td>[1037, 2045, 3081, 4071, 4096, 4096, 4096, 4096]</td></tr><tr><td>3</td><td>[-1, -1, -1, -1]</td><td>[1014, 2059, 3062, 4096, 4096, 4096, 4096, 4096]</td></tr></table></div><p>rank 0 的 home 槽累计到 4058，迁入 e4 后累计到 4096，差值 38 就是额外槽 4 的工作量。cu 后续保持 4096，表示剩余槽均为空。</p><details><summary>moonep_plan_stages_pro.py · 第 49–90 行 · 查看源码</summary><pre><i>49</i> @pl.vector_function(mode=&quot;simt&quot;, max_threads=4)
+<i>50</i> def _tables_partition(rem, order, jrep, etc, cu, status, me, worker, workers):
+<i>51</i>     tid = pl.simt.linear_thread_idx()
+<i>52</i>     threads = pl.simt.block_dim().x
+<i>53</i>     e_count = rem.shape[0]
+<i>54</i>     ranks = rem.shape[1]
+<i>55</i>     epn = e_count // ranks
+<i>56</i>     if worker == 0 and tid == 0:
+<i>57</i>         for rr in pl.range(ranks):
+<i>58</i>             status[rr] = 0
+<i>59</i>     start = worker
+<i>60</i>     stride = workers
+<i>61</i>     group_width = 1
+<i>62</i>     for alignment_step in pl.range(7):
+<i>63</i>         if epn * group_width % 128 != 0:
+<i>64</i>             group_width = group_width * 2
+<i>65</i>     for group_start in pl.range(worker * group_width, ranks, workers * group_width):
+<i>66</i>         group_end = group_start + group_width
+<i>67</i>         if ranks &lt; group_end:
+<i>68</i>             group_end = ranks
+<i>69</i>         for r in pl.range(group_start + tid, group_end, threads):
+<i>70</i>             for j in pl.range(epn):
+<i>71</i>                 etc[r, j] = -1
+<i>72</i>             replicas = 0
+<i>73</i>             acc = 0
+<i>74</i>             if r == me:
+<i>75</i>                 for j in pl.range(epn):
+<i>76</i>                     acc = acc + pl.simt.cast(rem[r * epn + j, r], pl.DT_INT64)
+<i>77</i>                     cu[j] = pl.simt.cast(acc, pl.DT_INT32)
+<i>78</i>             for e in pl.range(e_count):
+<i>79</i>                 jrep[r, e] = pl.simt.cast(replicas, pl.DT_INT32)
+<i>80</i>                 if order[e, r] &gt;= 2:
+<i>81</i>                     if replicas &lt; epn:
+<i>82</i>                         etc[r, replicas] = pl.simt.cast(e, pl.DT_INT32)
+<i>83</i>                         if r == me:
+<i>84</i>                             acc = acc + pl.simt.cast(rem[e, r], pl.DT_INT64)
+<i>85</i>                             cu[epn + replicas] = pl.simt.cast(acc, pl.DT_INT32)
+<i>86</i>                     replicas = replicas + 1
+<i>87</i>             if r == me:
+<i>88</i>                 for j in pl.range(replicas, epn):
+<i>89</i>                     cu[epn + j] = pl.simt.cast(acc, pl.DT_INT32)
+<i>90</i>     pl.simt.threadfence()</pre></details><h2 id="s10">10　Prefix：从块内次数推导专家的全局序号</h2><p>_prefix_partition[64] 按 128 专家一组，E=16 时只有 AIV 0 领取有效组，线程 0～15 各处理一个专家。纯 home 专家可写直接 VID；有远端份额的专家设 fixed=-1。pcnt[e,c] 先记录 acc 才加 counts[c,e]，所以不含本块。</p><p>dpre 的来源排序先列出服务该专家的卡，再按编号补齐其他来源。ord_rank 是各服务段目的卡，ord_end 是累计右端点。e4 的来源需求 [271,239,277,272]，来源顺序 [1,0,2,3]；rank 3 的 dpre=239+271+277=787。目的段是 rank 1 的 [0,1021) 和 rank 0 的 [1021,1059)。Tables/Prefix 完成后各核在第 308 行同步。</p><details><summary>moonep_plan_stages_pro.py · 第 92–151 行 · 查看源码</summary><pre><i>92</i> @pl.vector_function(mode=&quot;simt&quot;, max_threads=64)
+<i>93</i> def _prefix_partition(dem, counts, rem, order, pcnt, dpre, fixed, ord_rank, ord_end, me, worker, workers):
+<i>94</i>     tid = pl.simt.linear_thread_idx()
+<i>95</i>     threads = pl.simt.block_dim().x
+<i>96</i>     e_count = rem.shape[0]
+<i>97</i>     ranks = rem.shape[1]
+<i>98</i>     epn = e_count // ranks
+<i>99</i>     chunks = counts.shape[0]
+<i>100</i>     start = worker
+<i>101</i>     stride = workers
+<i>102</i>     group_width = 128
+<i>103</i>     for group_start in pl.range(worker * group_width, e_count, workers * group_width):
+<i>104</i>         group_end = group_start + group_width
+<i>105</i>         if e_count &lt; group_end:
+<i>106</i>             group_end = e_count
+<i>107</i>         for e in pl.range(group_start + tid, group_end, threads):
+<i>108</i>             home = e // epn
+<i>109</i>             fixed[e] = pl.simt.cast(home * (2 * epn) + e % epn, pl.DT_INT32)
+<i>110</i>             for r in pl.range(ranks):
+<i>111</i>                 if r != home:
+<i>112</i>                     if rem[e, r] &gt; 0:
+<i>113</i>                         fixed[e] = -1
+<i>114</i>             # Fixed-home experts never consume these prefix/state tables.
+<i>115</i>             if fixed[e] &lt; 0:
+<i>116</i>                 acc = 0
+<i>117</i>                 for c in pl.range(chunks):
+<i>118</i>                     pcnt[e, c] = pl.simt.cast(acc, pl.DT_INT32)
+<i>119</i>                     acc = acc + pl.simt.cast(counts[c, e], pl.DT_INT64)
+<i>120</i>                 for o in pl.range(ranks + 1):
+<i>121</i>                     ord_rank[e, o] = -1
+<i>122</i>                 for r in pl.range(ranks):
+<i>123</i>                     o = pl.simt.cast(order[e, r], pl.DT_INT64)
+<i>124</i>                     if o &gt; 0:
+<i>125</i>                         ord_rank[e, o - 1] = pl.simt.cast(r, pl.DT_INT32)
+<i>126</i>                 # Source preference matches bundled DSL: serving ranks in segment
+<i>127</i>                 # order, followed by non-serving ranks in ascending rank order.
+<i>128</i>                 acc_p = 0
+<i>129</i>                 seen_me = 0
+<i>130</i>                 for o in pl.range(ranks):
+<i>131</i>                     r = pl.simt.cast(ord_rank[e, o], pl.DT_INT64)
+<i>132</i>                     if r &gt;= 0 and seen_me == 0:
+<i>133</i>                         if r == me:
+<i>134</i>                             seen_me = 1
+<i>135</i>                         else:
+<i>136</i>                             acc_p = acc_p + pl.simt.cast(dem[r, e], pl.DT_INT64)
+<i>137</i>                 for r in pl.range(ranks):
+<i>138</i>                     if seen_me == 0:
+<i>139</i>                         if r == me:
+<i>140</i>                             seen_me = 1
+<i>141</i>                         else:
+<i>142</i>                             if order[e, r] == 0:
+<i>143</i>                                 acc_p = acc_p + pl.simt.cast(dem[r, e], pl.DT_INT64)
+<i>144</i>                 dpre[e] = pl.simt.cast(acc_p, pl.DT_INT32)
+<i>145</i>                 acc = 0
+<i>146</i>                 for o in pl.range(ranks + 1):
+<i>147</i>                     r = pl.simt.cast(ord_rank[e, o], pl.DT_INT64)
+<i>148</i>                     if r &gt;= 0:
+<i>149</i>                         acc = acc + pl.simt.cast(rem[e, r], pl.DT_INT64)
+<i>150</i>                     ord_end[e, o] = pl.simt.cast(acc, pl.DT_INT32)
+<i>151</i>     pl.simt.threadfence()</pre></details><details><summary>moonep_plan_latest_pro.py · 第 292–309 行 · 查看源码</summary><pre><i>292</i>                 else:
+<i>293</i>                     if not overlap_count:
+<i>294</i>                         hist = pl.make_tile(pl.TileType(shape=[1, ((counts.shape[1]+7)//8)*8], dtype=pl.DT_INT32, target_memory=pl.MemorySpace.Vec), addr=131072)
+<i>295</i>                         _count_partition_trusted[64](flat,counts,hist,bi,workers,dem.shape[1])
+<i>296</i>                         pl.system.sync_src(set_pipe=pl.PipeType.V,wait_pipe=pl.PipeType.S,event_id=6)
+<i>297</i>                         pl.system.sync_dst(set_pipe=pl.PipeType.V,wait_pipe=pl.PipeType.S,event_id=6)
+<i>298</i>                         pl.system.dsb(scope=pl.MemDsb.DDR)
+<i>299</i>                         pl.system.dcci(errors)
+<i>300</i>                         pl.system.sync_all(core_type=pl.SyncCoreType.AIV_ONLY)
+<i>301</i>                         pl.system.dcci(errors)
+<i>302</i>                     _tables_partition[4](rem,order,jrep,etc,cu,overflow,me,bi,workers)
+<i>303</i>                     _prefix_partition[64](dem,counts,rem,order,pcnt,dpre,fixed,ord_rank,ord_end,me,bi,workers)
+<i>304</i>                     pl.system.sync_src(set_pipe=pl.PipeType.V,wait_pipe=pl.PipeType.S,event_id=6)
+<i>305</i>                     pl.system.sync_dst(set_pipe=pl.PipeType.V,wait_pipe=pl.PipeType.S,event_id=6)
+<i>306</i>                     pl.system.dsb(scope=pl.MemDsb.DDR)
+<i>307</i>                     pl.system.dcci(errors)
+<i>308</i>                     pl.system.sync_all(core_type=pl.SyncCoreType.AIV_ONLY)
+<i>309</i>                     pl.system.dcci(errors)</pre></details><h2 id="s11">11　Assign：SIMD 快项与压紧慢项</h2><p>chunk=wave×workers+bi。16 个有效块由 AIV 0～15 处理；其余核的 valid_count=0。工作核将本块 256 个 topk 和 fixed 表加载到 UB，_assign_projection 分四组 64 项用 gather 查地址，并将 fixed&lt;0 的慢项在本块的原始位置按顺序写到 slow。以下摘录展示第一组；其余三组偏移 64、128、192。</p><p>_assign_compacted_chunk[1] 每有效块用一个 SIMT 线程处理慢项。scratch[e,0]=dpre[e]+pcnt[e,chunk] 是下一个序号；scratch[e,1] 是当前段终点；scratch[e,2] 是缓存的 VID。序号跨段时才重新查 ord_end/ord_rank。home 段用 e%epn，迁入段用 epn+jrep[dst,e]。写回 values[原位置] 后序号加一，最后整个块写到 GM 的 out。</p><details><summary>moonep_plan_latest_pro.py · 第 310–352 行 · 查看源码</summary><pre><i>310</i>                     if dem.shape[1] == 16 and flat.shape[0] &gt; 256 and (flat.shape[0] &lt;= 4096):
+<i>311</i>                         fixed_matrix = pl.make_tensor(pl.make_ptr(fixed), [1, dem.shape[1]], dtype=pl.DT_INT32)
+<i>312</i>                         top_matrix = pl.make_tensor(pl.make_ptr(flat), [1, flat.shape[0]], dtype=pl.DT_INT32)
+<i>313</i>                         out_matrix = pl.make_tensor(pl.make_ptr(out), [1, flat.shape[0]], dtype=pl.DT_INT32)
+<i>314</i>                         fixed_tile = pl.make_tile(pl.TileType(shape=[1, 16], dtype=pl.DT_INT32, target_memory=pl.MemorySpace.Vec), addr=512)
+<i>315</i>                         top_tile = pl.make_tile(pl.TileType(shape=[1, 256], dtype=pl.DT_INT32, target_memory=pl.MemorySpace.Vec, valid_shape=[-1, -1]), addr=576)
+<i>316</i>                         values_tile = pl.make_tile(pl.TileType(shape=[1, 256], dtype=pl.DT_INT32, target_memory=pl.MemorySpace.Vec, valid_shape=[-1, -1]), addr=1600)
+<i>317</i>                         slow_tile = pl.make_tile(pl.TileType(shape=[1, 256], dtype=pl.DT_INT32, target_memory=pl.MemorySpace.Vec), addr=2624)
+<i>318</i>                         count_tile = pl.make_tile(pl.TileType(shape=[1, 8], dtype=pl.DT_INT32, target_memory=pl.MemorySpace.Vec), addr=3648)
+<i>319</i>                         pl.set_validshape(top_tile, [1, 256])
+<i>320</i>                         pl.set_validshape(values_tile, [1, 256])
+<i>321</i>                         pl.load(fixed_tile, fixed_matrix, [0, 0])
+<i>322</i>                         pl.system.sync_src(set_pipe=pl.PipeType.MTE2, wait_pipe=pl.PipeType.V, event_id=1)
+<i>323</i>                         pl.system.sync_dst(set_pipe=pl.PipeType.MTE2, wait_pipe=pl.PipeType.V, event_id=1)
+<i>324</i>                         for wave in pl.range((pcnt.shape[1] + workers - 1) // workers):
+<i>325</i>                             chunk = wave * workers + bi
+<i>326</i>                             valid_count = flat.shape[0] - chunk * 256
+<i>327</i>                             if valid_count &gt; 256:
+<i>328</i>                                 valid_count = pl.const(256, pl.DT_INT64)
+<i>329</i>                             if valid_count &lt; 0:
+<i>330</i>                                 valid_count = pl.const(0, pl.DT_INT64)
+<i>331</i>                             if valid_count &gt; 0:
+<i>332</i>                                 pl.set_validshape(top_tile, [1, valid_count])
+<i>333</i>                                 pl.set_validshape(values_tile, [1, valid_count])
+<i>334</i>                                 pl.load(top_tile, top_matrix, [0, chunk * 256])
+<i>335</i>                             pl.system.sync_src(set_pipe=pl.PipeType.MTE2, wait_pipe=pl.PipeType.V, event_id=1)
+<i>336</i>                             pl.system.sync_dst(set_pipe=pl.PipeType.MTE2, wait_pipe=pl.PipeType.V, event_id=1)
+<i>337</i>                             _assign_projection(top_tile, fixed_tile, values_tile, slow_tile, count_tile, valid_count)
+<i>338</i>                             pl.system.sync_src(set_pipe=pl.PipeType.V, wait_pipe=pl.PipeType.S, event_id=4)
+<i>339</i>                             pl.system.sync_dst(set_pipe=pl.PipeType.V, wait_pipe=pl.PipeType.S, event_id=4)
+<i>340</i>                             _assign_compacted_chunk[1](top_tile, values_tile, slow_tile, count_tile, fixed_tile, pcnt, dpre, ord_rank, ord_end, jrep, scratch, chunk, valid_count)
+<i>341</i>                             pl.system.sync_src(set_pipe=pl.PipeType.V, wait_pipe=pl.PipeType.MTE3, event_id=2)
+<i>342</i>                             pl.system.sync_dst(set_pipe=pl.PipeType.V, wait_pipe=pl.PipeType.MTE3, event_id=2)
+<i>343</i>                             if valid_count &gt; 0:
+<i>344</i>                                 pl.store(out_matrix, values_tile, [0, chunk * 256])
+<i>345</i>                             # Protect top UB from the next wave&#x27;s MTE2 load.
+<i>346</i>                             pl.system.sync_src(set_pipe=pl.PipeType.MTE3, wait_pipe=pl.PipeType.MTE2, event_id=3)
+<i>347</i>                             pl.system.sync_dst(set_pipe=pl.PipeType.MTE3, wait_pipe=pl.PipeType.MTE2, event_id=3)
+<i>348</i>                     else:
+<i>349</i>                         _assign_partition[assign_threads](flat, pcnt, dpre, fixed, ord_rank, ord_end, jrep, scratch, state, out, bi, workers)
+<i>350</i>         pl.system.sync_src(set_pipe=pl.PipeType.V,wait_pipe=pl.PipeType.S,event_id=7)
+<i>351</i>         pl.system.sync_dst(set_pipe=pl.PipeType.V,wait_pipe=pl.PipeType.S,event_id=7)
+<i>352</i>         pl.system.dsb(scope=pl.MemDsb.DDR)</pre></details><details><summary>moonep_plan_assign_simd.py · 第 10–37 行 · 查看源码</summary><pre><i>10</i> @pl.vector_function
+<i>11</i> def _assign_projection(top,fixed,out,slow,count,valid_count):
+<i>12</i>     full_i=vf.create_mask(pattern=pl.MaskPattern.ALL,dtype=I32)
+<i>13</i>     full_f=vf.create_mask(pattern=pl.MaskPattern.ALL,dtype=F32)
+<i>14</i>     ones=vf.full(pl.const(1.0,F32),dtype=F32)
+<i>15</i>     zeros=vf.full(pl.const(0.0,F32),dtype=F32)
+<i>16</i>     accum=vf.full(pl.const(0.0,F32),dtype=F32)
+<i>17</i>     zero_values=vf.full(pl.const(0,I32),dtype=I32)
+<i>18</i>     areg=vf.unalign_reg_for_store()
+<i>19</i>     vf.clear_spr()
+<i>20</i>     remaining=valid_count-0
+<i>21</i>     if remaining &gt; 64:
+<i>22</i>         remaining=pl.const(64,pl.DT_INT64)
+<i>23</i>     if remaining &lt; 0:
+<i>24</i>         remaining=pl.const(0,pl.DT_INT64)
+<i>25</i>     active=vf.update_mask(remaining,dtype=I32)
+<i>26</i>     indices=vf.load_align(top,[0,0])
+<i>27</i>     gather_indices=vf.astype(indices,active,dtype=U32)
+<i>28</i>     values=vf.gather(fixed,gather_indices,active)
+<i>29</i>     vf.store_align(out,values,active,[0,0])
+<i>30</i>     safe_values=vf.select(values,zero_values,active)
+<i>31</i>     is_slow=vf.lt(safe_values,pl.const(0,I32),full_i)
+<i>32</i>     positions=vf.arange(0,dtype=I32)
+<i>33</i>     packed=vf.squeeze(positions,is_slow,gather_mode=pl.SqueezeMode.STORE_REG)
+<i>34</i>     vf.squeeze_store_unalign(slow,packed,areg)
+<i>35</i>     selected=vf.select(ones,zeros,is_slow)
+<i>36</i>     accum=vf.add(accum,selected,full_f)
+<i>37</i>     remaining=valid_count-64</pre></details><details><summary>moonep_plan_assign_simd.py · 第 86–126 行 · 查看源码</summary><pre><i>86</i>     selected=vf.select(ones,zeros,is_slow)
+<i>87</i>     accum=vf.add(accum,selected,full_f)
+<i>88</i>     vf.squeeze_store_unalign_post(slow,areg)
+<i>89</i>     total=vf.reduce_sum(accum,full_f)
+<i>90</i>     total_i=vf.astype(total,full_f,dtype=I32)
+<i>91</i>     count_mask=vf.update_mask(8,dtype=I32)
+<i>92</i>     vf.store_align(count,total_i,count_mask,[0,0])
+<i>93</i>
+<i>94</i> @pl.vector_function(mode=&quot;simt&quot;,max_threads=1)
+<i>95</i> def _assign_compacted_chunk(top,values,slow,count,fixed,pcnt,dpre,ord_rank,ord_end,jrep,scratch,chunk,valid_count):
+<i>96</i>     if valid_count &gt; 0:
+<i>97</i>         e_count=pcnt.shape[0]
+<i>98</i>         ranks=jrep.shape[0]
+<i>99</i>         epn=e_count//ranks
+<i>100</i>         for e in pl.range(e_count):
+<i>101</i>             if fixed[0,e] &lt; 0:
+<i>102</i>                 a=pl.simt.cast(dpre[e],pl.DT_INT64)
+<i>103</i>                 b=pl.simt.cast(pcnt[e,chunk],pl.DT_INT64)
+<i>104</i>                 scratch[e,0]=pl.simt.cast(a+b,pl.DT_INT32)
+<i>105</i>                 scratch[e,1]=0
+<i>106</i>                 scratch[e,2]=-1
+<i>107</i>         for j in pl.range(pl.simt.cast(count[0,0],pl.DT_INT64)):
+<i>108</i>             i=pl.simt.cast(slow[0,j],pl.DT_INT64)
+<i>109</i>             e=pl.simt.cast(top[0,i],pl.DT_INT64)
+<i>110</i>             pos=pl.simt.cast(scratch[e,0],pl.DT_INT64)
+<i>111</i>             if pos &gt;= scratch[e,1]:
+<i>112</i>                 dst=-1
+<i>113</i>                 seg=0
+<i>114</i>                 for o in pl.range(ranks+1):
+<i>115</i>                     if dst &lt; 0:
+<i>116</i>                         if pos &lt; ord_end[e,o]:
+<i>117</i>                             dst=pl.simt.cast(ord_rank[e,o],pl.DT_INT64)
+<i>118</i>                             seg=o
+<i>119</i>                 slot=e%epn
+<i>120</i>                 if seg &gt; 0:
+<i>121</i>                     slot=epn+pl.simt.cast(jrep[dst,e],pl.DT_INT64)
+<i>122</i>                 scratch[e,1]=ord_end[e,seg]
+<i>123</i>                 scratch[e,2]=pl.simt.cast(dst*(2*epn)+slot,pl.DT_INT32)
+<i>124</i>             values[0,i]=scratch[e,2]
+<i>125</i>             scratch[e,0]=pl.simt.cast(pos+1,pl.DT_INT32)
+<i>126</i>     pl.simt.threadfence()</pre></details><h2 id="s12">12　逐 token 对账：同一块里的两个 e4 为何去了不同卡</h2><div class="scroll"><table><tr><th>来源</th><th>token</th><th>K槽</th><th>块</th><th>dpre</th><th>pcnt</th><th>块内此前 e4 数</th><th>pos</th><th>VID</th></tr><tr><td>0</td><td>1</td><td>0</td><td>0</td><td>239</td><td>0</td><td>0</td><td>239</td><td>8</td></tr><tr><td>3</td><td>875</td><td>1</td><td>13</td><td>787</td><td>227</td><td>6</td><td>1020</td><td>8</td></tr><tr><td>3</td><td>879</td><td>1</td><td>13</td><td>787</td><td>227</td><td>7</td><td>1021</td><td>4</td></tr></table></div><p>rank 3 的 token 875 和 879 对应 e4 序列中相邻的两项。前者 pos=1020，去 rank 1 原属槽 0，得到 8；后者 pos=1021，去 rank 0 迁入槽 4，得到 4。反向解码：4//8=0、4%8=4，etc[0,4−4]=4，恢复出原专家。</p><div class="scroll"><table><tr><th>来源与 token</th><th>输入 topk</th><th>最终 VID</th></tr><tr><td>rank 0 · token 0</td><td>[6, 3, 0, 7]</td><td>[10, 3, 0, 11]</td></tr><tr><td>rank 0 · token 1</td><td>[4, 6, 15, 5]</td><td>[8, 10, 27, 9]</td></tr><tr><td>rank 3 · token 875</td><td>[2, 4, 12, 1]</td><td>[2, 8, 24, 1]</td></tr><tr><td>rank 3 · token 879</td><td>[6, 4, 0, 1]</td><td>[10, 4, 0, 1]</td></tr></table></div><p>返回元组含六项：位置 0、3 是同一个全零占位缓冲；位置 1 是 cu，2 是 etc，4 是本来源扁平 vtopk，5 是内部 errors。历史 DSL 对照用前五项逐元素比较。</p><details><summary>moonep_plan_latest_pro.py · 第 435–444 行 · 查看源码</summary><pre><i>435</i>             if self._epoch&gt;=2**63-1: raise OverflowError(&#x27;recreate Window before epoch wraps&#x27;)
+<i>436</i>             self._epoch+=1
+<i>437</i>             b=self.buffers
+<i>438</i>             kernel=moonep_local_latest_kernel if self.r==1 else moonep_latest_kernel
+<i>439</i>             endpoint=0 if self.r==1 else self.win
+<i>440</i>             policy_args = () if self.r == 1 else (self._early_count,)
+<i>441</i>             kernel[None,self.workers](endpoint,b[0],tpe,topk,*b[1:],self.padded_tpe,self.padded_dem,self.hist_error,self.validation,self.workers,self._epoch,self._strict_mode,*policy_args)
+<i>442</i>             return b[16],b[6],b[5],b[16],b[15],b[17]
+<i>443</i>         finally:
+<i>444</i>             self.lock.release()</pre></details><h2 id="s13">13　mode 0 / mode 2：两个可复现的对照输入</h2><p>mode 0：每个来源循环选择 [0,1,2,3]、[4,5,6,7]、[8,9,10,11]、[12,13,14,15] 共 1024 个 token。每卡初始负载恰为 4096，etc 全 −1，_assign_home_partition[128] 用 (e//4)×8+e%4 直接算。专家 5 得到 9。32 核各 128 个线程，本例每线程一条。</p><p>mode 2：所有 token 均选择 [0,1,2,3]。初始负载 [16384,0,0,0]。按较小编号优先，e0、e1、e2 各整份迁至 rank 1、2、3，e3 留 rank 0，于是每个 token 得到 [12,20,28,3]。_tables_partition_stable[4] 建接收表；_assign_fixed_partition[128] 只查已发布的 fixed，无需等其他核完成 etc/cu。这两个模式可能已提前 Count，但不消费 counts。</p><details><summary>moonep_plan_latest_pro.py · 第 285–295 行 · 查看源码</summary><pre><i>285</i>         else:
+<i>286</i>             if overflow[0] == 0:
+<i>287</i>                 _assign_home_partition[128](flat,out,dem.shape[1]//dem.shape[0],bi,workers)
+<i>288</i>             else:
+<i>289</i>                 if overflow[0] == 2:
+<i>290</i>                     _tables_partition_stable[4](rem,order,jrep,etc,cu,overflow,me,bi,workers)
+<i>291</i>                     _assign_fixed_partition[128](flat,fixed,out,bi,workers)
+<i>292</i>                 else:
+<i>293</i>                     if not overlap_count:
+<i>294</i>                         hist = pl.make_tile(pl.TileType(shape=[1, ((counts.shape[1]+7)//8)*8], dtype=pl.DT_INT32, target_memory=pl.MemorySpace.Vec), addr=131072)
+<i>295</i>                         _count_partition_trusted[64](flat,counts,hist,bi,workers,dem.shape[1])</pre></details><details><summary>moonep_plan_stages_pro.py · 第 603–661 行 · 查看源码</summary><pre><i>603</i> @pl.vector_function(mode=&quot;simt&quot;, max_threads=128)
+<i>604</i> def _assign_home_partition(topk, out, epn, worker, workers):
+<i>605</i>     tid = pl.simt.linear_thread_idx()
+<i>606</i>     threads = pl.simt.block_dim().x
+<i>607</i>     # Each AIV owns complete 512-byte output groups; no shared state is needed.
+<i>608</i>     for i in pl.range(worker*threads+tid,topk.shape[0],workers*threads):
+<i>609</i>         e = pl.simt.cast(topk[i],pl.DT_INT64)
+<i>610</i>         out[i] = pl.simt.cast((e//epn)*(2*epn)+e%epn,pl.DT_INT32)
+<i>611</i>     pl.simt.threadfence()
+<i>612</i>
+<i>613</i> @pl.vector_function(mode=&quot;simt&quot;, max_threads=4)
+<i>614</i> def _tables_partition_stable(rem, order, jrep, etc, cu, status, me, worker, workers):
+<i>615</i>     tid = pl.simt.linear_thread_idx()
+<i>616</i>     threads = pl.simt.block_dim().x
+<i>617</i>     e_count = rem.shape[0]
+<i>618</i>     ranks = rem.shape[1]
+<i>619</i>     epn = e_count // ranks
+<i>620</i>     start = worker
+<i>621</i>     stride = workers
+<i>622</i>     group_width = 1
+<i>623</i>     for alignment_step in pl.range(7):
+<i>624</i>         if epn * group_width % 128 != 0:
+<i>625</i>             group_width = group_width * 2
+<i>626</i>     for group_start in pl.range(worker * group_width, ranks, workers * group_width):
+<i>627</i>         group_end = group_start + group_width
+<i>628</i>         if ranks &lt; group_end:
+<i>629</i>             group_end = ranks
+<i>630</i>         for r in pl.range(group_start + tid, group_end, threads):
+<i>631</i>             for j in pl.range(epn):
+<i>632</i>                 etc[r, j] = -1
+<i>633</i>             replicas = 0
+<i>634</i>             acc = 0
+<i>635</i>             if r == me:
+<i>636</i>                 for j in pl.range(epn):
+<i>637</i>                     acc = acc + pl.simt.cast(rem[r * epn + j, r], pl.DT_INT64)
+<i>638</i>                     cu[j] = pl.simt.cast(acc, pl.DT_INT32)
+<i>639</i>             for e in pl.range(e_count):
+<i>640</i>                 jrep[r, e] = pl.simt.cast(replicas, pl.DT_INT32)
+<i>641</i>                 if order[e, r] &gt;= 2:
+<i>642</i>                     if replicas &lt; epn:
+<i>643</i>                         etc[r, replicas] = pl.simt.cast(e, pl.DT_INT32)
+<i>644</i>                         if r == me:
+<i>645</i>                             acc = acc + pl.simt.cast(rem[e, r], pl.DT_INT64)
+<i>646</i>                             cu[epn + replicas] = pl.simt.cast(acc, pl.DT_INT32)
+<i>647</i>                     replicas = replicas + 1
+<i>648</i>             if r == me:
+<i>649</i>                 for j in pl.range(replicas, epn):
+<i>650</i>                     cu[epn + j] = pl.simt.cast(acc, pl.DT_INT32)
+<i>651</i>     pl.simt.threadfence()
+<i>652</i>
+<i>653</i>
+<i>654</i> @pl.vector_function(mode=&quot;simt&quot;, max_threads=128)
+<i>655</i> def _assign_fixed_partition(topk, fixed, out, worker, workers):
+<i>656</i>     tid = pl.simt.linear_thread_idx()
+<i>657</i>     threads = pl.simt.block_dim().x
+<i>658</i>     for i in pl.range(worker*threads+tid,topk.shape[0],workers*threads):
+<i>659</i>         e = pl.simt.cast(topk[i],pl.DT_INT64)
+<i>660</i>         out[i] = fixed[e]
+<i>661</i>     pl.simt.threadfence()</pre></details><h2 id="s14">14　同步与回退：哪些结论只适用于这个例子</h2><div class="scroll"><table><tr><th>路径</th><th>显式卡内 AIV sync_all</th><th>实际分工</th></tr><tr><td>mode 0</td><td>1 次，263 行</td><td>AIV 0 发布；Assign 全 32 核。</td></tr><tr><td>mode 2</td><td>1 次，263 行</td><td>AIV 0 承担表行；Assign 全 32 核。</td></tr><tr><td>mode 1 提前 Count</td><td>2 次，263、308 行</td><td>Count 1～16；Greedy、Tables、Prefix 为 0；Assign 有效块为 0～15。</td></tr><tr><td>mode 1 延后 Count</td><td>3 次，263、300、308 行</td><td>确认 mode 后才由 0～15 数块，增加一次同步。</td></tr><tr><td>严格校验</td><td>2 次，263、276 行</td><td>检查范围、重复和直方图；通过状态决定能否继续规划。</td></tr></table></div><p>Window barrier 隔离窗口轮次；ready/wait 按来源确认到达；sync_all 做卡内全核交接；syncthreads 只作用于一个核内；MTE 事件约束流水，DSB 和 DCCI 分别涉及内存顺序与缓存维护。上表只统计显式 sync_all。</p><p>单 rank 不创建跨卡 Window；local kernel 用自己的 tpe 填 dem。未命中小网络 scalar 专化时，工作集≤98304 B 走原 UB 单线程 SIMT Greedy，超过该值有 GM 后备路径。其他规格的 Assign 可能走通用 _assign_partition。</p><details><summary>moonep_plan_latest_pro.py · 第 249–282 行 · 查看源码</summary><pre><i>249</i>                 else:
+<i>250</i>                     _stage_zero_ub[1](dem,ub_rem,ub_order,ub_loads,errors,hist_error,overflow,flat.shape[0],strict_mode)
+<i>251</i>             _publish_greedy[64](ub_rem,ub_order,ub_loads,rem,order,loads,etc,cu,fixed,overflow,me,bi,strict_mode)
+<i>252</i>         else:
+<i>253</i>             if bi == 0:
+<i>254</i>                 _stage_zero_legacy_mode[1](dem,flat,rem,order,loads,errors,hist_error,overflow,etc,cu,fixed,me,topk.shape[1],strict_mode)
+<i>255</i>         if strict_mode != 0:
+<i>256</i>             _validate_tokens[64](flat,validation,topk.shape[1],dem.shape[1],bi,workers)
+<i>257</i>             _count_partition[64](flat,counts,out,zero,bi,workers,dem.shape[1])
+<i>258</i>         pl.system.sync_src(set_pipe=pl.PipeType.V,wait_pipe=pl.PipeType.S,event_id=5)
+<i>259</i>         pl.system.sync_dst(set_pipe=pl.PipeType.V,wait_pipe=pl.PipeType.S,event_id=5)
+<i>260</i>         pl.system.dsb(scope=pl.MemDsb.DDR)
+<i>261</i>         # SYNCALL orders cores; explicit clean/invalidate handles scalar cache.
+<i>262</i>         pl.system.dcci(errors)
+<i>263</i>         pl.system.sync_all(core_type=pl.SyncCoreType.AIV_ONLY)
+<i>264</i>         pl.system.dcci(errors)
+<i>265</i>         assign_threads = 1 if dem.shape[1] == 16 and flat.shape[0] &lt;= 4096 else 16 if dem.shape[1] == 112 else (32 if dem.shape[1] &lt;= 128 else (16 if dem.shape[1] &lt;= 256 else (8 if dem.shape[1] &lt;= 512 else 4)))
+<i>266</i>         scratch=pl.make_tile(pl.TileType(shape=[assign_threads*dem.shape[1],8],dtype=pl.DT_INT32,target_memory=pl.MemorySpace.Vec),addr=0)
+<i>267</i>         if strict_mode != 0:
+<i>268</i>             _check_counts[64](dem,counts,hist_error,me,bi,validation,errors)
+<i>269</i>             if errors[0] == 0:
+<i>270</i>                 _tables_partition[4](rem,order,jrep,etc,cu,overflow,me,bi,workers)
+<i>271</i>                 _prefix_partition[64](dem,counts,rem,order,pcnt,dpre,fixed,ord_rank,ord_end,me,bi,workers)
+<i>272</i>             pl.system.sync_src(set_pipe=pl.PipeType.V,wait_pipe=pl.PipeType.S,event_id=6)
+<i>273</i>             pl.system.sync_dst(set_pipe=pl.PipeType.V,wait_pipe=pl.PipeType.S,event_id=6)
+<i>274</i>             pl.system.dsb(scope=pl.MemDsb.DDR)
+<i>275</i>             pl.system.dcci(errors)
+<i>276</i>             pl.system.sync_all(core_type=pl.SyncCoreType.AIV_ONLY)
+<i>277</i>             pl.system.dcci(errors)
+<i>278</i>             if hist_error[0] == 0:
+<i>279</i>                 if errors[0] == 0:
+<i>280</i>                     _assign_partition[assign_threads](flat,pcnt,dpre,fixed,ord_rank,ord_end,jrep,scratch,state,out,bi,workers)
+<i>281</i>             else:
+<i>282</i>                 if bi == 0:</pre></details><details><summary>moonep_plan_stages_pro.py · 第 279–339 行 · 查看源码</summary><pre><i>279</i> def _validate_tokens(topk, validation, k, experts, worker, workers):
+<i>280</i>     tid = pl.simt.linear_thread_idx()
+<i>281</i>     threads = pl.simt.block_dim().x
+<i>282</i>     tokens = topk.shape[0] // k
+<i>283</i>     # AIVs own whole 512-byte lines; lanes validate independent tokens.
+<i>284</i>     for group in pl.range(worker * 128, tokens, workers * 128):
+<i>285</i>         for offset in pl.range(tid, 128, threads):
+<i>286</i>             token = group + offset
+<i>287</i>             if token &lt; tokens:
+<i>288</i>                 bad = 0
+<i>289</i>                 for a in pl.range(k):
+<i>290</i>                     expert = pl.simt.cast(topk[token*k+a], pl.DT_INT64)
+<i>291</i>                     if expert &lt; 0 or expert &gt;= experts:
+<i>292</i>                         bad = 2
+<i>293</i>                 for a in pl.range(k):
+<i>294</i>                     for b in pl.range(a+1,k):
+<i>295</i>                         if topk[token*k+a] == topk[token*k+b]:
+<i>296</i>                             bad = 3
+<i>297</i>                 validation[token] = pl.simt.cast(bad, pl.DT_INT32)
+<i>298</i>     pl.simt.threadfence()
+<i>299</i>
+<i>300</i> @pl.vector_function(mode=&quot;simt&quot;, max_threads=64)
+<i>301</i> def _check_counts(dem, counts, hist_error, me, worker, validation, errors):
+<i>302</i>     tid = pl.simt.linear_thread_idx()
+<i>303</i>     threads = pl.simt.block_dim().x
+<i>304</i>     if worker == 0:
+<i>305</i>         if tid == 0:
+<i>306</i>             hist_error[0] = 0
+<i>307</i>         pl.simt.threadfence()
+<i>308</i>         pl.simt.syncthreads()
+<i>309</i>         # Each lane checks a disjoint strided portion. Valid inputs issue no
+<i>310</i>         # error atomic; invalid flags are combined coherently across lanes.
+<i>311</i>         invalid = 0
+<i>312</i>         for token in pl.range(tid,validation.shape[0],threads):
+<i>313</i>             flag = pl.simt.cast(validation[token], pl.DT_INT64)
+<i>314</i>             if flag &gt; invalid:
+<i>315</i>                 invalid = flag
+<i>316</i>         if invalid &gt; 0:
+<i>317</i>             pl.simt.atomic_max(hist_error[0],pl.simt.cast(invalid,pl.DT_INT32))
+<i>318</i>         pl.simt.threadfence()
+<i>319</i>         pl.simt.syncthreads()
+<i>320</i>         if tid == 0:
+<i>321</i>             invalid_total = pl.simt.atomic_add(hist_error[0],pl.simt.cast(0,pl.DT_INT32))
+<i>322</i>             if invalid_total &gt; 0:
+<i>323</i>                 errors[0] = invalid_total
+<i>324</i>             hist_error[0] = 0
+<i>325</i>         pl.simt.threadfence()
+<i>326</i>         pl.simt.syncthreads()
+<i>327</i>         bad = 0
+<i>328</i>         for e in pl.range(tid,dem.shape[1],threads):
+<i>329</i>             total = 0
+<i>330</i>             for c in pl.range(counts.shape[0]):
+<i>331</i>                 total = total + pl.simt.cast(counts[c,e],pl.DT_INT64)
+<i>332</i>             if total != pl.simt.cast(dem[me,e],pl.DT_INT64):
+<i>333</i>                 bad = 1
+<i>334</i>         if bad &gt; 0:
+<i>335</i>             pl.simt.atomic_add(hist_error[0],pl.simt.cast(1,pl.DT_INT32))
+<i>336</i>         pl.simt.threadfence()
+<i>337</i>         pl.simt.syncthreads()
+<i>338</i>     pl.simt.threadfence()
+<i>339</i> </pre></details><details><summary>moonep_plan_local_latest_pro.py · 第 56–84 行 · 查看源码</summary><pre><i>56</i>         if strict_mode == 0:
+<i>57</i>             if epoch == 1:
+<i>58</i>                 _zero_partition[128](zero,bi,workers)
+<i>59</i>         # Single-rank path: device SIMT copies its own histogram; no Window.
+<i>60</i>         if bi == 0:
+<i>61</i>             _pad_tpe[1](tpe,padded_tpe)
+<i>62</i>             _unpad_dem[1](padded_tpe,dem)
+<i>63</i>
+<i>64</i>         # Bounded UB working set; large R/E falls back to the existing GM path.
+<i>65</i>         padded_ranks = ((dem.shape[0]+7)//8)*8
+<i>66</i>         greedy_bytes = dem.shape[1]*padded_ranks*8 + padded_ranks*4
+<i>67</i>         ub_cols = padded_ranks if greedy_bytes &lt;= 98304 else 8
+<i>68</i>         ub_rows = dem.shape[1] if greedy_bytes &lt;= 98304 else 1
+<i>69</i>         if greedy_bytes &lt;= 98304:
+<i>70</i>             ub_rem=pl.make_tile(pl.TileType(shape=[ub_rows,ub_cols],dtype=pl.DT_INT32,target_memory=pl.MemorySpace.Vec),addr=0)
+<i>71</i>             ub_order=pl.make_tile(pl.TileType(shape=[ub_rows,ub_cols],dtype=pl.DT_INT32,target_memory=pl.MemorySpace.Vec),addr=ub_rows*ub_cols*4)
+<i>72</i>             ub_loads=pl.make_tile(pl.TileType(shape=[1,ub_cols],dtype=pl.DT_INT32,target_memory=pl.MemorySpace.Vec),addr=ub_rows*ub_cols*8)
+<i>73</i>             if bi == 0:
+<i>74</i>                 _stage_zero_ub[1](dem,ub_rem,ub_order,ub_loads,errors,hist_error,overflow,flat.shape[0],strict_mode)
+<i>75</i>             _publish_greedy[64](ub_rem,ub_order,ub_loads,rem,order,loads,etc,cu,fixed,overflow,me,bi,strict_mode)
+<i>76</i>         else:
+<i>77</i>             if bi == 0:
+<i>78</i>                 _stage_zero_legacy_mode[1](dem,flat,rem,order,loads,errors,hist_error,overflow,etc,cu,fixed,me,topk.shape[1],strict_mode)
+<i>79</i>         if strict_mode != 0:
+<i>80</i>             _validate_tokens[64](flat,validation,topk.shape[1],dem.shape[1],bi,workers)
+<i>81</i>             _count_partition[64](flat,counts,out,zero,bi,workers,dem.shape[1])
+<i>82</i>         pl.system.sync_src(set_pipe=pl.PipeType.V,wait_pipe=pl.PipeType.S,event_id=5)
+<i>83</i>         pl.system.sync_dst(set_pipe=pl.PipeType.V,wait_pipe=pl.PipeType.S,event_id=5)
+<i>84</i>         pl.system.dsb(scope=pl.MemDsb.DDR)</pre></details><details><summary>moonep_plan_stages_pro.py · 第 153–199 行 · 查看源码</summary><pre><i>153</i> @pl.vector_function(mode=&quot;simt&quot;, max_threads=32)
+<i>154</i> def _assign_partition(topk, pcnt, dpre, fixed, ord_rank, ord_end, jrep, scratch, state, out, worker, workers):
+<i>155</i>     tid = pl.simt.linear_thread_idx()
+<i>156</i>     threads = pl.simt.block_dim().x
+<i>157</i>     n = topk.shape[0]
+<i>158</i>     e_count = fixed.shape[0]
+<i>159</i>     ranks = jrep.shape[0]
+<i>160</i>     epn = e_count // ranks
+<i>161</i>     chunks = pcnt.shape[1]
+<i>162</i>     start = worker * threads + tid
+<i>163</i>     stride = workers * threads
+<i>164</i>     for c in pl.range(start, chunks, stride):
+<i>165</i>         for e in pl.range(e_count):
+<i>166</i>             if fixed[e] &lt; 0:
+<i>167</i>                 a = pl.simt.cast(dpre[e], pl.DT_INT64)
+<i>168</i>                 b = pl.simt.cast(pcnt[e, c], pl.DT_INT64)
+<i>169</i>                 scratch[tid * e_count + e, 0] = pl.simt.cast(a + b, pl.DT_INT32)
+<i>170</i>                 scratch[tid * e_count + e, 1] = 0
+<i>171</i>                 scratch[tid * e_count + e, 2] = -1
+<i>172</i>         end = (c + 1) * 256
+<i>173</i>         if n &lt; end:
+<i>174</i>             end = n
+<i>175</i>         for i in pl.range(c * 256, end):
+<i>176</i>             e = pl.simt.cast(topk[i], pl.DT_INT64)
+<i>177</i>             vid = pl.simt.cast(fixed[e], pl.DT_INT64)
+<i>178</i>             if vid &lt; 0:
+<i>179</i>                 pos = pl.simt.cast(scratch[tid * e_count + e, 0], pl.DT_INT64)
+<i>180</i>                 if pos &gt;= scratch[tid * e_count + e, 1]:
+<i>181</i>                     dst = -1
+<i>182</i>                     seg = 0
+<i>183</i>                     for o in pl.range(ranks + 1):
+<i>184</i>                         if dst &lt; 0:
+<i>185</i>                             if pos &lt; ord_end[e, o]:
+<i>186</i>                                 dst = pl.simt.cast(ord_rank[e, o], pl.DT_INT64)
+<i>187</i>                                 seg = o
+<i>188</i>                     slot = e % epn
+<i>189</i>                     if seg &gt; 0:
+<i>190</i>                         slot = epn + pl.simt.cast(jrep[dst, e], pl.DT_INT64)
+<i>191</i>                     scratch[tid * e_count + e, 1] = ord_end[e, seg]
+<i>192</i>                     scratch[tid * e_count + e, 2] = pl.simt.cast(dst * (2 * epn) + slot, pl.DT_INT32)
+<i>193</i>                 vid = pl.simt.cast(scratch[tid * e_count + e, 2], pl.DT_INT64)
+<i>194</i>                 scratch[tid * e_count + e, 0] = pl.simt.cast(pos + 1, pl.DT_INT32)
+<i>195</i>             out[i] = pl.simt.cast(vid, pl.DT_INT32)
+<i>196</i>         # `state` is a legacy diagnostic workspace; no algorithm reads it.
+<i>197</i>         # Keep the launch ABI stable while avoiding the unused GM mirror.
+<i>198</i>     pl.simt.threadfence()
+<i>199</i> </pre></details><h2 id="s15">15　如何核对本文的数字</h2><p>输入来自 agent-team-20261116/small-balanced-audit/inputs.json 的 balanced 项。按 rank、token、K 槽排列成小端 int32，SHA-256 为 26580d67352cc105553197cd3f7a5cb153a9f643070567ee36b8e29592968710。</p><p>本次用固定提交的 tests/assets/moonep_plan_golden_latest_cpu.py 独立枚举任务与配额，逐条将 VID 解码还原原专家，按目的槽重新统计再核对 cu。文中中间量来自保存输入与源码重放；没有重新运行 NPU 或采集设备中间表。此前同规格四卡实验见 skill 仓库 pipeline_json/2026-11-26/greedy_ab.html。</p></main></html>
