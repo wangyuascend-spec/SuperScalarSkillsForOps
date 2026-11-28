@@ -1,0 +1,135 @@
+{
+  "metrics": {
+    "balanced": {
+      "pro": {
+        "wall": 601.908,
+        "host": 735.2935,
+        "event": 619.6374893188477
+      },
+      "dsl": {
+        "wall": 546.216,
+        "host": 473.42949999999996,
+        "event": 491.7679876089096
+      }
+    },
+    "skewed": {
+      "pro": {
+        "wall": 656.298,
+        "host": 350.7695,
+        "event": 673.768013715744
+      },
+      "dsl": {
+        "wall": 560.367,
+        "host": 615.002,
+        "event": 480.7084947824478
+      }
+    }
+  },
+  "routing": {
+    "balanced": {
+      "active": 112,
+      "remote_experts": 3,
+      "split_experts": [
+        21,
+        99,
+        100
+      ],
+      "migrated_experts": [],
+      "home_loads_before": [
+        131422,
+        130530,
+        131034,
+        131302
+      ],
+      "ranks": [
+        {
+          "remote_expert_routes": 3699,
+          "split_routes": 3699,
+          "mixed_vid_routes": 0,
+          "sha": "753b0951d07e89dce06ac0474defa57cae1ef94704b26551a146fa76ab55ab35"
+        },
+        {
+          "remote_expert_routes": 3565,
+          "split_routes": 3565,
+          "mixed_vid_routes": 0,
+          "sha": "659a2a2cf661d7b8dc4839150126605998439d6d1a84e10fcf95d98366e28dab"
+        },
+        {
+          "remote_expert_routes": 3604,
+          "split_routes": 3604,
+          "mixed_vid_routes": 10,
+          "sha": "671193d748ddb99255c1e4e1b35d7eabecc72b2a328157cbcc21d3aa43f51416"
+        },
+        {
+          "remote_expert_routes": 3574,
+          "split_routes": 3574,
+          "mixed_vid_routes": 8,
+          "sha": "c6ddfa2488d220c822dbccc987bb2ea26ce72653ce1e33dd84598cf6c11460c6"
+        }
+      ]
+    },
+    "skewed": {
+      "active": 28,
+      "remote_experts": 22,
+      "split_experts": [
+        2,
+        3,
+        20
+      ],
+      "migrated_experts": [
+        0,
+        1,
+        5,
+        6,
+        7,
+        8,
+        9,
+        11,
+        12,
+        13,
+        14,
+        15,
+        17,
+        18,
+        21,
+        24,
+        25,
+        26,
+        27
+      ],
+      "home_loads_before": [
+        524288,
+        0,
+        0,
+        0
+      ],
+      "ranks": [
+        {
+          "remote_expert_routes": 103256,
+          "split_routes": 14069,
+          "mixed_vid_routes": 67,
+          "sha": "9a99d70cc0bb97adab61379b4dc215987ceae6ce1681fcf2883b8f9279f43449"
+        },
+        {
+          "remote_expert_routes": 103198,
+          "split_routes": 14052,
+          "mixed_vid_routes": 0,
+          "sha": "5fd2bcfa246a10ee34d523941bd907874454d7f4cef089d0c49b36b3e136061d"
+        },
+        {
+          "remote_expert_routes": 103060,
+          "split_routes": 14003,
+          "mixed_vid_routes": 41,
+          "sha": "23d5ac81da20fef24d2732a7df6e6cbcb59fad833689849934d3b4d189abc710"
+        },
+        {
+          "remote_expert_routes": 103074,
+          "split_routes": 14070,
+          "mixed_vid_routes": 0,
+          "sha": "b8619afcc84df7b5fbf67137009b7bc23d13977503ffe7b1f8497bbdbd551ae3"
+        }
+      ]
+    }
+  },
+  "device": null
+}
